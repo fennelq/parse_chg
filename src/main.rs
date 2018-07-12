@@ -1,12 +1,14 @@
 #[macro_use]
 extern crate nom;
+#[macro_use]
+extern crate arrayref;
 extern crate byteorder;
 
 use std::io::prelude::*;
 use std::fs::File;
 use std::error::Error;
 use std::path::Path;
-use nom::{le_u8, le_u64};
+use nom::{le_u64};
 use std::vec::Vec;
 //use std::str;
 //use byteorder::{LittleEndian, WriteBytesExt};
@@ -22,63 +24,49 @@ struct BarpbresFe {
 }
 #[derive(Debug)]
 struct BkngwlBnw {
-    b1: u8,
-    b2: u8,
+    flag_line: [u8; 2],
     offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct BoknagrBkn {
-    b1: u8,
+    flag_line: [u8; 1],
     offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct CoeffsRsu {
-    b1: u8,
-    b2: u8,
+    flag_line: [u8; 2],
     offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ElemsFe {
-    b1: u8,
-    b2: u8,
-    b3: u8,
-    b4: u8,
+    flag_line: [u8; 4],
     offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ElemsresFe {
-    b1: u8,
+    flag_line: [u8; 1],
     offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ElsssFe {
-    b1: u8,
-    b2: u8,
-    b3: u8,
-    b4: u8,
+    flag_line: [u8; 4],
     offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct EtnamesEt {
-    b1: u8,
-    b2: u8,
+    flag_line: [u8; 2],
     offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct Expert {
-    b1: u8,
-    b2: u8,
-    b3: u8,
-    b4: u8,
-    b5: u8,
-    b6: u8,
+    flag_line: [u8; 6],
     offset: u64,
     source: Vec<u8>
 }
@@ -107,21 +95,18 @@ named!(read_bkngwl_bnw<&[u8], BkngwlBnw>,
     alt!(
         do_parse!(                          //Have bkngwl.bnw signature
             tag!("bkngwl.bnw")              >>
-            b1: le_u8                       >>
-            b2: le_u8                       >>
+            flag_line: take!(2)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (BkngwlBnw {
-                b1: b1,
-                b2: b2,
+                flag_line: *array_ref!(flag_line, 0 ,2),
                 offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (BkngwlBnw {
-                b1: 0u8,
-                b2: 0u8,
+                flag_line: [0; 2],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -149,18 +134,18 @@ named!(read_boknagr_bkn<&[u8], BoknagrBkn>,
         do_parse!(                          //Have boknagr.bkn signature
             tag!("boknagr.bkn")             >>
             take!(1)                        >>
-            b1: le_u8                       >>
+            flag_line: take!(1)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (BoknagrBkn {
-                b1: b1,
+                flag_line: *array_ref!(flag_line, 0 ,1),
                 offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (BoknagrBkn {
-                b1: 0u8,
+                flag_line: [0; 1],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -172,21 +157,18 @@ named!(read_coeffs_rsu<&[u8], CoeffsRsu>,
         do_parse!(                          //Have coeffs.rsu signature
             tag!("coeffs.rsu")              >>
             take!(1)                        >>
-            b1: le_u8                       >>
-            b2: le_u8                       >>
+            flag_line: take!(2)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (CoeffsRsu {
-                b1: b1,
-                b2: b2,
+                flag_line: *array_ref!(flag_line, 0 ,2),
                 offset: offset,
                 source: source.to_vec()     //TODO read coeffs.rsu source
             })
         )                                   |
         do_parse!(                          //Clear structure
             (CoeffsRsu {
-                b1: 0u8,
-                b2: 0u8,
+                flag_line: [0; 2],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -198,27 +180,18 @@ named!(read_elems_fe<&[u8], ElemsFe>,
         do_parse!(                          //Have elems.fe signature
             tag!("elems.fe")                >>
             take!(1)                        >>
-            b1: le_u8                       >>
-            b2: le_u8                       >>
-            b3: le_u8                       >>
-            b4: le_u8                       >>
+            flag_line: take!(4)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (ElemsFe {
-                b1: b1,
-                b2: b2,
-                b3: b3,
-                b4: b4,
+                flag_line: *array_ref!(flag_line, 0 ,4),
                 offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ElemsFe {
-                b1: 0u8,
-                b2: 0u8,
-                b3: 0u8,
-                b4: 0u8,
+                flag_line: [0; 4],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -230,18 +203,18 @@ named!(read_elemsres_fe<&[u8], ElemsresFe>,
         do_parse!(                          //Have elemsres.fe signature
             tag!("elemsres.fe")             >>
             take!(1)                        >>
-            b1: le_u8                       >>
+            flag_line: take!(1)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (ElemsresFe {
-                b1: b1,
+                flag_line: *array_ref!(flag_line, 0 ,1),
                 offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ElemsresFe {
-                b1: 0u8,
+                flag_line: [0; 1],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -253,27 +226,18 @@ named!(read_elsss_fe<&[u8], ElsssFe>,
         do_parse!(                          //Have elsss.fe signature
             tag!("elsss.fe")                >>
             take!(1)                        >>
-            b1: le_u8                       >>
-            b2: le_u8                       >>
-            b3: le_u8                       >>
-            b4: le_u8                       >>
+            flag_line: take!(4)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (ElsssFe {
-                b1: b1,
-                b2: b2,
-                b3: b3,
-                b4: b4,
+                flag_line: *array_ref!(flag_line, 0 ,4),
                 offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ElsssFe {
-                b1: 0u8,
-                b2: 0u8,
-                b3: 0u8,
-                b4: 0u8,
+                flag_line: [0; 4],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -285,21 +249,18 @@ named!(read_etnames_et<&[u8], EtnamesEt>,
         do_parse!(                          //Have etnames.et signature
             tag!("etnames.et")              >>
             take!(1)                        >>
-            b1: le_u8                       >>
-            b2: le_u8                       >>
+            flag_line: take!(2)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (EtnamesEt {
-                b1: b1,
-                b2: b2,
+                flag_line: *array_ref!(flag_line, 0 ,2),
                 offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (EtnamesEt {
-                b1: 0u8,
-                b2: 0u8,
+                flag_line: [0; 2],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -311,25 +272,18 @@ named!(read_expert<&[u8], Expert>,
         do_parse!(                          //Have expert signature
             tag!("expert")                  >>
             take!(1)                        >>
-            b1: le_u8                       >>
-            b2: le_u8                       >>
-            b3: le_u8                       >>
-            b4: le_u8                       >>
-            b5: le_u8                       >>
-            b6: le_u8                       >>
+            flag_line: take!(6)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
             (Expert {
-                b1: b1, b2: b2, b3: b3,
-                b4: b4, b5: b5, b6: b6,
+                flag_line: *array_ref!(flag_line, 0 ,6),
                 offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (Expert {
-                b1: 0u8, b2: 0u8, b3: 0u8,
-                b4: 0u8, b5: 0u8, b6: 0u8,
+                flag_line: [0; 6],
                 offset: 0,
                 source: [].to_vec()
             })

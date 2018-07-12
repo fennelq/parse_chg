@@ -6,3 +6,4 @@ authors = ["Root"]
 [dependencies]
 nom = "^4.0"
 byteorder = "*"
+arrayref = "0.3.4"
