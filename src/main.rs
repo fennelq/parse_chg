@@ -13,6 +13,7 @@ use std::error::Error;
 use std::path::Path;
 use nom::{le_u64};
 use std::vec::Vec;
+//use std::fmt;
 //use std::str;
 //use byteorder::{LittleEndian, WriteBytesExt};
 
@@ -1203,6 +1204,23 @@ fn main() {
                            why.description()),
         Ok(_) => println!("{} read successful", display),
     };
-    println!("{:?}", read_original(&original_in));
-//    println!("{:?}", original_in);
+
+    let test_building = match read_original(&original_in) {
+        Err(_) => panic!("ERROR!!!"),
+        Ok(test_building) => test_building
+    };
+    println!("{:?}", test_building.0);
+    let path = Path::new("out.chg");
+    let display = path.display();
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}: {}", display,
+                           why.description()),
+        Ok(file) => file,
+    };
+    match file.write_all(&test_building.0) {
+        Err(why) => panic!("couldn't write to {}: {}", display,
+                           why.description()),
+        Ok(_) => println!("successfully wrote to {}", display),
+    };
+
 }
