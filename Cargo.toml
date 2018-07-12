@@ -1,0 +1,8 @@
+[package]
+name = "parse_chg"
+version = "0.1.0"
+authors = ["Root"]
+
+[dependencies]
+nom = "^4.0"
+byteorder = "*"
