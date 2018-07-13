@@ -39,6 +39,12 @@ struct BoknagrBkn {
     source: Vec<u8>
 }
 #[derive(Debug)]
+struct ClmnUni {
+    flag_line: [u8; 4],
+    offset: u64,
+    source: Vec<u8>
+}
+#[derive(Debug)]
 struct CoeffsRsu {
     flag_line: [u8; 2],
     offset: u64,
@@ -223,6 +229,11 @@ struct VnumFe {
     source: Vec<u8>
 }
 #[derive(Debug)]
+struct WallascnUni {
+    offset: u64,
+    source: Vec<u8>
+}
+#[derive(Debug)]
 struct WindRsp {
     flag_line: [u8; 4],
     offset: u64,
@@ -248,6 +259,7 @@ struct Building {
     barpbres_fe: BarpbresFe,
     bkngwl_bnw: BkngwlBnw,
     boknagr_bkn: BoknagrBkn,
+    clmn_uni: ClmnUni,
     coeffs_rsu: CoeffsRsu,
     elems_fe: ElemsFe,
     elemsres_fe: ElemsresFe,
@@ -278,6 +290,7 @@ struct Building {
     slits_slt: SlitsSlt,
     szinfo_szi: SzinfoSzi,
     vnum_fe: VnumFe,
+    wallascn_uni: WallascnUni,
     wind_rsp: WindRsp,
     zagrcmbs_zc: ZagrcmbsZc,
     zagrs_fe: ZagrsFe
@@ -344,6 +357,29 @@ named!(read_boknagr_bkn<&[u8], BoknagrBkn>,
         do_parse!(                          //Clear structure
             (BoknagrBkn {
                 flag_line: [0; 1],
+                offset: 0,
+                source: [].to_vec()
+            })
+        )
+    )
+);
+named!(read_clmn_uni<&[u8], ClmnUni>,
+    alt!(
+        complete!(do_parse!(                //Have clmn.uni signature
+            tag!("clmn.uni")                >>
+            take!(1)                        >>
+            flag_line: take!(4)             >>
+            offset: le_u64                  >>
+            source: take!(offset)           >>
+            (ClmnUni {
+                flag_line: *array_ref!(flag_line, 0 ,4),
+                offset: offset,
+                source: source.to_vec()
+            })
+        ))                                  |
+        do_parse!(                          //Clear structure
+            (ClmnUni {
+                flag_line: [0; 4],
                 offset: 0,
                 source: [].to_vec()
             })
@@ -878,7 +914,7 @@ named!(read_reper_pos<&[u8], ReperPos>,
 named!(read_rigbodys_fe<&[u8], RigbodysFe>,
     alt!(
         complete!(do_parse!(                //Have rigbodys.fe signature
-            tag!("rigbodys.fes")            >>
+            tag!("rigbodys.fe")            >>
             take!(1)                        >>
             flag_line: take!(1)             >>
             offset: le_u64                  >>
@@ -1036,6 +1072,26 @@ named!(read_vnum_fe<&[u8], VnumFe>,
         )
     )
 );
+named!(read_wallascn_uni<&[u8], WallascnUni>,
+    alt!(
+        complete!(do_parse!(                //Have wallascn.uni signature
+            tag!("wallascn.uni")            >>
+            take!(1)                        >>
+            offset: le_u64                  >>
+            source: take!(offset)           >>
+            (WallascnUni {
+                offset: offset,
+                source: source.to_vec()
+})
+        ))                                 |
+        do_parse!(                          //Clear structure
+            (WallascnUni {
+                offset: 0,
+                source: [].to_vec()
+            })
+        )
+    )
+);
 named!(read_wind_rsp<&[u8], WindRsp>,
     alt!(
         complete!(do_parse!(                //Have wind.rsp signature
@@ -1113,6 +1169,7 @@ named!(read_original<&[u8], Building>,
         barpbres_fe: read_barpbres_fe       >>
         bkngwl_bnw: read_bkngwl_bnw         >>
         boknagr_bkn: read_boknagr_bkn       >>
+        clmn_uni: read_clmn_uni             >>
         coeffs_rsu: read_coeffs_rsu         >>
         elems_fe: read_elems_fe             >>
         elemsres_fe: read_elemsres_fe       >>
@@ -1143,6 +1200,7 @@ named!(read_original<&[u8], Building>,
         slits_slt: read_slits_slt           >>
         szinfo_szi: read_szinfo_szi         >>
         vnum_fe: read_vnum_fe               >>
+        wallascn_uni: read_wallascn_uni     >>
         wind_rsp: read_wind_rsp             >>
         zagrcmbs_zc: read_zagrcmbs_zc       >>
         zagrs_fe: read_zagrs_fe             >>
@@ -1151,6 +1209,7 @@ named!(read_original<&[u8], Building>,
             barpbres_fe: barpbres_fe,
             bkngwl_bnw: bkngwl_bnw,
             boknagr_bkn: boknagr_bkn,
+            clmn_uni: clmn_uni,
             coeffs_rsu: coeffs_rsu,
             elems_fe: elems_fe,
             elemsres_fe: elemsres_fe,
@@ -1181,6 +1240,7 @@ named!(read_original<&[u8], Building>,
             slits_slt: slits_slt,
             szinfo_szi: szinfo_szi,
             vnum_fe: vnum_fe,
+            wallascn_uni: wallascn_uni,
             wind_rsp: wind_rsp,
             zagrcmbs_zc: zagrcmbs_zc,
             zagrs_fe: zagrs_fe
@@ -1189,7 +1249,7 @@ named!(read_original<&[u8], Building>,
 );
 fn main() {
 
-    let path = Path::new("hello.chg");
+    let path = Path::new("Hello.chg");
     let display = path.display();
     // Open the path in read-only mode
     let mut file = match File::open(&path) {
@@ -1206,12 +1266,13 @@ fn main() {
     };
 
     let test_building = match read_original(&original_in) {
-        Err(_) => panic!("ERROR!!!"),
+        Err(why) => panic!("ERROR!!! {}", why),
         Ok(test_building) => test_building
     };
     println!("{:?}", test_building.0);
     let path = Path::new("out.chg");
     let display = path.display();
+
     let mut file = match File::create(&path) {
         Err(why) => panic!("couldn't create {}: {}", display,
                            why.description()),
