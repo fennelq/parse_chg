@@ -798,25 +798,42 @@ named!(read_rab_a0<&[u8], RabA0>,
     )
 );
 named!(read_rab_e<&[u8], RabE>,
-    do_parse!(
-        etazh_vec: many1!(
-            do_parse!(
-                tag!("rab.e")               >>
-                num_line: take!(2)          >>
-                flag_line: take!(6)         >>
-                offset: le_u64              >>
-                source: take!(offset)       >>
-                (Etazh {
-                    num_line: *array_ref!(num_line, 0 ,2),
-                    flag_line: *array_ref!(flag_line, 0 ,6),
-                    offset: offset,
-                    source: source.to_vec(),
-                })
-            )
-        )                                   >>
-        (RabE {
-            etazh_vec: etazh_vec
-        })
+    alt!(
+        complete!(do_parse!(
+            etazh_vec: many1!(
+                do_parse!(
+                    tag!("rab.e")           >>
+                    num_line: take!(2)      >>
+                    flag_line: take!(6)     >>
+                    offset: le_u64          >>
+                    source: take!(offset)   >>
+                    (Etazh {
+                        num_line: *array_ref!(num_line, 0 ,2),
+                        flag_line: *array_ref!(flag_line, 0 ,6),
+                        offset: offset,
+                        source: source.to_vec(),
+                    })
+                )
+            )                               >>
+            (RabE {
+                etazh_vec: etazh_vec
+            })
+        ))                                  |
+        do_parse!(
+            etazh_vec: count!(
+                do_parse!(
+                    (Etazh {
+                        num_line: [0; 2],
+                        flag_line: [0; 6],
+                        offset: 0,
+                        source: [].to_vec(),
+                    })
+                )
+            , 1)                            >>
+            (RabE {
+                etazh_vec: etazh_vec
+            })
+        )
     )
 );
 named!(read_rab_o0<&[u8], RabO0>,
@@ -1249,7 +1266,7 @@ named!(read_original<&[u8], Building>,
 );
 fn main() {
 
-    let path = Path::new("Hello.chg");
+    let path = Path::new("Предварительный_38_экспертиза_11.chg");
     let display = path.display();
     // Open the path in read-only mode
     let mut file = match File::open(&path) {
@@ -1269,7 +1286,7 @@ fn main() {
         Err(why) => panic!("ERROR!!! {}", why),
         Ok(test_building) => test_building
     };
-    println!("{:?}", test_building.0);
+//    println!("{:?}", test_building.0);
     let path = Path::new("out.chg");
     let display = path.display();
 
