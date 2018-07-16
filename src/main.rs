@@ -298,18 +298,19 @@ struct Building {
 }
 
 named!(read_file_type<&[u8], FileType>,
-    alt!(
-        complete!(map!(tag!("BUILDER011"),
-                 |_| FileType::BUILDER011)) |
-        complete!(map!(tag!("CHARGE 3.7"),
-                 |_| FileType::CHARGE37))   |
+    alt_complete!(
+        map!(tag!("BUILDER011"),
+                 |_| FileType::BUILDER011)  |
+        map!(tag!("CHARGE 3.7"),
+                 |_| FileType::CHARGE37)    |
         map!(tag!(""), |_| FileType::ERROR)
     )
 );
 named!(read_bkngwl_bnw<&[u8], BkngwlBnw>,
-    alt!(
-        complete!(do_parse!(                //Have bkngwl.bnw signature
+    alt_complete!(
+        do_parse!(                          //Have bkngwl.bnw signature
             tag!("bkngwl.bnw")              >>
+            take!(1)                        >>
             flag_line: take!(2)             >>
             offset: le_u64                  >>
             source: take!(offset)           >>
@@ -318,7 +319,7 @@ named!(read_bkngwl_bnw<&[u8], BkngwlBnw>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (BkngwlBnw {
                 flag_line: [0; 2],
@@ -329,14 +330,14 @@ named!(read_bkngwl_bnw<&[u8], BkngwlBnw>,
     )
 );
 named!(read_barpbres_fe<&[u8], BarpbresFe>,
-    alt!(
-        complete!(do_parse!(                //Have barpbres.fe signature
+    alt_complete!(
+        do_parse!(                          //Have barpbres.fe signature
             tag!("barpbres.fe")             >>
             source: take!(10)               >>
             (BarpbresFe {
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (BarpbresFe {
                 source: [].to_vec()
@@ -345,8 +346,8 @@ named!(read_barpbres_fe<&[u8], BarpbresFe>,
     )
 );
 named!(read_boknagr_bkn<&[u8], BoknagrBkn>,
-    alt!(
-        complete!(do_parse!(                //Have boknagr.bkn signature
+    alt_complete!(
+        do_parse!(                          //Have boknagr.bkn signature
             tag!("boknagr.bkn")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -357,7 +358,7 @@ named!(read_boknagr_bkn<&[u8], BoknagrBkn>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (BoknagrBkn {
                 flag_line: [0; 1],
@@ -368,8 +369,8 @@ named!(read_boknagr_bkn<&[u8], BoknagrBkn>,
     )
 );
 named!(read_clmn_uni<&[u8], ClmnUni>,
-    alt!(
-        complete!(do_parse!(                //Have clmn.uni signature
+    alt_complete!(
+        do_parse!(                          //Have clmn.uni signature
             tag!("clmn.uni")                >>
             take!(1)                        >>
             flag_line: take!(4)             >>
@@ -380,7 +381,7 @@ named!(read_clmn_uni<&[u8], ClmnUni>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (ClmnUni {
                 flag_line: [0; 4],
@@ -391,8 +392,8 @@ named!(read_clmn_uni<&[u8], ClmnUni>,
     )
 );
 named!(read_coeffs_rsu<&[u8], CoeffsRsu>,
-    alt!(
-        complete!(do_parse!(                //Have coeffs.rsu signature
+    alt_complete!(
+        do_parse!(                          //Have coeffs.rsu signature
             tag!("coeffs.rsu")              >>
             take!(1)                        >>
             flag_line: take!(2)             >>
@@ -403,7 +404,7 @@ named!(read_coeffs_rsu<&[u8], CoeffsRsu>,
                 offset: offset,
                 source: source.to_vec()     //TODO read coeffs.rsu source
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (CoeffsRsu {
                 flag_line: [0; 2],
@@ -414,8 +415,8 @@ named!(read_coeffs_rsu<&[u8], CoeffsRsu>,
     )
 );
 named!(read_elems_fe<&[u8], ElemsFe>,
-    alt!(
-        complete!(do_parse!(                //Have elems.fe signature
+    alt_complete!(
+        do_parse!(                          //Have elems.fe signature
             tag!("elems.fe")                >>
             take!(1)                        >>
             flag_line: take!(4)             >>
@@ -426,7 +427,7 @@ named!(read_elems_fe<&[u8], ElemsFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (ElemsFe {
                 flag_line: [0; 4],
@@ -437,8 +438,8 @@ named!(read_elems_fe<&[u8], ElemsFe>,
     )
 );
 named!(read_elemsres_fe<&[u8], ElemsresFe>,
-    alt!(
-        complete!(do_parse!(                //Have elemsres.fe signature
+    alt_complete!(
+        do_parse!(                          //Have elemsres.fe signature
             tag!("elemsres.fe")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -449,7 +450,7 @@ named!(read_elemsres_fe<&[u8], ElemsresFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (ElemsresFe {
                 flag_line: [0; 1],
@@ -460,8 +461,8 @@ named!(read_elemsres_fe<&[u8], ElemsresFe>,
     )
 );
 named!(read_elsss_fe<&[u8], ElsssFe>,
-    alt!(
-        complete!(do_parse!(                //Have elsss.fe signature
+    alt_complete!(
+        do_parse!(                          //Have elsss.fe signature
             tag!("elsss.fe")                >>
             take!(1)                        >>
             flag_line: take!(4)             >>
@@ -472,7 +473,7 @@ named!(read_elsss_fe<&[u8], ElsssFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (ElsssFe {
                 flag_line: [0; 4],
@@ -483,8 +484,8 @@ named!(read_elsss_fe<&[u8], ElsssFe>,
     )
 );
 named!(read_etnames_et<&[u8], EtnamesEt>,
-    alt!(
-        complete!(do_parse!(                //Have etnames.et signature
+    alt_complete!(
+        do_parse!(                          //Have etnames.et signature
             tag!("etnames.et")              >>
             take!(1)                        >>
             flag_line: take!(2)             >>
@@ -495,7 +496,7 @@ named!(read_etnames_et<&[u8], EtnamesEt>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (EtnamesEt {
                 flag_line: [0; 2],
@@ -506,8 +507,8 @@ named!(read_etnames_et<&[u8], EtnamesEt>,
     )
 );
 named!(read_expert<&[u8], Expert>,
-    alt!(
-        complete!(do_parse!(                //Have expert signature
+    alt_complete!(
+        do_parse!(                          //Have expert signature
             tag!("expert")                  >>
             take!(1)                        >>
             flag_line: take!(6)             >>
@@ -518,7 +519,7 @@ named!(read_expert<&[u8], Expert>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (Expert {
                 flag_line: [0; 6],
@@ -529,8 +530,8 @@ named!(read_expert<&[u8], Expert>,
     )
 );
 named!(read_head_fe<&[u8], HeadFe>,
-    alt!(
-        complete!(do_parse!(                //Have head.fe signature
+    alt_complete!(
+        do_parse!(                          //Have head.fe signature
             tag!("head.fe")                 >>
             take!(1)                        >>
             flag_line: take!(5)             >>
@@ -541,7 +542,7 @@ named!(read_head_fe<&[u8], HeadFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (HeadFe {
                 flag_line: [0; 5],
@@ -552,8 +553,8 @@ named!(read_head_fe<&[u8], HeadFe>,
     )
 );
 named!(read_isoar_fe<&[u8], IsoarFe>,
-    alt!(
-        complete!(do_parse!(                //Have isoar.fe signature
+    alt_complete!(
+        do_parse!(                          //Have isoar.fe signature
             tag!("isoar.fe")                >>
             take!(1)                        >>
             flag_line: take!(4)             >>
@@ -564,7 +565,7 @@ named!(read_isoar_fe<&[u8], IsoarFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (IsoarFe {
                 flag_line: [0; 4],
@@ -575,8 +576,8 @@ named!(read_isoar_fe<&[u8], IsoarFe>,
     )
 );
 named!(read_loadcomb_cds<&[u8], LoadcombCds>,
-    alt!(
-        complete!(do_parse!(                //Have loadcomb.cds signature
+    alt_complete!(
+        do_parse!(                          //Have loadcomb.cds signature
             tag!("loadcomb.cds")            >>
             take!(1)                        >>
             offset: le_u64                  >>
@@ -585,7 +586,7 @@ named!(read_loadcomb_cds<&[u8], LoadcombCds>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (LoadcombCds {
                 offset: 0,
@@ -595,8 +596,8 @@ named!(read_loadcomb_cds<&[u8], LoadcombCds>,
     )
 );
 named!(read_material_mt<&[u8], MaterialMt>,
-    alt!(
-        complete!(do_parse!(                //Have material.mt signature
+    alt_complete!(
+        do_parse!(                          //Have material.mt signature
             tag!("material.mt")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -607,7 +608,7 @@ named!(read_material_mt<&[u8], MaterialMt>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (MaterialMt {
                 flag_line: [0; 1],
@@ -618,8 +619,8 @@ named!(read_material_mt<&[u8], MaterialMt>,
     )
 );
 named!(read_ndunions_fe<&[u8], NdunionsFe>,
-    alt!(
-        complete!(do_parse!(                //Have ndunions.fe signature
+    alt_complete!(
+        do_parse!(                          //Have ndunions.fe signature
             tag!("ndunions.fe")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -630,7 +631,7 @@ named!(read_ndunions_fe<&[u8], NdunionsFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (NdunionsFe {
                 flag_line: [0; 1],
@@ -641,8 +642,8 @@ named!(read_ndunions_fe<&[u8], NdunionsFe>,
     )
 );
 named!(read_nodes_fe<&[u8], NodesFe>,
-    alt!(
-        complete!(do_parse!(                //Have nodes.fe signature
+    alt_complete!(
+        do_parse!(                          //Have nodes.fe signature
             tag!("nodes.fe")                >>
             take!(1)                        >>
             flag_line: take!(4)             >>
@@ -653,7 +654,7 @@ named!(read_nodes_fe<&[u8], NodesFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (NodesFe {
                 flag_line: [0; 4],
@@ -664,8 +665,8 @@ named!(read_nodes_fe<&[u8], NodesFe>,
     )
 );
 named!(read_nodesres_fe<&[u8], NodesresFe>,
-    alt!(
-        complete!(do_parse!(                //Have nodesres.fe signature
+    alt_complete!(
+        do_parse!(                          //Have nodesres.fe signature
             tag!("nodesres.fe")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -676,7 +677,7 @@ named!(read_nodesres_fe<&[u8], NodesresFe>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (NodesresFe {
                 flag_line: [0; 1],
@@ -687,8 +688,8 @@ named!(read_nodesres_fe<&[u8], NodesresFe>,
     )
 );
 named!(read_object_nam<&[u8], ObjectNam>,
-    alt!(
-        complete!(do_parse!(                //Have object.nam signature
+    alt_complete!(
+        do_parse!(                          //Have object.nam signature
             tag!("object.nam")              >>
             take!(1)                        >>
             flag_line: take!(2)             >>
@@ -699,7 +700,7 @@ named!(read_object_nam<&[u8], ObjectNam>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (ObjectNam {
                 flag_line: [0; 2],
@@ -710,8 +711,8 @@ named!(read_object_nam<&[u8], ObjectNam>,
     )
 );
 named!(read_pop_cut<&[u8], PopCut>,
-    alt!(
-        complete!(do_parse!(                //Have pop.cut signature
+    alt_complete!(
+        do_parse!(                          //Have pop.cut signature
             tag!("pop.cut")                 >>
             take!(1)                        >>
             flag_line: take!(5)             >>
@@ -722,7 +723,7 @@ named!(read_pop_cut<&[u8], PopCut>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (PopCut {
                 flag_line: [0; 5],
@@ -733,8 +734,8 @@ named!(read_pop_cut<&[u8], PopCut>,
     )
 );
 named!(read_procalc_set<&[u8], ProcalcSet>,
-    alt!(
-        complete!(do_parse!(                //Have procalc.set signature
+    alt_complete!(
+        do_parse!(                          //Have procalc.set signature
             tag!("procalc.set")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -745,7 +746,7 @@ named!(read_procalc_set<&[u8], ProcalcSet>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (ProcalcSet {
                 flag_line: [0; 1],
@@ -756,8 +757,8 @@ named!(read_procalc_set<&[u8], ProcalcSet>,
     )
 );
 named!(read_prores_use<&[u8], ProresUse>,
-    alt!(
-        complete!(do_parse!(                //Have prores.use signature
+    alt_complete!(
+        do_parse!(                          //Have prores.use signature
             tag!("prores.use")              >>
             take!(1)                        >>
             flag_line: take!(2)             >>
@@ -768,7 +769,7 @@ named!(read_prores_use<&[u8], ProresUse>,
                 offset: offset,
                 source: source.to_vec()
             })
-        ))                                  |
+        )                                   |
         do_parse!(                          //Clear structure
             (ProresUse {
                 flag_line: [0; 2],
@@ -779,8 +780,8 @@ named!(read_prores_use<&[u8], ProresUse>,
     )
 );
 named!(read_rab_a0<&[u8], RabA0>,
-    alt!(
-        complete!(do_parse!(                //Have rab.a0 signature
+    alt_complete!(
+        do_parse!(                          //Have rab.a0 signature
             tag!("rab.a0")                  >>
             take!(1)                        >>
             flag_line: take!(6)             >>
@@ -790,8 +791,8 @@ named!(read_rab_a0<&[u8], RabA0>,
                 flag_line: *array_ref!(flag_line, 0 ,6),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                  |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (RabA0 {
                 flag_line: [0; 6],
@@ -802,8 +803,8 @@ named!(read_rab_a0<&[u8], RabA0>,
     )
 );
 named!(read_rab_e<&[u8], RabE>,
-    alt!(
-        complete!(do_parse!(
+    alt_complete!(
+        do_parse!(
             etazh_vec: many1!(
                 do_parse!(
                     tag!("rab.e")           >>
@@ -822,7 +823,7 @@ named!(read_rab_e<&[u8], RabE>,
             (RabE {
                 etazh_vec: etazh_vec
             })
-        ))                                  |
+        )                                   |
         do_parse!(
             etazh_vec: count!(
                 do_parse!(
@@ -841,8 +842,8 @@ named!(read_rab_e<&[u8], RabE>,
     )
 );
 named!(read_rab_o0<&[u8], RabO0>,
-    alt!(
-        complete!(do_parse!(                //Have rab.o0 signature
+    alt_complete!(
+        do_parse!(                          //Have rab.o0 signature
             tag!("rab.o0")                  >>
             take!(1)                        >>
             flag_line: take!(6)             >>
@@ -852,8 +853,8 @@ named!(read_rab_o0<&[u8], RabO0>,
                 flag_line: *array_ref!(flag_line, 0 ,6),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                  |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (RabO0 {
                 flag_line: [0; 6],
@@ -864,8 +865,8 @@ named!(read_rab_o0<&[u8], RabO0>,
     )
 );
 named!(read_rab_sdr<&[u8], RabSdr>,
-    alt!(
-        complete!(do_parse!(                //Have rab.sdr signature
+    alt_complete!(
+        do_parse!(                          //Have rab.sdr signature
             tag!("rab.sdr")                 >>
             take!(1)                        >>
             flag_line: take!(5)             >>
@@ -875,8 +876,8 @@ named!(read_rab_sdr<&[u8], RabSdr>,
                 flag_line: *array_ref!(flag_line, 0 ,5),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                  |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (RabSdr {
                 flag_line: [0; 5],
@@ -887,8 +888,8 @@ named!(read_rab_sdr<&[u8], RabSdr>,
     )
 );
 named!(read_rab_zag<&[u8], RabZag>,
-    alt!(
-        complete!(do_parse!(                //Have rab.zag signature
+    alt_complete!(
+        do_parse!(                          //Have rab.zag signature
             tag!("rab.zag")                 >>
             take!(1)                        >>
             flag_line: take!(5)             >>
@@ -898,8 +899,8 @@ named!(read_rab_zag<&[u8], RabZag>,
                 flag_line: *array_ref!(flag_line, 0 ,5),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                  |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (RabZag {
                 flag_line: [0; 5],
@@ -910,8 +911,8 @@ named!(read_rab_zag<&[u8], RabZag>,
     )
 );
 named!(read_reper_pos<&[u8], ReperPos>,
-    alt!(
-        complete!(do_parse!(                //Have reper.pos signature
+    alt_complete!(
+        do_parse!(                          //Have reper.pos signature
             tag!("reper.pos")               >>
             take!(1)                        >>
             flag_line: take!(3)             >>
@@ -921,8 +922,8 @@ named!(read_reper_pos<&[u8], ReperPos>,
                 flag_line: *array_ref!(flag_line, 0 ,3),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                  |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (ReperPos {
                 flag_line: [0; 3],
@@ -933,9 +934,9 @@ named!(read_reper_pos<&[u8], ReperPos>,
     )
 );
 named!(read_rigbodys_fe<&[u8], RigbodysFe>,
-    alt!(
-        complete!(do_parse!(                //Have rigbodys.fe signature
-            tag!("rigbodys.fe")            >>
+    alt_complete!(
+        do_parse!(                          //Have rigbodys.fe signature
+            tag!("rigbodys.fe")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
             offset: le_u64                  >>
@@ -944,8 +945,8 @@ named!(read_rigbodys_fe<&[u8], RigbodysFe>,
                 flag_line: *array_ref!(flag_line, 0 ,1),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (RigbodysFe {
                 flag_line: [0; 1],
@@ -956,8 +957,8 @@ named!(read_rigbodys_fe<&[u8], RigbodysFe>,
     )
 );
 named!(read_rigids_fe<&[u8], RigidsFe>,
-    alt!(
-        complete!(do_parse!(                //Have rigids.fe signature
+    alt_complete!(
+        do_parse!(                          //Have rigids.fe signature
             tag!("rigids.fe")               >>
             take!(1)                        >>
             flag_line: take!(3)             >>
@@ -967,8 +968,8 @@ named!(read_rigids_fe<&[u8], RigidsFe>,
                 flag_line: *array_ref!(flag_line, 0 ,3),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (RigidsFe {
                 flag_line: [0; 3],
@@ -979,8 +980,8 @@ named!(read_rigids_fe<&[u8], RigidsFe>,
     )
 );
 named!(read_rzagnums_fe<&[u8], RzagnumsFe>,
-    alt!(
-        complete!(do_parse!(                //Have rzagnums.fe signature
+    alt_complete!(
+        do_parse!(                          //Have rzagnums.fe signature
             tag!("rzagnums.fe")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -990,8 +991,8 @@ named!(read_rzagnums_fe<&[u8], RzagnumsFe>,
                 flag_line: *array_ref!(flag_line, 0 ,1),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (RzagnumsFe {
                 flag_line: [0; 1],
@@ -1002,8 +1003,8 @@ named!(read_rzagnums_fe<&[u8], RzagnumsFe>,
     )
 );
 named!(read_seism_rsp<&[u8], SeismRsp>,
-    alt!(
-        complete!(do_parse!(                //Have seism.rsp signature
+    alt_complete!(
+        do_parse!(                          //Have seism.rsp signature
             tag!("seism.rsp")               >>
             take!(1)                        >>
             flag_line: take!(3)             >>
@@ -1013,8 +1014,8 @@ named!(read_seism_rsp<&[u8], SeismRsp>,
                 flag_line: *array_ref!(flag_line, 0 ,3),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (SeismRsp {
                 flag_line: [0; 3],
@@ -1025,8 +1026,8 @@ named!(read_seism_rsp<&[u8], SeismRsp>,
     )
 );
 named!(read_slits_slt<&[u8], SlitsSlt>,
-    alt!(
-        complete!(do_parse!(                //Have slits.slt signature
+    alt_complete!(
+        do_parse!(                          //Have slits.slt signature
             tag!("slits.slt")               >>
             take!(1)                        >>
             flag_line: take!(3)             >>
@@ -1036,8 +1037,8 @@ named!(read_slits_slt<&[u8], SlitsSlt>,
                 flag_line: *array_ref!(flag_line, 0 ,3),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (SlitsSlt {
                 flag_line: [0; 3],
@@ -1048,8 +1049,8 @@ named!(read_slits_slt<&[u8], SlitsSlt>,
     )
 );
 named!(read_szinfo_szi<&[u8], SzinfoSzi>,
-    alt!(
-        complete!(do_parse!(                //Have szinfo.szi signature
+    alt_complete!(
+        do_parse!(                          //Have szinfo.szi signature
             tag!("szinfo.szi")              >>
             take!(1)                        >>
             flag_line: take!(2)             >>
@@ -1059,8 +1060,8 @@ named!(read_szinfo_szi<&[u8], SzinfoSzi>,
                 flag_line: *array_ref!(flag_line, 0 ,2),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (SzinfoSzi {
                 flag_line: [0; 2],
@@ -1071,8 +1072,8 @@ named!(read_szinfo_szi<&[u8], SzinfoSzi>,
     )
 );
 named!(read_vnum_fe<&[u8], VnumFe>,
-    alt!(
-        complete!(do_parse!(                //Have vnum.fe signature
+    alt_complete!(
+        do_parse!(                          //Have vnum.fe signature
             tag!("vnum.fe")                 >>
             take!(1)                        >>
             flag_line: take!(5)             >>
@@ -1082,8 +1083,8 @@ named!(read_vnum_fe<&[u8], VnumFe>,
                 flag_line: *array_ref!(flag_line, 0 ,5),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (VnumFe {
                 flag_line: [0; 5],
@@ -1094,8 +1095,8 @@ named!(read_vnum_fe<&[u8], VnumFe>,
     )
 );
 named!(read_wallascn_uni<&[u8], WallascnUni>,
-    alt!(
-        complete!(do_parse!(                //Have wallascn.uni signature
+    alt_complete!(
+        do_parse!(                          //Have wallascn.uni signature
             tag!("wallascn.uni")            >>
             take!(1)                        >>
             offset: le_u64                  >>
@@ -1103,8 +1104,8 @@ named!(read_wallascn_uni<&[u8], WallascnUni>,
             (WallascnUni {
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (WallascnUni {
                 offset: 0,
@@ -1114,8 +1115,8 @@ named!(read_wallascn_uni<&[u8], WallascnUni>,
     )
 );
 named!(read_wind_rsp<&[u8], WindRsp>,
-    alt!(
-        complete!(do_parse!(                //Have wind.rsp signature
+    alt_complete!(
+        do_parse!(                          //Have wind.rsp signature
             tag!("wind.rsp")                >>
             take!(1)                        >>
             flag_line: take!(4)             >>
@@ -1125,8 +1126,8 @@ named!(read_wind_rsp<&[u8], WindRsp>,
                 flag_line: *array_ref!(flag_line, 0 ,4),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (WindRsp {
                 flag_line: [0; 4],
@@ -1137,8 +1138,8 @@ named!(read_wind_rsp<&[u8], WindRsp>,
     )
 );
 named!(read_zagrcmbs_zc<&[u8], ZagrcmbsZc>,
-    alt!(
-        complete!(do_parse!(                //Have zagrcmbs.zc signature
+    alt_complete!(
+        do_parse!(                          //Have zagrcmbs.zc signature
             tag!("zagrcmbs.zc")             >>
             take!(1)                        >>
             flag_line: take!(1)             >>
@@ -1148,8 +1149,8 @@ named!(read_zagrcmbs_zc<&[u8], ZagrcmbsZc>,
                 flag_line: *array_ref!(flag_line, 0 ,1),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (ZagrcmbsZc {
                 flag_line: [0; 1],
@@ -1160,8 +1161,8 @@ named!(read_zagrcmbs_zc<&[u8], ZagrcmbsZc>,
     )
 );
 named!(read_zagrs_fe<&[u8], ZagrsFe>,
-    alt!(
-        complete!(do_parse!(                //Have zagrs.fe signature
+    alt_complete!(
+        do_parse!(                          //Have zagrs.fe signature
             tag!("zagrs.fe")                >>
             take!(1)                        >>
             flag_line: take!(4)             >>
@@ -1171,8 +1172,8 @@ named!(read_zagrs_fe<&[u8], ZagrsFe>,
                 flag_line: *array_ref!(flag_line, 0 ,4),
                 offset: offset,
                 source: source.to_vec()
-})
-        ))                                 |
+            })
+        )                                   |
         do_parse!(                          //Clear structure
             (ZagrsFe {
                 flag_line: [0; 4],
@@ -1285,14 +1286,14 @@ fn read_file(path: &Path) -> Building {
         Err(why) => panic!("parse error {}", why),
         Ok(building) => building
     };
-    println!("remainder of parsing: {:?}", building.0);
+    if building.0.len() != 0 {
+        println!("remainder of parsing: {:?}", building.0);
+    };
     building.1
 }
-
 fn main() {
-    let input = Path::new("out.chg");;
+    let input = Path::new("hello.chg");
     let test_building= read_file(input);
-
     println!("{:?}", test_building.file_type);
-
+    //println!("{:?}", test_building.bkngwl_bnw.source);
 }
