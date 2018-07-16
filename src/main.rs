@@ -20,7 +20,8 @@ use std::vec::Vec;
 #[derive(Debug)]
 enum FileType {
     BUILDER011, //monomakh 4.5
-    CHARGE37    //monomakh-SAPR 2013
+    CHARGE37,   //monomakh-SAPR 2013
+    ERROR       //another title
 }
 #[derive(Debug)]
 struct BarpbresFe {
@@ -298,8 +299,11 @@ struct Building {
 
 named!(read_file_type<&[u8], FileType>,
     alt!(
-        map!(tag!("BUILDER011"), |_| FileType::BUILDER011) |
-        map!(tag!("CHARGE 3.7"), |_| FileType::CHARGE37)
+        complete!(map!(tag!("BUILDER011"),
+                 |_| FileType::BUILDER011)) |
+        complete!(map!(tag!("CHARGE 3.7"),
+                 |_| FileType::CHARGE37))   |
+        map!(tag!(""), |_| FileType::ERROR)
     )
 );
 named!(read_bkngwl_bnw<&[u8], BkngwlBnw>,
@@ -1264,41 +1268,31 @@ named!(read_original<&[u8], Building>,
         })
     )
 );
-fn main() {
-
-    let path = Path::new("Предварительный_38_экспертиза_11.chg");
+fn read_file(path: &Path) -> Building {
     let display = path.display();
-    // Open the path in read-only mode
     let mut file = match File::open(&path) {
         Err(why) => panic!("couldn't open {}: {}", display,
                            why.description()),
         Ok(file) => file,
     };
-    // Read the file contents into vec u8
     let mut original_in: Vec<u8> = vec![];
     match file.read_to_end(&mut original_in) {
         Err(why) => panic!("couldn't read {}: {}", display,
                            why.description()),
         Ok(_) => println!("{} read successful", display),
     };
+    let building = match read_original(&original_in) {
+        Err(why) => panic!("parse error {}", why),
+        Ok(building) => building
+    };
+    println!("remainder of parsing: {:?}", building.0);
+    building.1
+}
 
-    let test_building = match read_original(&original_in) {
-        Err(why) => panic!("ERROR!!! {}", why),
-        Ok(test_building) => test_building
-    };
-//    println!("{:?}", test_building.0);
-    let path = Path::new("out.chg");
-    let display = path.display();
+fn main() {
+    let input = Path::new("out.chg");;
+    let test_building= read_file(input);
 
-    let mut file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}: {}", display,
-                           why.description()),
-        Ok(file) => file,
-    };
-    match file.write_all(&test_building.0) {
-        Err(why) => panic!("couldn't write to {}: {}", display,
-                           why.description()),
-        Ok(_) => println!("successfully wrote to {}", display),
-    };
+    println!("{:?}", test_building.file_type);
 
 }
