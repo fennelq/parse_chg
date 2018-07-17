@@ -14,7 +14,7 @@ use std::path::Path;
 use nom::{le_u64};
 use std::vec::Vec;
 //use std::fmt;
-//use std::str;
+use std::str;
 //use byteorder::{LittleEndian, WriteBytesExt};
 
 #[derive(Debug)]
@@ -30,126 +30,105 @@ struct BarpbresFe {
 #[derive(Debug)]
 struct BkngwlBnw {
     flag_line: [u8; 2],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct BoknagrBkn {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ClmnUni {
     flag_line: [u8; 4],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct CoeffsRsu {
     flag_line: [u8; 2],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ElemsFe {
     flag_line: [u8; 4],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ElemsresFe {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ElsssFe {
     flag_line: [u8; 4],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct EtnamesEt {
     flag_line: [u8; 2],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct Expert {
     flag_line: [u8; 6],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct HeadFe {
     flag_line: [u8; 5],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct IsoarFe {
     flag_line: [u8; 4],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct LoadcombCds {
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct MaterialMt {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct NdunionsFe {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct NodesFe {
     flag_line: [u8; 4],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct NodesresFe {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ObjectNam {
     flag_line: [u8; 2],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct PopCut {
     flag_line: [u8; 5],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ProcalcSet {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ProresUse {
     flag_line: [u8; 2],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct RabA0 {
     flag_line: [u8; 6],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
@@ -160,141 +139,125 @@ struct RabE {
 struct Etazh {
     num_line: [u8; 2],
     flag_line: [u8; 6],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct RabO0 {
     flag_line: [u8; 6],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct RabSdr {
     flag_line: [u8; 5],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct RabZag {
     flag_line: [u8; 5],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ReperPos {
     flag_line: [u8; 3],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct RigbodysFe {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct RigidsFe {
     flag_line: [u8; 3],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct RzagnumsFe {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct SeismRsp {
     flag_line: [u8; 3],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct SlitsSlt {
     flag_line: [u8; 3],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct SzinfoSzi {
     flag_line: [u8; 2],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct VnumFe {
     flag_line: [u8; 5],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct WallascnUni {
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct WindRsp {
     flag_line: [u8; 4],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ZagrcmbsZc {
     flag_line: [u8; 1],
-    offset: u64,
     source: Vec<u8>
 }
 #[derive(Debug)]
 struct ZagrsFe {
     flag_line: [u8; 4],
-    offset: u64,
     source: Vec<u8>
 }
 
 //General
 #[derive(Debug)]
 struct Building {
-    file_type: FileType,
-    barpbres_fe: BarpbresFe,
-    bkngwl_bnw: BkngwlBnw,
-    boknagr_bkn: BoknagrBkn,
-    clmn_uni: ClmnUni,
-    coeffs_rsu: CoeffsRsu,
-    elems_fe: ElemsFe,
-    elemsres_fe: ElemsresFe,
-    elsss_fe: ElsssFe,
-    etnames_et: EtnamesEt,
-    expert: Expert,
-    head_fe: HeadFe,
-    isoar_fe: IsoarFe,
-    loadcomb_cds: LoadcombCds,
-    material_mt: MaterialMt,
-    ndunions_fe: NdunionsFe,
-    nodes_fe: NodesFe,
-    nodesres_fe: NodesresFe,
-    object_nam: ObjectNam,
-    pop_cut: PopCut,
-    procalc_set: ProcalcSet,
-    prores_use: ProresUse,
-    rab_a0: RabA0,
-    rab_e: RabE,
-    rab_o0: RabO0,
-    rab_sdr: RabSdr,
-    rab_zag: RabZag,
-    reper_pos: ReperPos,
-    rigbodys_fe: RigbodysFe,
-    rigids_fe: RigidsFe,
-    rzagnums_fe: RzagnumsFe,
-    seism_rsp: SeismRsp,
-    slits_slt: SlitsSlt,
-    szinfo_szi: SzinfoSzi,
-    vnum_fe: VnumFe,
-    wallascn_uni: WallascnUni,
-    wind_rsp: WindRsp,
-    zagrcmbs_zc: ZagrcmbsZc,
-    zagrs_fe: ZagrsFe
+    file_type:      FileType,
+    barpbres_fe:    BarpbresFe,
+    bkngwl_bnw:     BkngwlBnw,
+    boknagr_bkn:    BoknagrBkn,
+    clmn_uni:       ClmnUni,
+    coeffs_rsu:     CoeffsRsu,
+    elems_fe:       ElemsFe,
+    elemsres_fe:    ElemsresFe,
+    elsss_fe:       ElsssFe,
+    etnames_et:     EtnamesEt,
+    expert:         Expert,
+    head_fe:        HeadFe,
+    isoar_fe:       IsoarFe,
+    loadcomb_cds:   LoadcombCds,
+    material_mt:    MaterialMt,
+    ndunions_fe:    NdunionsFe,
+    nodes_fe:       NodesFe,
+    nodesres_fe:    NodesresFe,
+    object_nam:     ObjectNam,
+    pop_cut:        PopCut,
+    procalc_set:    ProcalcSet,
+    prores_use:     ProresUse,
+    rab_a0:         RabA0,
+    rab_e:          RabE,
+    rab_o0:         RabO0,
+    rab_sdr:        RabSdr,
+    rab_zag:        RabZag,
+    reper_pos:      ReperPos,
+    rigbodys_fe:    RigbodysFe,
+    rigids_fe:      RigidsFe,
+    rzagnums_fe:    RzagnumsFe,
+    seism_rsp:      SeismRsp,
+    slits_slt:      SlitsSlt,
+    szinfo_szi:     SzinfoSzi,
+    vnum_fe:        VnumFe,
+    wallascn_uni:   WallascnUni,
+    wind_rsp:       WindRsp,
+    zagrcmbs_zc:    ZagrcmbsZc,
+    zagrs_fe:       ZagrsFe
 }
 
 named!(read_file_type<&[u8], FileType>,
@@ -316,14 +279,12 @@ named!(read_bkngwl_bnw<&[u8], BkngwlBnw>,
             source: take!(offset)           >>
             (BkngwlBnw {
                 flag_line: *array_ref!(flag_line, 0 ,2),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (BkngwlBnw {
                 flag_line: [0; 2],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -355,14 +316,12 @@ named!(read_boknagr_bkn<&[u8], BoknagrBkn>,
             source: take!(offset)           >>
             (BoknagrBkn {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (BoknagrBkn {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -378,14 +337,12 @@ named!(read_clmn_uni<&[u8], ClmnUni>,
             source: take!(offset)           >>
             (ClmnUni {
                 flag_line: *array_ref!(flag_line, 0 ,4),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ClmnUni {
                 flag_line: [0; 4],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -401,14 +358,12 @@ named!(read_coeffs_rsu<&[u8], CoeffsRsu>,
             source: take!(offset)           >>
             (CoeffsRsu {
                 flag_line: *array_ref!(flag_line, 0 ,2),
-                offset: offset,
                 source: source.to_vec()     //TODO read coeffs.rsu source
             })
         )                                   |
         do_parse!(                          //Clear structure
             (CoeffsRsu {
                 flag_line: [0; 2],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -424,14 +379,12 @@ named!(read_elems_fe<&[u8], ElemsFe>,
             source: take!(offset)           >>
             (ElemsFe {
                 flag_line: *array_ref!(flag_line, 0 ,4),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ElemsFe {
                 flag_line: [0; 4],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -447,14 +400,12 @@ named!(read_elemsres_fe<&[u8], ElemsresFe>,
             source: take!(offset)           >>
             (ElemsresFe {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ElemsresFe {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -470,14 +421,12 @@ named!(read_elsss_fe<&[u8], ElsssFe>,
             source: take!(offset)           >>
             (ElsssFe {
                 flag_line: *array_ref!(flag_line, 0 ,4),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ElsssFe {
                 flag_line: [0; 4],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -493,14 +442,12 @@ named!(read_etnames_et<&[u8], EtnamesEt>,
             source: take!(offset)           >>
             (EtnamesEt {
                 flag_line: *array_ref!(flag_line, 0 ,2),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (EtnamesEt {
                 flag_line: [0; 2],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -516,14 +463,12 @@ named!(read_expert<&[u8], Expert>,
             source: take!(offset)           >>
             (Expert {
                 flag_line: *array_ref!(flag_line, 0 ,6),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (Expert {
                 flag_line: [0; 6],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -539,14 +484,12 @@ named!(read_head_fe<&[u8], HeadFe>,
             source: take!(offset)           >>
             (HeadFe {
                 flag_line: *array_ref!(flag_line, 0 ,5),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (HeadFe {
                 flag_line: [0; 5],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -562,14 +505,12 @@ named!(read_isoar_fe<&[u8], IsoarFe>,
             source: take!(offset)           >>
             (IsoarFe {
                 flag_line: *array_ref!(flag_line, 0 ,4),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (IsoarFe {
                 flag_line: [0; 4],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -583,13 +524,11 @@ named!(read_loadcomb_cds<&[u8], LoadcombCds>,
             offset: le_u64                  >>
             source: take!(offset)           >>
             (LoadcombCds {
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (LoadcombCds {
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -605,14 +544,12 @@ named!(read_material_mt<&[u8], MaterialMt>,
             source: take!(offset)           >>
             (MaterialMt {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (MaterialMt {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -628,14 +565,12 @@ named!(read_ndunions_fe<&[u8], NdunionsFe>,
             source: take!(offset)           >>
             (NdunionsFe {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (NdunionsFe {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -651,14 +586,12 @@ named!(read_nodes_fe<&[u8], NodesFe>,
             source: take!(offset)           >>
             (NodesFe {
                 flag_line: *array_ref!(flag_line, 0 ,4),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (NodesFe {
                 flag_line: [0; 4],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -674,14 +607,12 @@ named!(read_nodesres_fe<&[u8], NodesresFe>,
             source: take!(offset)           >>
             (NodesresFe {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (NodesresFe {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -697,14 +628,12 @@ named!(read_object_nam<&[u8], ObjectNam>,
             source: take!(offset)           >>
             (ObjectNam {
                 flag_line: *array_ref!(flag_line, 0 ,2),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ObjectNam {
                 flag_line: [0; 2],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -720,14 +649,12 @@ named!(read_pop_cut<&[u8], PopCut>,
             source: take!(offset)           >>
             (PopCut {
                 flag_line: *array_ref!(flag_line, 0 ,5),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (PopCut {
                 flag_line: [0; 5],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -743,14 +670,12 @@ named!(read_procalc_set<&[u8], ProcalcSet>,
             source: take!(offset)           >>
             (ProcalcSet {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ProcalcSet {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -766,14 +691,12 @@ named!(read_prores_use<&[u8], ProresUse>,
             source: take!(offset)           >>
             (ProresUse {
                 flag_line: *array_ref!(flag_line, 0 ,2),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ProresUse {
                 flag_line: [0; 2],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -789,14 +712,12 @@ named!(read_rab_a0<&[u8], RabA0>,
             source: take!(offset)           >>
             (RabA0 {
                 flag_line: *array_ref!(flag_line, 0 ,6),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (RabA0 {
                 flag_line: [0; 6],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -815,7 +736,6 @@ named!(read_rab_e<&[u8], RabE>,
                     (Etazh {
                         num_line: *array_ref!(num_line, 0 ,2),
                         flag_line: *array_ref!(flag_line, 0 ,6),
-                        offset: offset,
                         source: source.to_vec(),
                     })
                 )
@@ -830,7 +750,6 @@ named!(read_rab_e<&[u8], RabE>,
                     (Etazh {
                         num_line: [0; 2],
                         flag_line: [0; 6],
-                        offset: 0,
                         source: [].to_vec(),
                     })
                 )
@@ -851,14 +770,12 @@ named!(read_rab_o0<&[u8], RabO0>,
             source: take!(offset)           >>
             (RabO0 {
                 flag_line: *array_ref!(flag_line, 0 ,6),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (RabO0 {
                 flag_line: [0; 6],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -874,14 +791,12 @@ named!(read_rab_sdr<&[u8], RabSdr>,
             source: take!(offset)           >>
             (RabSdr {
                 flag_line: *array_ref!(flag_line, 0 ,5),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (RabSdr {
                 flag_line: [0; 5],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -897,14 +812,12 @@ named!(read_rab_zag<&[u8], RabZag>,
             source: take!(offset)           >>
             (RabZag {
                 flag_line: *array_ref!(flag_line, 0 ,5),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (RabZag {
                 flag_line: [0; 5],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -920,14 +833,12 @@ named!(read_reper_pos<&[u8], ReperPos>,
             source: take!(offset)           >>
             (ReperPos {
                 flag_line: *array_ref!(flag_line, 0 ,3),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ReperPos {
                 flag_line: [0; 3],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -943,14 +854,12 @@ named!(read_rigbodys_fe<&[u8], RigbodysFe>,
             source: take!(offset)           >>
             (RigbodysFe {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (RigbodysFe {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -966,14 +875,12 @@ named!(read_rigids_fe<&[u8], RigidsFe>,
             source: take!(offset)           >>
             (RigidsFe {
                 flag_line: *array_ref!(flag_line, 0 ,3),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (RigidsFe {
                 flag_line: [0; 3],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -989,14 +896,12 @@ named!(read_rzagnums_fe<&[u8], RzagnumsFe>,
             source: take!(offset)           >>
             (RzagnumsFe {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (RzagnumsFe {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1012,14 +917,12 @@ named!(read_seism_rsp<&[u8], SeismRsp>,
             source: take!(offset)           >>
             (SeismRsp {
                 flag_line: *array_ref!(flag_line, 0 ,3),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (SeismRsp {
                 flag_line: [0; 3],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1035,14 +938,12 @@ named!(read_slits_slt<&[u8], SlitsSlt>,
             source: take!(offset)           >>
             (SlitsSlt {
                 flag_line: *array_ref!(flag_line, 0 ,3),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (SlitsSlt {
                 flag_line: [0; 3],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1058,14 +959,12 @@ named!(read_szinfo_szi<&[u8], SzinfoSzi>,
             source: take!(offset)           >>
             (SzinfoSzi {
                 flag_line: *array_ref!(flag_line, 0 ,2),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (SzinfoSzi {
                 flag_line: [0; 2],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1081,14 +980,12 @@ named!(read_vnum_fe<&[u8], VnumFe>,
             source: take!(offset)           >>
             (VnumFe {
                 flag_line: *array_ref!(flag_line, 0 ,5),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (VnumFe {
                 flag_line: [0; 5],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1102,13 +999,11 @@ named!(read_wallascn_uni<&[u8], WallascnUni>,
             offset: le_u64                  >>
             source: take!(offset)           >>
             (WallascnUni {
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (WallascnUni {
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1124,14 +1019,12 @@ named!(read_wind_rsp<&[u8], WindRsp>,
             source: take!(offset)           >>
             (WindRsp {
                 flag_line: *array_ref!(flag_line, 0 ,4),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (WindRsp {
                 flag_line: [0; 4],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1147,14 +1040,12 @@ named!(read_zagrcmbs_zc<&[u8], ZagrcmbsZc>,
             source: take!(offset)           >>
             (ZagrcmbsZc {
                 flag_line: *array_ref!(flag_line, 0 ,1),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ZagrcmbsZc {
                 flag_line: [0; 1],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1170,14 +1061,12 @@ named!(read_zagrs_fe<&[u8], ZagrsFe>,
             source: take!(offset)           >>
             (ZagrsFe {
                 flag_line: *array_ref!(flag_line, 0 ,4),
-                offset: offset,
                 source: source.to_vec()
             })
         )                                   |
         do_parse!(                          //Clear structure
             (ZagrsFe {
                 flag_line: [0; 4],
-                offset: 0,
                 source: [].to_vec()
             })
         )
@@ -1291,9 +1180,76 @@ fn read_file(path: &Path) -> Building {
     };
     building.1
 }
+fn write_sig (name: &str, source: Vec<u8>) {
+    if source.len() > 0 {
+        let path_buf = Path::new("out").join(name);
+        let display = path_buf.as_path().display();
+        let mut file = match File::create(path_buf.as_path()) {
+            Err(why) => panic!("couldn't create {}: {}", display,
+                               why.description()),
+            Ok(file) => file,
+        };
+        match file.write_all(&source[..]) {
+            Err(why) => panic!("couldn't write {}: {}", display,
+                               why.description()),
+            Ok(file) => file,
+        };
+    }
+}
+fn write_file(building: Building) {
+    write_sig("barpbres.fe", building.barpbres_fe.source);
+    write_sig("bkngwl.bnw", building.bkngwl_bnw.source);
+    write_sig("boknagr.bkn", building.boknagr_bkn.source);
+    write_sig("clmn.uni", building.clmn_uni.source);
+    write_sig("coeffs.rsu", building.coeffs_rsu.source);
+    write_sig("elems.fe", building.elems_fe.source);
+    write_sig("elemsres.fe", building.elemsres_fe.source);
+    write_sig("elsss.fe", building.elsss_fe.source);
+    write_sig("etnames.et", building.etnames_et.source);
+    write_sig("expert", building.expert.source);
+    write_sig("head.fe", building.head_fe.source);
+    write_sig("isoar.fe", building.isoar_fe.source);
+    write_sig("loadcomb.cds", building.loadcomb_cds.source);
+    write_sig("material.mt", building.material_mt.source);
+    write_sig("ndunions.fe", building.ndunions_fe.source);
+    write_sig("nodes.fe", building.nodes_fe.source);
+    write_sig("nodesres.fe", building.nodesres_fe.source);
+    write_sig("object.nam", building.object_nam.source);
+    write_sig("pop.cut", building.pop_cut.source);
+    write_sig("procalc.set", building.procalc_set.source);
+    write_sig("prores.use", building.prores_use.source);
+    write_sig("rab.a0", building.rab_a0.source);
+    for i in 0..(building.rab_e.etazh_vec.len()) {
+        let etazh = &building.rab_e.etazh_vec[i];
+        let mut str_name = b"rab_e".to_vec();
+        str_name.push(etazh.num_line[0]);
+        if etazh.num_line[1] != 0 {
+            str_name.push(etazh.num_line[1]);
+        };
+        let name = match std::str::from_utf8( &str_name){
+            Err(why) => panic!("couldn't utf8: {}", why.description()),
+            Ok(name) => name,
+        };
+        write_sig(name, etazh.source.clone());
+    }
+    write_sig("rab.o0", building.rab_o0.source);
+    write_sig("rab.sdr", building.rab_sdr.source);
+    write_sig("rab.zag", building.rab_zag.source);
+    write_sig("reper.pos", building.reper_pos.source);
+    write_sig("rigbodys.fe", building.rigbodys_fe.source);
+    write_sig("rigids.fe", building.rigids_fe.source);
+    write_sig("rzagnums.fe", building.rzagnums_fe.source);
+    write_sig("seism.rsp", building.seism_rsp.source);
+    write_sig("slits.slt", building.slits_slt.source);
+    write_sig("szinfo.szi", building.szinfo_szi.source);
+    write_sig("vnum.fe", building.vnum_fe.source);
+    write_sig("wallascn.uni", building.wallascn_uni.source);
+    write_sig("wind.rsp", building.wind_rsp.source);
+    write_sig("zagrcmbs.zc", building.zagrcmbs_zc.source);
+    write_sig("zagrs.fe", building.zagrs_fe.source);
+}
 fn main() {
-    let input = Path::new("hello.chg");
+    let input = Path::new("txt.chg");
     let test_building= read_file(input);
-    println!("{:?}", test_building.file_type);
-    //println!("{:?}", test_building.bkngwl_bnw.source);
+    write_file(test_building);
 }
