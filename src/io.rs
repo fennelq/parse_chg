@@ -6,248 +6,805 @@ use nom::{le_u64};
 use std::vec::Vec;
 use std::fs::{create_dir, remove_dir_all};
 use std::str::{from_utf8};
+use byteorder::{LittleEndian, WriteBytesExt};
 
+trait HasWrite {
+    fn write(&self) -> Vec<u8>;
+}
 #[derive(Debug)]
-enum FileType {
+pub enum FileType {
     BUILDER011, //monomakh 4.5
     CHARGE37,   //monomakh-SAPR 2013
     ERROR       //another title
 }
 #[derive(Debug)]
-struct BarpbresFe {
+pub struct BarpbresFe {
     source: Vec<u8>
 }
+impl HasWrite for BarpbresFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"barpbres.fe".to_vec();
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct BkngwlBnw {
+pub struct BkngwlBnw {
     flag_line: [u8; 2],
     source: Vec<u8>
 }
+impl HasWrite for BkngwlBnw {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"bkngwl.bnw".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct BoknagrBkn {
+pub struct BoknagrBkn {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for BoknagrBkn {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"boknagr.bkn".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ClmnUni {
+pub struct ClmnUni {
     flag_line: [u8; 4],
     source: Vec<u8>
 }
+impl HasWrite for ClmnUni {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"clmn.uni".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct CoeffsRsu {
+pub struct CoeffsRsu {
     flag_line: [u8; 2],
     source: Vec<u8>
 }
+impl HasWrite for CoeffsRsu {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"coeffs.rsu".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ElemsFe {
+pub struct ElemsFe {
     flag_line: [u8; 4],
     source: Vec<u8>
 }
+impl HasWrite for ElemsFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"elems.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ElemsresFe {
+pub struct ElemsresFe {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for ElemsresFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"elemsres.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ElsssFe {
+pub struct ElsssFe {
     flag_line: [u8; 4],
     source: Vec<u8>
 }
+impl HasWrite for ElsssFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"elsss.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct EtnamesEt {
+pub struct EtnamesEt {
     flag_line: [u8; 2],
     source: Vec<u8>
 }
+impl HasWrite for EtnamesEt {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"etnames.et".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct Expert {
+pub struct Expert {
     flag_line: [u8; 6],
     source: Vec<u8>
 }
+impl HasWrite for Expert {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"expert".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct HeadFe {
+pub struct HeadFe {
     flag_line: [u8; 5],
     source: Vec<u8>
 }
+impl HasWrite for HeadFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"head.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct IsoarFe {
+pub struct IsoarFe {
     flag_line: [u8; 4],
     source: Vec<u8>
 }
-#[derive(Debug)]
-struct LoadcombCds {
-    source: Vec<u8>
+impl HasWrite for IsoarFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"isoar.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
 }
 #[derive(Debug)]
-struct MaterialMt {
+pub struct LoadcombCds {
+    source: Vec<u8>
+}
+impl HasWrite for LoadcombCds {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"loadcomb.cds".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
+#[derive(Debug)]
+pub struct MaterialMt {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for MaterialMt {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"material.mt".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct NdunionsFe {
+pub struct NdunionsFe {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for NdunionsFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"ndunions.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct NodesFe {
+pub struct NodesFe {
     flag_line: [u8; 4],
     source: Vec<u8>
 }
+impl HasWrite for NodesFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"nodes.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct NodesresFe {
+pub struct NodesresFe {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for NodesresFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"nodesres.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ObjectNam {
+pub struct ObjectNam {
     flag_line: [u8; 2],
     source: Vec<u8>
 }
+impl HasWrite for ObjectNam {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"object.nam".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct PopCut {
+pub struct PopCut {
     flag_line: [u8; 5],
     source: Vec<u8>
 }
+impl HasWrite for PopCut {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"pop.cut".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ProcalcSet {
+pub struct ProcalcSet {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for ProcalcSet {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"procalc.set".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ProresUse {
+pub struct ProresUse {
     flag_line: [u8; 2],
     source: Vec<u8>
 }
+impl HasWrite for ProresUse {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"prores.use".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RabA0 {
+pub struct RabA0 {
     flag_line: [u8; 6],
     source: Vec<u8>
 }
+impl HasWrite for RabA0 {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rab.a0".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RabE {
+pub struct RabE {
     etazh_vec: Vec<Etazh>
 }
+impl HasWrite for RabE {
+    fn write(&self) -> Vec<u8> {
+        if self.etazh_vec.len() == 0 {
+            return vec![];
+        }
+        let mut out: Vec<u8> = vec![];
+        for i in 0..self.etazh_vec.len() {
+            out.extend(write(&self.etazh_vec[i]));
+        }
+        out
+    }
+}
 #[derive(Debug)]
-struct Etazh {
+pub struct Etazh {
     num_line: [u8; 2],
     flag_line: [u8; 6],
     source: Vec<u8>
 }
+impl HasWrite for Etazh {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rab.e".to_vec();
+        out.push(self.num_line[0]);
+        if self.num_line[1] != 0 {
+            out.push(self.num_line[1]);
+        };
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RabO0 {
+pub struct RabO0 {
     flag_line: [u8; 6],
     source: Vec<u8>
 }
+impl HasWrite for RabO0 {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rab.o0".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RabSdr {
+pub struct RabSdr {
     flag_line: [u8; 5],
     source: Vec<u8>
 }
+impl HasWrite for RabSdr {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rab.sdr".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RabZag {
+pub struct RabZag {
     flag_line: [u8; 5],
     source: Vec<u8>
 }
+impl HasWrite for RabZag {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rab.zag".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ReperPos {
+pub struct ReperPos {
     flag_line: [u8; 3],
     source: Vec<u8>
 }
+impl HasWrite for ReperPos {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"reper.pos".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RigbodysFe {
+pub struct RigbodysFe {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for RigbodysFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rigbodys.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RigidsFe {
+pub struct RigidsFe {
     flag_line: [u8; 3],
     source: Vec<u8>
 }
+impl HasWrite for RigidsFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rigids.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct RzagnumsFe {
+pub struct RzagnumsFe {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for RzagnumsFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"rzagnums.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct SeismRsp {
+pub struct SeismRsp {
     flag_line: [u8; 3],
     source: Vec<u8>
 }
+impl HasWrite for SeismRsp {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"seism.rsp".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct SlitsSlt {
+pub struct SlitsSlt {
     flag_line: [u8; 3],
     source: Vec<u8>
 }
+impl HasWrite for SlitsSlt {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"slits.slt".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct SzinfoSzi {
+pub struct SzinfoSzi {
     flag_line: [u8; 2],
     source: Vec<u8>
 }
+impl HasWrite for SzinfoSzi {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"szinfo.szi".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct VnumFe {
+pub struct VnumFe {
     flag_line: [u8; 5],
     source: Vec<u8>
 }
-#[derive(Debug)]
-struct WallascnUni {
-    source: Vec<u8>
+impl HasWrite for VnumFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"vnum.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
 }
 #[derive(Debug)]
-struct WindRsp {
+pub struct WallascnUni {
+    source: Vec<u8>
+}
+impl HasWrite for WallascnUni {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"wallascn.uni".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
+#[derive(Debug)]
+pub struct WindRsp {
     flag_line: [u8; 4],
     source: Vec<u8>
 }
+impl HasWrite for WindRsp {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"wind.rsp".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ZagrcmbsZc {
+pub struct ZagrcmbsZc {
     flag_line: [u8; 1],
     source: Vec<u8>
 }
+impl HasWrite for ZagrcmbsZc {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"zagrcmbs.zc".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
+}
 #[derive(Debug)]
-struct ZagrsFe {
+pub struct ZagrsFe {
     flag_line: [u8; 4],
     source: Vec<u8>
+}
+impl HasWrite for ZagrsFe {
+    fn write(&self) -> Vec<u8> {
+        if self.source.len() == 0 {
+            return vec![];
+        }
+        let mut out = b"zagrs.fe".to_vec();
+        out.extend(vec![0u8]);
+        out.extend(&self.flag_line);
+        out.extend(offset(&self.source.len()).iter());
+        out.extend(&self.source);
+        out
+    }
 }
 
 //General
 #[derive(Debug)]
 pub struct Building {
-    file_type:      FileType,
-    barpbres_fe:    BarpbresFe,
-    bkngwl_bnw:     BkngwlBnw,
-    boknagr_bkn:    BoknagrBkn,
-    clmn_uni:       ClmnUni,
-    coeffs_rsu:     CoeffsRsu,
-    elems_fe:       ElemsFe,
-    elemsres_fe:    ElemsresFe,
-    elsss_fe:       ElsssFe,
-    etnames_et:     EtnamesEt,
-    expert:         Expert,
-    head_fe:        HeadFe,
-    isoar_fe:       IsoarFe,
-    loadcomb_cds:   LoadcombCds,
-    material_mt:    MaterialMt,
-    ndunions_fe:    NdunionsFe,
-    nodes_fe:       NodesFe,
-    nodesres_fe:    NodesresFe,
-    object_nam:     ObjectNam,
-    pop_cut:        PopCut,
-    procalc_set:    ProcalcSet,
-    prores_use:     ProresUse,
-    rab_a0:         RabA0,
-    rab_e:          RabE,
-    rab_o0:         RabO0,
-    rab_sdr:        RabSdr,
-    rab_zag:        RabZag,
-    reper_pos:      ReperPos,
-    rigbodys_fe:    RigbodysFe,
-    rigids_fe:      RigidsFe,
-    rzagnums_fe:    RzagnumsFe,
-    seism_rsp:      SeismRsp,
-    slits_slt:      SlitsSlt,
-    szinfo_szi:     SzinfoSzi,
-    vnum_fe:        VnumFe,
-    wallascn_uni:   WallascnUni,
-    wind_rsp:       WindRsp,
-    zagrcmbs_zc:    ZagrcmbsZc,
-    zagrs_fe:       ZagrsFe
+    pub file_type:      FileType,
+    pub barpbres_fe:    BarpbresFe,
+    pub bkngwl_bnw:     BkngwlBnw,
+    pub boknagr_bkn:    BoknagrBkn,
+    pub clmn_uni:       ClmnUni,
+    pub coeffs_rsu:     CoeffsRsu,
+    pub elems_fe:       ElemsFe,
+    pub elemsres_fe:    ElemsresFe,
+    pub elsss_fe:       ElsssFe,
+    pub etnames_et:     EtnamesEt,
+    pub expert:         Expert,
+    pub head_fe:        HeadFe,
+    pub isoar_fe:       IsoarFe,
+    pub loadcomb_cds:   LoadcombCds,
+    pub material_mt:    MaterialMt,
+    pub ndunions_fe:    NdunionsFe,
+    pub nodes_fe:       NodesFe,
+    pub nodesres_fe:    NodesresFe,
+    pub object_nam:     ObjectNam,
+    pub pop_cut:        PopCut,
+    pub procalc_set:    ProcalcSet,
+    pub prores_use:     ProresUse,
+    pub rab_a0:         RabA0,
+    pub rab_e:          RabE,
+    pub rab_o0:         RabO0,
+    pub rab_sdr:        RabSdr,
+    pub rab_zag:        RabZag,
+    pub reper_pos:      ReperPos,
+    pub rigbodys_fe:    RigbodysFe,
+    pub rigids_fe:      RigidsFe,
+    pub rzagnums_fe:    RzagnumsFe,
+    pub seism_rsp:      SeismRsp,
+    pub slits_slt:      SlitsSlt,
+    pub szinfo_szi:     SzinfoSzi,
+    pub vnum_fe:        VnumFe,
+    pub wallascn_uni:   WallascnUni,
+    pub wind_rsp:       WindRsp,
+    pub zagrcmbs_zc:    ZagrcmbsZc,
+    pub zagrs_fe:       ZagrsFe
+}
+impl HasWrite for Building {
+    fn write(&self) -> Vec<u8> {
+        let mut out = match &self.file_type {
+            FileType::BUILDER011 => b"BUILDER011".to_vec(),
+            FileType::CHARGE37 => b"CHARGE 3.7".to_vec(),
+            FileType::ERROR => panic!("FileType::ERROR couldn't write"),
+        };
+        out.extend(write(&self.barpbres_fe));
+        out.extend(write(&self.bkngwl_bnw));
+        out.extend(write(&self.boknagr_bkn));
+        out.extend(write(&self.clmn_uni));
+        out.extend(write(&self.coeffs_rsu));
+        out.extend(write(&self.elems_fe));
+        out.extend(write(&self.elemsres_fe));
+        out.extend(write(&self.elsss_fe));
+        out.extend(write(&self.etnames_et));
+        out.extend(write(&self.expert));
+        out.extend(write(&self.head_fe));
+        out.extend(write(&self.isoar_fe));
+        out.extend(write(&self.loadcomb_cds));
+        out.extend(write(&self.material_mt));
+        out.extend(write(&self.ndunions_fe));
+        out.extend(write(&self.nodes_fe));
+        out.extend(write(&self.nodesres_fe));
+        out.extend(write(&self.object_nam));
+        out.extend(write(&self.pop_cut));
+        out.extend(write(&self.procalc_set));
+        out.extend(write(&self.prores_use));
+        out.extend(write(&self.rab_a0));
+        out.extend(write(&self.rab_e));
+        out.extend(write(&self.rab_o0));
+        out.extend(write(&self.rab_sdr));
+        out.extend(write(&self.rab_zag));
+        out.extend(write(&self.reper_pos));
+        out.extend(write(&self.rigbodys_fe));
+        out.extend(write(&self.rigids_fe));
+        out.extend(write(&self.rzagnums_fe));
+        out.extend(write(&self.seism_rsp));
+        out.extend(write(&self.slits_slt));
+        out.extend(write(&self.szinfo_szi));
+        out.extend(write(&self.vnum_fe));
+        out.extend(write(&self.wallascn_uni));
+        out.extend(write(&self.wind_rsp));
+        out.extend(write(&self.zagrcmbs_zc));
+        out.extend(write(&self.zagrs_fe));
+        out
+    }
 }
 
 named!(read_file_type<&[u8], FileType>,
@@ -1148,6 +1705,17 @@ named!(read_original<&[u8], Building>,
         })
     )
 );
+
+fn write<T: HasWrite>(sig: &T) -> Vec<u8> {
+    sig.write()
+}
+fn offset(len: &usize) -> [u8; 8] {
+    let offset = *len as u64;
+    let mut buff8 = [0u8; 8];
+    buff8.as_mut().write_u64::<LittleEndian>(offset)
+         .expect("offset_err");
+    buff8
+}
 pub fn read_file(path: &Path) -> Building {
     let display = path.display();
     let mut file = match File::open(&path) {
@@ -1170,48 +1738,46 @@ pub fn read_file(path: &Path) -> Building {
     };
     building.1
 }
-fn write_sig (name: &str, source: Vec<u8>) {
-    if source.len() > 0 {
-        let path_buf = Path::new("out").join(name);
-        let display = path_buf.as_path().display();
-        let mut file = match File::create(path_buf.as_path()) {
-            Err(why) => panic!("couldn't create {}: {}", display,
-                               why.description()),
-            Ok(file) => file,
-        };
-        match file.write_all(&source[..]) {
-            Err(why) => panic!("couldn't write {}: {}", display,
-                               why.description()),
-            Ok(file) => file,
-        };
-    }
+fn write_sig<T: HasWrite> (name: &str, sig: &T) {
+    let path_buf = Path::new("out").join(name);
+    let display = path_buf.as_path().display();
+    let mut file = match File::create(path_buf.as_path()) {
+        Err(why) => panic!("couldn't create {}: {}", display,
+                           why.description()),
+        Ok(file) => file,
+    };
+    match file.write_all(&write(sig)) {
+        Err(why) => panic!("couldn't write {}: {}", display,
+                           why.description()),
+        Ok(file) => file,
+    };
 }
-pub fn write_file(building: Building) {
+pub fn write_by_file(building: Building) {
     let out = Path::new("out");
     match remove_dir_all(out) {Err(_)=>(),Ok(_)=>(),};
-    match create_dir(out) {Err(_)=>(),Ok(_)=>(),};
-    write_sig("barpbres.fe", building.barpbres_fe.source);
-    write_sig("bkngwl.bnw", building.bkngwl_bnw.source);
-    write_sig("boknagr.bkn", building.boknagr_bkn.source);
-    write_sig("clmn.uni", building.clmn_uni.source);
-    write_sig("coeffs.rsu", building.coeffs_rsu.source);
-    write_sig("elems.fe", building.elems_fe.source);
-    write_sig("elemsres.fe", building.elemsres_fe.source);
-    write_sig("elsss.fe", building.elsss_fe.source);
-    write_sig("etnames.et", building.etnames_et.source);
-    write_sig("expert", building.expert.source);
-    write_sig("head.fe", building.head_fe.source);
-    write_sig("isoar.fe", building.isoar_fe.source);
-    write_sig("loadcomb.cds", building.loadcomb_cds.source);
-    write_sig("material.mt", building.material_mt.source);
-    write_sig("ndunions.fe", building.ndunions_fe.source);
-    write_sig("nodes.fe", building.nodes_fe.source);
-    write_sig("nodesres.fe", building.nodesres_fe.source);
-    write_sig("object.nam", building.object_nam.source);
-    write_sig("pop.cut", building.pop_cut.source);
-    write_sig("procalc.set", building.procalc_set.source);
-    write_sig("prores.use", building.prores_use.source);
-    write_sig("rab.a0", building.rab_a0.source);
+    match create_dir    (out) {Err(_)=>(),Ok(_)=>(),};
+    write_sig("barpbres.fe",    &building.barpbres_fe);
+    write_sig("bkngwl.bnw",     &building.bkngwl_bnw);
+    write_sig("boknagr.bkn",    &building.boknagr_bkn);
+    write_sig("clmn.uni",       &building.clmn_uni);
+    write_sig("coeffs.rsu",     &building.coeffs_rsu);
+    write_sig("elems.fe",       &building.elems_fe);
+    write_sig("elemsres.fe",    &building.elemsres_fe);
+    write_sig("elsss.fe",       &building.elsss_fe);
+    write_sig("etnames.et",     &building.etnames_et);
+    write_sig("expert",         &building.expert);
+    write_sig("head.fe",        &building.head_fe);
+    write_sig("isoar.fe",       &building.isoar_fe);
+    write_sig("loadcomb.cds",   &building.loadcomb_cds);
+    write_sig("material.mt",    &building.material_mt);
+    write_sig("ndunions.fe",    &building.ndunions_fe);
+    write_sig("nodes.fe",       &building.nodes_fe);
+    write_sig("nodesres.fe",    &building.nodesres_fe);
+    write_sig("object.nam",     &building.object_nam);
+    write_sig("pop.cut",        &building.pop_cut);
+    write_sig("procalc.set",    &building.procalc_set);
+    write_sig("prores.use",     &building.prores_use);
+    write_sig("rab.a0",         &building.rab_a0);
     for i in 0..(building.rab_e.etazh_vec.len()) {
         let etazh = &building.rab_e.etazh_vec[i];
         let mut str_name = b"rab.e".to_vec();
@@ -1223,21 +1789,22 @@ pub fn write_file(building: Building) {
             Err(why) => panic!("couldn't utf8: {}", why.description()),
             Ok(name) => name,
         };
-        write_sig(name, etazh.source.clone());
+        write_sig(name, etazh);
     }
-    write_sig("rab.o0", building.rab_o0.source);
-    write_sig("rab.sdr", building.rab_sdr.source);
-    write_sig("rab.zag", building.rab_zag.source);
-    write_sig("reper.pos", building.reper_pos.source);
-    write_sig("rigbodys.fe", building.rigbodys_fe.source);
-    write_sig("rigids.fe", building.rigids_fe.source);
-    write_sig("rzagnums.fe", building.rzagnums_fe.source);
-    write_sig("seism.rsp", building.seism_rsp.source);
-    write_sig("slits.slt", building.slits_slt.source);
-    write_sig("szinfo.szi", building.szinfo_szi.source);
-    write_sig("vnum.fe", building.vnum_fe.source);
-    write_sig("wallascn.uni", building.wallascn_uni.source);
-    write_sig("wind.rsp", building.wind_rsp.source);
-    write_sig("zagrcmbs.zc", building.zagrcmbs_zc.source);
-    write_sig("zagrs.fe", building.zagrs_fe.source);
+    write_sig("rab.o0",         &building.rab_o0);
+    write_sig("rab.sdr",        &building.rab_sdr);
+    write_sig("rab.zag",        &building.rab_zag);
+    write_sig("reper.pos",      &building.reper_pos);
+    write_sig("rigbodys.fe",    &building.rigbodys_fe);
+    write_sig("rigids.fe",      &building.rigids_fe);
+    write_sig("rzagnums.fe",    &building.rzagnums_fe);
+    write_sig("seism.rsp",      &building.seism_rsp);
+    write_sig("slits.slt",      &building.slits_slt);
+    write_sig("szinfo.szi",     &building.szinfo_szi);
+    write_sig("vnum.fe",        &building.vnum_fe);
+    write_sig("wallascn.uni",   &building.wallascn_uni);
+    write_sig("wind.rsp",       &building.wind_rsp);
+    write_sig("zagrcmbs.zc",    &building.zagrcmbs_zc);
+    write_sig("zagrs.fe",       &building.zagrs_fe);
+    write_sig("BUILDING.chg",    &building);
 }

@@ -15,13 +15,13 @@ use std::path::Path;
 //use std::fs::{create_dir, remove_dir_all};
 //use std::fmt;
 //use std::str;
-
 //use byteorder::{LittleEndian, WriteBytesExt};
 
 mod io;
 
 fn main() {
-    let input = Path::new("hello.chg");
+    let input = Path::new("Вицмана3_2раз_экспертиза.chg");
     let test_building = io::read_file(input);
-    io::write_file(test_building);
+    io::write_by_file(test_building);
+    //println!("{:?}", test_building.file_type);
 }
