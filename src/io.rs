@@ -436,10 +436,11 @@ impl HasWrite for Etazh {
         }
         let mut out = b"rab.e".to_vec();
         out.push(self.num_line[0]);
-        if self.num_line[1] != 0 {
+        if self.num_line[1] != 0u8 {
             out.push(self.num_line[1]);
-        };
-        out.extend(vec![0u8]);
+        } else {
+            out.push(0u8);
+        }
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
@@ -763,7 +764,7 @@ impl HasWrite for Building {
         let mut out = match &self.file_type {
             FileType::BUILDER011 => b"BUILDER011".to_vec(),
             FileType::CHARGE37 => b"CHARGE 3.7".to_vec(),
-            FileType::ERROR => panic!("FileType::ERROR couldn't write"),
+            FileType::ERROR => [].to_vec(),//panic!("FileType::ERROR couldn't write"),
         };
         out.extend(write(&self.barpbres_fe));
         out.extend(write(&self.bkngwl_bnw));
@@ -1739,18 +1740,20 @@ pub fn read_file(path: &Path) -> Building {
     building.1
 }
 fn write_sig<T: HasWrite> (name: &str, sig: &T) {
-    let path_buf = Path::new("out").join(name);
-    let display = path_buf.as_path().display();
-    let mut file = match File::create(path_buf.as_path()) {
-        Err(why) => panic!("couldn't create {}: {}", display,
-                           why.description()),
-        Ok(file) => file,
-    };
-    match file.write_all(&write(sig)) {
-        Err(why) => panic!("couldn't write {}: {}", display,
-                           why.description()),
-        Ok(file) => file,
-    };
+    if sig.write().len() != 0 {
+        let path_buf = Path::new("out").join(name);
+        let display = path_buf.as_path().display();
+        let mut file = match File::create(path_buf.as_path()) {
+            Err(why) => panic!("couldn't create {}: {}", display,
+                               why.description()),
+            Ok(file) => file,
+        };
+        match file.write_all(&write(sig)) {
+            Err(why) => panic!("couldn't write {}: {}", display,
+                               why.description()),
+            Ok(file) => file,
+        };
+    }
 }
 pub fn write_by_file(building: Building) {
     let out = Path::new("out");
@@ -1781,7 +1784,9 @@ pub fn write_by_file(building: Building) {
     for i in 0..(building.rab_e.etazh_vec.len()) {
         let etazh = &building.rab_e.etazh_vec[i];
         let mut str_name = b"rab.e".to_vec();
-        str_name.push(etazh.num_line[0]);
+        if etazh.num_line[0] != 0 {
+            str_name.push(etazh.num_line[0]);
+        };
         if etazh.num_line[1] != 0 {
             str_name.push(etazh.num_line[1]);
         };
