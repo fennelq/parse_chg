@@ -17,6 +17,7 @@ mod tests {
             if let Ok(entry) = entry {
                 let input = entry.path();
                 let display = input.display();
+                println!("{:?}", input.file_name().expect("no file"));
                 let mut file = match File::open(&input) {
                     Err(why) => panic!("couldn't open {}: {}", display,
                                        why.description()),

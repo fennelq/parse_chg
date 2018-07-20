@@ -6,24 +6,23 @@ extern crate nom;
 extern crate arrayref;
 extern crate byteorder;
 
-//use std::io::prelude::*;
-//use std::fs::File;
-//use std::error::Error;
 use std::path::Path;
-//use nom::{le_u64};
-//use std::vec::Vec;
-//use std::fs::{create_dir, remove_dir_all};
-//use std::fmt;
-//use std::str;
-//use byteorder::{LittleEndian, WriteBytesExt};
+/*use std::io::prelude::*;
+use std::fs::File;
+use std::error::Error;
+use nom::{le_u64};
+use std::vec::Vec;
+use std::fs::{create_dir, remove_dir_all};
+use std::fmt;
+use std::str;
+use byteorder::{LittleEndian, WriteBytesExt};*/
 
 mod io;
 mod tests;
 use io::*;
 
 fn main() {
-    let input = Path::new("hello2.chg");
+    let input = Path::new("hello.chg");
     let test_building = read_file(input);
-//    print_res(&test_building);
     write_by_file(&test_building);
 }
