@@ -9,7 +9,7 @@ use std::str::{from_utf8};
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::borrow::Borrow;
 
-trait HasWrite {
+pub trait HasWrite {
     fn write(&self) -> Vec<u8>;
     fn name(&self) -> &str;
 }
@@ -1870,7 +1870,7 @@ pub fn read_file(path: &Path) -> Building {
     };
     building.1
 }
-fn write_sig<T: HasWrite> (sig: &T) {
+pub fn write_sig<T: HasWrite> (sig: &T) {
     if sig.write().len() != 0 {
         let path_buf = Path::new("out").join(sig.name());
         let display = path_buf.as_path().display();
@@ -1932,11 +1932,4 @@ pub fn write_by_file(building: &Building) {
     write_sig(building.zagrcmbs_zc.borrow());
     write_sig(building.zagrs_fe.borrow());
     write_sig(building.borrow());
-}
-
-pub fn print_res (b: &Building) {
-//    for i in 0..*&b.rab_e.etazh_vec.len() {
-//        println!("{:?}", b.rab_e.etazh_vec[i].name());
-//    }
-    println!("{:?}", b.name());
 }

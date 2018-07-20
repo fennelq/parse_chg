@@ -18,10 +18,12 @@ use std::path::Path;
 //use byteorder::{LittleEndian, WriteBytesExt};
 
 mod io;
+mod tests;
+use io::*;
 
 fn main() {
-    let input = Path::new("Вицмана3_2раз_экспертиза.chg");
-    let test_building = io::read_file(input);
-    io::print_res(&test_building);
-    io::write_by_file(&test_building);
+    let input = Path::new("hello2.chg");
+    let test_building = read_file(input);
+//    print_res(&test_building);
+    write_by_file(&test_building);
 }
