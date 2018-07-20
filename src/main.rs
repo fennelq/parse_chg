@@ -20,8 +20,8 @@ use std::path::Path;
 mod io;
 
 fn main() {
-    let input = Path::new("hello.chg");
+    let input = Path::new("Вицмана3_2раз_экспертиза.chg");
     let test_building = io::read_file(input);
-    io::write_by_file(test_building);
-    //println!("{:?}", test_building.file_type);
+    io::print_res(&test_building);
+    io::write_by_file(&test_building);
 }

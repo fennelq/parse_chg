@@ -2,14 +2,16 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::error::Error;
 use std::path::Path;
-use nom::{le_u64};
+use nom::{le_u64, le_u8};
 use std::vec::Vec;
 use std::fs::{create_dir, remove_dir_all};
 use std::str::{from_utf8};
 use byteorder::{LittleEndian, WriteBytesExt};
+use std::borrow::Borrow;
 
 trait HasWrite {
     fn write(&self) -> Vec<u8>;
+    fn name(&self) -> &str;
 }
 #[derive(Debug)]
 pub enum FileType {
@@ -26,9 +28,12 @@ impl HasWrite for BarpbresFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"barpbres.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+        "barpbres.fe"
     }
 }
 #[derive(Debug)]
@@ -41,12 +46,15 @@ impl HasWrite for BkngwlBnw {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"bkngwl.bnw".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "bkngwl.bnw"
     }
 }
 #[derive(Debug)]
@@ -59,12 +67,15 @@ impl HasWrite for BoknagrBkn {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"boknagr.bkn".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "boknagr.bkn"
     }
 }
 #[derive(Debug)]
@@ -77,12 +88,15 @@ impl HasWrite for ClmnUni {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"clmn.uni".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "clmn.uni"
     }
 }
 #[derive(Debug)]
@@ -95,12 +109,15 @@ impl HasWrite for CoeffsRsu {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"coeffs.rsu".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "coeffs.rsu"
     }
 }
 #[derive(Debug)]
@@ -113,12 +130,15 @@ impl HasWrite for ElemsFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"elems.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "elems.fe"
     }
 }
 #[derive(Debug)]
@@ -131,12 +151,15 @@ impl HasWrite for ElemsresFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"elemsres.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "elemsres.fe"
     }
 }
 #[derive(Debug)]
@@ -149,12 +172,15 @@ impl HasWrite for ElsssFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"elsss.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "elsss.fe"
     }
 }
 #[derive(Debug)]
@@ -167,12 +193,15 @@ impl HasWrite for EtnamesEt {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"etnames.et".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "etnames.et"
     }
 }
 #[derive(Debug)]
@@ -185,12 +214,15 @@ impl HasWrite for Expert {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"expert".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "expert"
     }
 }
 #[derive(Debug)]
@@ -203,12 +235,15 @@ impl HasWrite for HeadFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"head.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "head.fe"
     }
 }
 #[derive(Debug)]
@@ -221,12 +256,15 @@ impl HasWrite for IsoarFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"isoar.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "isoar.fe"
     }
 }
 #[derive(Debug)]
@@ -238,11 +276,14 @@ impl HasWrite for LoadcombCds {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"loadcomb.cds".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "loadcomb.cds"
     }
 }
 #[derive(Debug)]
@@ -255,12 +296,15 @@ impl HasWrite for MaterialMt {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"material.mt".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "material.mt"
     }
 }
 #[derive(Debug)]
@@ -273,12 +317,15 @@ impl HasWrite for NdunionsFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"ndunions.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "ndunions.fe"
     }
 }
 #[derive(Debug)]
@@ -291,12 +338,15 @@ impl HasWrite for NodesFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"nodes.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "nodes.fe"
     }
 }
 #[derive(Debug)]
@@ -309,12 +359,15 @@ impl HasWrite for NodesresFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"nodesres.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "nodesres.fe"
     }
 }
 #[derive(Debug)]
@@ -327,12 +380,15 @@ impl HasWrite for ObjectNam {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"object.nam".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "object.nam"
     }
 }
 #[derive(Debug)]
@@ -345,12 +401,15 @@ impl HasWrite for PopCut {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"pop.cut".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "pop.cut"
     }
 }
 #[derive(Debug)]
@@ -363,12 +422,15 @@ impl HasWrite for ProcalcSet {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"procalc.set".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "procalc.set"
     }
 }
 #[derive(Debug)]
@@ -381,12 +443,15 @@ impl HasWrite for ProresUse {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"prores.use".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "prores.use"
     }
 }
 #[derive(Debug)]
@@ -399,12 +464,15 @@ impl HasWrite for RabA0 {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rab.a0".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "rab.a0"
     }
 }
 #[derive(Debug)]
@@ -422,29 +490,44 @@ impl HasWrite for RabE {
         }
         out
     }
+    fn name(&self) -> &str {
+        "ETAZH_VEC"
+    }
 }
 #[derive(Debug)]
 pub struct Etazh {
-    num_line: [u8; 2],
+    name: [u8; 7],
     flag_line: [u8; 6],
-    source: Vec<u8>
+    source: Vec<u8>,
 }
 impl HasWrite for Etazh {
     fn write(&self) -> Vec<u8> {
-        if self.source.len() == 0 {
+        if *&self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rab.e".to_vec();
-        out.push(self.num_line[0]);
-        if self.num_line[1] != 0u8 {
-            out.push(self.num_line[1]);
-        } else {
+        let mut out = (&self.name().as_bytes()).to_vec();
+        if *&self.name[6] == 0 {
             out.push(0u8);
-        }
+        };
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+        if *&self.source.len() == 0 {
+            return ""
+        };
+        if *&self.name[6] == 0 {
+            return match from_utf8(&self.name[0..6]) {
+                Err(_) => "",
+                Ok(res) => res,
+            }
+        }
+        match from_utf8(&self.name) {
+            Err(_) => "",
+            Ok(res) => res,
+        }
     }
 }
 #[derive(Debug)]
@@ -457,12 +540,15 @@ impl HasWrite for RabO0 {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rab.o0".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "rab.o0"
     }
 }
 #[derive(Debug)]
@@ -475,12 +561,15 @@ impl HasWrite for RabSdr {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rab.sdr".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "rab.sdr"
     }
 }
 #[derive(Debug)]
@@ -493,12 +582,15 @@ impl HasWrite for RabZag {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rab.zag".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "rab.zag"
     }
 }
 #[derive(Debug)]
@@ -511,12 +603,15 @@ impl HasWrite for ReperPos {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"reper.pos".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "reper.pos"
     }
 }
 #[derive(Debug)]
@@ -529,12 +624,15 @@ impl HasWrite for RigbodysFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rigbodys.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "rigbodys.fe"
     }
 }
 #[derive(Debug)]
@@ -547,12 +645,15 @@ impl HasWrite for RigidsFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rigids.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "rigids.fe"
     }
 }
 #[derive(Debug)]
@@ -565,12 +666,15 @@ impl HasWrite for RzagnumsFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"rzagnums.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "rzagnums.fe"
     }
 }
 #[derive(Debug)]
@@ -583,12 +687,15 @@ impl HasWrite for SeismRsp {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"seism.rsp".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "seism.rsp"
     }
 }
 #[derive(Debug)]
@@ -601,12 +708,15 @@ impl HasWrite for SlitsSlt {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"slits.slt".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "slits.slt"
     }
 }
 #[derive(Debug)]
@@ -619,12 +729,15 @@ impl HasWrite for SzinfoSzi {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"szinfo.szi".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "szinfo.szi"
     }
 }
 #[derive(Debug)]
@@ -637,12 +750,15 @@ impl HasWrite for VnumFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"vnum.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "vnum.fe"
     }
 }
 #[derive(Debug)]
@@ -654,11 +770,14 @@ impl HasWrite for WallascnUni {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"wallascn.uni".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "wallascn.uni"
     }
 }
 #[derive(Debug)]
@@ -671,12 +790,15 @@ impl HasWrite for WindRsp {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"wind.rsp".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "wind.rsp"
     }
 }
 #[derive(Debug)]
@@ -689,12 +811,15 @@ impl HasWrite for ZagrcmbsZc {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"zagrcmbs.zc".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "zagrcmbs.zc"
     }
 }
 #[derive(Debug)]
@@ -707,12 +832,15 @@ impl HasWrite for ZagrsFe {
         if self.source.len() == 0 {
             return vec![];
         }
-        let mut out = b"zagrs.fe".to_vec();
+        let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
+    }
+    fn name(&self) -> &str {
+       "zagrs.fe"
     }
 }
 
@@ -805,6 +933,9 @@ impl HasWrite for Building {
         out.extend(write(&self.zagrcmbs_zc));
         out.extend(write(&self.zagrs_fe));
         out
+    }
+    fn name(&self) -> &str {
+        "BUILDING.chg"
     }
 }
 
@@ -1277,14 +1408,15 @@ named!(read_rab_e<&[u8], RabE>,
             etazh_vec: many1!(
                 do_parse!(
                     tag!("rab.e")           >>
-                    num_line: take!(2)      >>
+                    num1: le_u8             >>
+                    num2: le_u8             >>
                     flag_line: take!(6)     >>
                     offset: le_u64          >>
                     source: take!(offset)   >>
                     (Etazh {
-                        num_line: *array_ref!(num_line, 0 ,2),
                         flag_line: *array_ref!(flag_line, 0 ,6),
                         source: source.to_vec(),
+                        name: [114,97,98,46,101,num1,num2]
                     })
                 )
             )                               >>
@@ -1296,9 +1428,9 @@ named!(read_rab_e<&[u8], RabE>,
             etazh_vec: count!(
                 do_parse!(
                     (Etazh {
-                        num_line: [0; 2],
                         flag_line: [0; 6],
                         source: [].to_vec(),
+                        name: [0; 7],
                     })
                 )
             , 1)                            >>
@@ -1706,7 +1838,6 @@ named!(read_original<&[u8], Building>,
         })
     )
 );
-
 fn write<T: HasWrite>(sig: &T) -> Vec<u8> {
     sig.write()
 }
@@ -1739,9 +1870,9 @@ pub fn read_file(path: &Path) -> Building {
     };
     building.1
 }
-fn write_sig<T: HasWrite> (name: &str, sig: &T) {
+fn write_sig<T: HasWrite> (sig: &T) {
     if sig.write().len() != 0 {
-        let path_buf = Path::new("out").join(name);
+        let path_buf = Path::new("out").join(sig.name());
         let display = path_buf.as_path().display();
         let mut file = match File::create(path_buf.as_path()) {
             Err(why) => panic!("couldn't create {}: {}", display,
@@ -1755,61 +1886,57 @@ fn write_sig<T: HasWrite> (name: &str, sig: &T) {
         };
     }
 }
-pub fn write_by_file(building: Building) {
+pub fn write_by_file(building: &Building) {
     let out = Path::new("out");
     match remove_dir_all(out) {Err(_)=>(),Ok(_)=>(),};
     match create_dir    (out) {Err(_)=>(),Ok(_)=>(),};
-    write_sig("barpbres.fe",    &building.barpbres_fe);
-    write_sig("bkngwl.bnw",     &building.bkngwl_bnw);
-    write_sig("boknagr.bkn",    &building.boknagr_bkn);
-    write_sig("clmn.uni",       &building.clmn_uni);
-    write_sig("coeffs.rsu",     &building.coeffs_rsu);
-    write_sig("elems.fe",       &building.elems_fe);
-    write_sig("elemsres.fe",    &building.elemsres_fe);
-    write_sig("elsss.fe",       &building.elsss_fe);
-    write_sig("etnames.et",     &building.etnames_et);
-    write_sig("expert",         &building.expert);
-    write_sig("head.fe",        &building.head_fe);
-    write_sig("isoar.fe",       &building.isoar_fe);
-    write_sig("loadcomb.cds",   &building.loadcomb_cds);
-    write_sig("material.mt",    &building.material_mt);
-    write_sig("ndunions.fe",    &building.ndunions_fe);
-    write_sig("nodes.fe",       &building.nodes_fe);
-    write_sig("nodesres.fe",    &building.nodesres_fe);
-    write_sig("object.nam",     &building.object_nam);
-    write_sig("pop.cut",        &building.pop_cut);
-    write_sig("procalc.set",    &building.procalc_set);
-    write_sig("prores.use",     &building.prores_use);
-    write_sig("rab.a0",         &building.rab_a0);
-    for i in 0..(building.rab_e.etazh_vec.len()) {
+    write_sig(building.barpbres_fe.borrow());
+    write_sig(building.bkngwl_bnw.borrow());
+    write_sig(building.boknagr_bkn.borrow());
+    write_sig(building.clmn_uni.borrow());
+    write_sig(building.coeffs_rsu.borrow());
+    write_sig(building.elems_fe.borrow());
+    write_sig(building.elemsres_fe.borrow());
+    write_sig(building.elsss_fe.borrow());
+    write_sig(building.etnames_et.borrow());
+    write_sig(building.expert.borrow());
+    write_sig(building.head_fe.borrow());
+    write_sig(building.isoar_fe.borrow());
+    write_sig(building.loadcomb_cds.borrow());
+    write_sig(building.material_mt.borrow());
+    write_sig(building.ndunions_fe.borrow());
+    write_sig(building.nodes_fe.borrow());
+    write_sig(building.nodesres_fe.borrow());
+    write_sig(building.object_nam.borrow());
+    write_sig(building.pop_cut.borrow());
+    write_sig(building.procalc_set.borrow());
+    write_sig(building.prores_use.borrow());
+    write_sig(building.rab_a0.borrow());
+    for i in 0..(*&building.rab_e.etazh_vec.len()) {
         let etazh = &building.rab_e.etazh_vec[i];
-        let mut str_name = b"rab.e".to_vec();
-        if etazh.num_line[0] != 0 {
-            str_name.push(etazh.num_line[0]);
-        };
-        if etazh.num_line[1] != 0 {
-            str_name.push(etazh.num_line[1]);
-        };
-        let name = match from_utf8( &str_name){
-            Err(why) => panic!("couldn't utf8: {}", why.description()),
-            Ok(name) => name,
-        };
-        write_sig(name, etazh);
+        write_sig(etazh);
     }
-    write_sig("rab.o0",         &building.rab_o0);
-    write_sig("rab.sdr",        &building.rab_sdr);
-    write_sig("rab.zag",        &building.rab_zag);
-    write_sig("reper.pos",      &building.reper_pos);
-    write_sig("rigbodys.fe",    &building.rigbodys_fe);
-    write_sig("rigids.fe",      &building.rigids_fe);
-    write_sig("rzagnums.fe",    &building.rzagnums_fe);
-    write_sig("seism.rsp",      &building.seism_rsp);
-    write_sig("slits.slt",      &building.slits_slt);
-    write_sig("szinfo.szi",     &building.szinfo_szi);
-    write_sig("vnum.fe",        &building.vnum_fe);
-    write_sig("wallascn.uni",   &building.wallascn_uni);
-    write_sig("wind.rsp",       &building.wind_rsp);
-    write_sig("zagrcmbs.zc",    &building.zagrcmbs_zc);
-    write_sig("zagrs.fe",       &building.zagrs_fe);
-    write_sig("BUILDING.chg",    &building);
+    write_sig(building.rab_o0.borrow());
+    write_sig(building.rab_sdr.borrow());
+    write_sig(building.rab_zag.borrow());
+    write_sig(building.reper_pos.borrow());
+    write_sig(building.rigbodys_fe.borrow());
+    write_sig(building.rigids_fe.borrow());
+    write_sig(building.rzagnums_fe.borrow());
+    write_sig(building.seism_rsp.borrow());
+    write_sig(building.slits_slt.borrow());
+    write_sig(building.szinfo_szi.borrow());
+    write_sig(building.vnum_fe.borrow());
+    write_sig(building.wallascn_uni.borrow());
+    write_sig(building.wind_rsp.borrow());
+    write_sig(building.zagrcmbs_zc.borrow());
+    write_sig(building.zagrs_fe.borrow());
+    write_sig(building.borrow());
+}
+
+pub fn print_res (b: &Building) {
+//    for i in 0..*&b.rab_e.etazh_vec.len() {
+//        println!("{:?}", b.rab_e.etazh_vec[i].name());
+//    }
+    println!("{:?}", b.name());
 }
