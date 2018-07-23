@@ -477,16 +477,16 @@ impl HasWrite for RabA0 {
 }
 #[derive(Debug)]
 pub struct RabE {
-    etazh_vec: Vec<Etazh>
+    etazh: Vec<Etazh>
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
-        if self.etazh_vec.len() == 0 {
+        if self.etazh.len() == 0 {
             return vec![];
         }
         let mut out: Vec<u8> = vec![];
-        for i in 0..self.etazh_vec.len() {
-            out.extend(write(&self.etazh_vec[i]));
+        for i in 0..self.etazh.len() {
+            out.extend(write(&self.etazh[i]));
         }
         out
     }
@@ -530,6 +530,15 @@ impl HasWrite for Etazh {
         }
     }
 }
+#[derive(Debug)]
+pub struct WallsVec {
+    wall: Wall
+}
+#[derive(Debug)]
+pub struct Wall {
+    source: Vec<u8>
+}
+
 #[derive(Debug)]
 pub struct RabO0 {
     flag_line: [u8; 6],
@@ -1405,7 +1414,7 @@ named!(read_rab_a0<&[u8], RabA0>,
 named!(read_rab_e<&[u8], RabE>,
     alt_complete!(
         do_parse!(
-            etazh_vec: many1!(
+            etazh: many1!(
                 do_parse!(
                     tag!("rab.e")           >>
                     num1: le_u8             >>
@@ -1421,11 +1430,11 @@ named!(read_rab_e<&[u8], RabE>,
                 )
             )                               >>
             (RabE {
-                etazh_vec: etazh_vec
+                etazh: etazh
             })
         )                                   |
         do_parse!(
-            etazh_vec: count!(
+            etazh: count!(
                 do_parse!(
                     (Etazh {
                         flag_line: [0; 6],
@@ -1435,7 +1444,7 @@ named!(read_rab_e<&[u8], RabE>,
                 )
             , 1)                            >>
             (RabE {
-                etazh_vec: etazh_vec
+                etazh: etazh
             })
         )
     )
@@ -1912,8 +1921,8 @@ pub fn write_by_file(building: &Building) {
     write_sig(building.procalc_set.borrow());
     write_sig(building.prores_use.borrow());
     write_sig(building.rab_a0.borrow());
-    for i in 0..(*&building.rab_e.etazh_vec.len()) {
-        let etazh = &building.rab_e.etazh_vec[i];
+    for i in 0..(*&building.rab_e.etazh.len()) {
+        let etazh = &building.rab_e.etazh[i];
         write_sig(etazh);
     }
     write_sig(building.rab_o0.borrow());

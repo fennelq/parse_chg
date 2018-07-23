@@ -7,7 +7,7 @@ mod tests {
     use std::fs::File;
     use std::error::Error;
 
-    pub fn write_test<T: HasWrite> (sig: &T) -> Vec<u8> {
+    fn write_test<T: HasWrite> (sig: &T) -> Vec<u8> {
         sig.write()
     }
     #[test]
