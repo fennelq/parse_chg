@@ -531,12 +531,177 @@ impl HasWrite for Etazh {
     }
 }
 #[derive(Debug)]
+pub struct Point {
+    x: f32,
+    y: f32
+}
+impl Point {
+    pub fn get_x(&self) -> f32 {
+        *&self.x
+    }
+    pub fn get_y(&self) -> f32 {
+        *&self.y
+    }
+    pub fn set_x(&mut self, x: f32) {
+        self.x = x;
+    }
+    pub fn set_y(&mut self, y: f32) {
+        self.y = y;
+    }
+}
+pub trait ItsSec {
+}
+#[derive(Debug)]
+pub struct RectangleSec {
+    b: f32,
+    h: f32,
+    ws: [u8; 3]
+}
+impl ItsSec for RectangleSec {
+}
+#[derive(Debug)]
+pub struct CircleSec {
+    d: f32,
+    ws: [u8; 3]
+}
+impl ItsSec for CircleSec {
+}
+#[derive(Debug)]
+pub struct CrossSec {
+    b1: f32,
+    b2: f32,
+    b3: f32,
+    h1: f32,
+    h2: f32,
+    h3: f32,
+    ws: [u8; 2]
+}
+impl ItsSec for CrossSec {
+}
+#[derive(Debug)]
+pub struct RingSec {
+    d: f32,
+    t: f32,
+    ws: [u8; 2]
+}
+impl ItsSec for RingSec {
+}
+#[derive(Debug)]
+pub struct BoxSec {
+    b: f32,
+    b1: f32,
+    h: f32,
+    h1: f32,
+    ws: [u8; 2]
+}
+impl ItsSec for BoxSec {
+}
+#[derive(Debug)]
+pub struct BeadSec {
+    b: f32,
+    b1: f32,
+    b2: f32,
+    h: f32,
+    h1: f32,
+    h2: f32,
+    ws: [u8; 2]
+}
+impl ItsSec for BeadSec {
+}
+
+#[derive(Debug)]
+pub struct ColumnVec<T: ItsSec> {
+    column: Vec<(Column<T>)>
+}
+#[derive(Debug)]
+pub struct Column<T: ItsSec> {
+    p: Point,
+    ws1: [u8; 2], //2b
+    fi: f32,
+    ws2: Vec<u8>, //32b
+    ws3: Vec<u8>, //44b
+    type_sec: u8,
+    ws4: Vec<u8>, //33b
+    sec: T
+}
+#[derive(Debug)]
 pub struct WallsVec {
-    wall: Wall
+    wall: Vec<Wall>
 }
 #[derive(Debug)]
 pub struct Wall {
-    source: Vec<u8>
+    p1: Point,
+    p2: Point,
+    agt: u8,
+    flag: u8,
+    b: f32,
+    ws1: Vec<u8>, //20b
+    op_num: u16,
+    k: f32,
+    ws2: Vec<u8>, //34b
+    op: Vec<Openings>
+}
+#[derive(Debug)]
+pub struct Openings {
+    source: Vec<u8> //42b
+}
+#[derive(Debug)]
+pub struct BeamVec<T: ItsSec> {
+    beam: Vec<(Beam<T>)>
+}
+#[derive(Debug)]
+pub struct Beam<T: ItsSec> {
+    p1: Point,
+    p2: Point,
+    ws1: Vec<u8>, //36b
+    type_sec: u8,
+    ws2: Vec<u8>, //41b
+    sec: T
+}
+#[derive(Debug)]
+pub struct  SlabsVec {
+    slabs: Vec<Slabs>
+}
+#[derive(Debug)]
+pub struct Slabs {
+    ws1: [u8; 2],
+    b: f32,
+    ws2: [u8; 14],
+    c_load: f32,
+    l_load: f32,
+    s_load: f32,
+    ws3: Vec<u8> //100b
+}
+#[derive(Debug)]
+pub struct  LoadsVec {
+    load: Vec<Loads>
+}
+#[derive(Debug)]
+pub struct Loads {
+    source: Vec<u8> //31b
+}
+#[derive(Debug)]
+pub struct  PolyVec {
+    poly: Vec<Poly>
+}
+#[derive(Debug)]
+pub struct Poly {
+    name: u16,
+    from: u16,
+    to: u16,
+    amount: u16,
+    ws1: [u8; 4],
+    typ: u8,
+    number: u16,
+    ws2: [u8; 8]
+}
+#[derive(Debug)]
+pub struct  NodeVec {
+    node: Vec<Node>
+}
+#[derive(Debug)]
+pub struct Node {
+//    !!!
 }
 
 #[derive(Debug)]
