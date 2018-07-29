@@ -4,7 +4,7 @@ use std::error::Error;
 use std::path::Path;
 use nom::{le_u64, le_u8};
 use std::vec::Vec;
-use std::fs::{create_dir, remove_dir_all};
+use std::fs::{create_dir, remove_dir_all, read};
 use std::str::{from_utf8};
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::borrow::Borrow;
@@ -530,6 +530,30 @@ impl HasWrite for Etazh {
         }
     }
 }
+
+#[derive(Debug)]
+pub struct HeadEtazh {
+    etazh_num: u16,
+    etazh_h: f32,
+    ws1: Vec<u8>, //56b
+    columns_num: u16,
+    walls_num: u16,
+    beams_num: u16,
+    slabs_num: u16,
+    loads_num: u16,
+    poly_num: u16,
+    nodes_num: u16,
+    ws2: [u8; 12],
+    fwalls_num: u16,
+    part_num: u16,
+    ws3: [u8; 8],
+    fslabs: u16,
+    ws4: [u8; 4],
+    piles_num: u16,
+    ws5: [u8; 4],
+    fbeam_num: u16,
+    ws6: Vec<u8>, //180
+}
 #[derive(Debug)]
 pub struct Point {
     x: f32,
@@ -635,7 +659,7 @@ pub struct Wall {
     agt: u8,
     flag: u8,
     b: f32,
-    ws1: Vec<u8>, //20b
+    ws1: [u8; 20], //20b
     op_num: u16,
     k: f32,
     ws2: Vec<u8>, //34b
@@ -701,8 +725,157 @@ pub struct  NodeVec {
 }
 #[derive(Debug)]
 pub struct Node {
-//    !!!
+    p: Point,
+    from: u16,
+    to: u16,
+    ws1: [u8; 10]
 }
+#[derive(Debug)]
+pub struct  FWallVec {
+    f_wall: Vec<FWall>
+}
+#[derive(Debug)]
+pub struct FWall {
+    b: f32,
+    l: f32,
+    ws1: [u8;16],
+    f_b: f32,
+    f_l: f32,
+    f_h: f32,
+    ws2: [u8; 12]
+}
+#[derive(Debug)]
+pub struct  PartitionVec {
+    part: Vec<Partition>
+}
+#[derive(Debug)]
+pub struct Partition {
+    p1: Point,
+    p2: Point,
+    ws1: [u8; 2],
+    b: f32,
+    h: f32,
+    ws2: [u8; 20]
+}
+pub trait ItsBase {
+}
+#[derive(Debug)]
+pub struct NaturalPreset {
+    c1: f32,
+    c2: f32,
+    ws1: [u8; 8]
+}
+impl ItsBase for NaturalPreset{
+}
+#[derive(Debug)]
+pub struct NaturalComp {
+    ws1: [u8; 20]
+}
+impl ItsBase for NaturalComp {
+}
+#[derive(Debug)]
+pub struct PilingField {
+    ws1: [u8; 8]
+}
+impl ItsBase for PilingField {
+}
+#[derive(Debug)]
+pub struct PilingAsNatural {
+    step_x: f32,
+    step_y: f32,
+    f: f32,
+    delta_l: f32,
+    ws1: [u8; 8]
+}
+impl ItsBase for PilingAsNatural {
+}
+#[derive(Debug)]
+pub struct  FSlabsVec<T: ItsBase> {
+    f_slab: Vec<(FSlabs<T>)>
+}
+#[derive(Debug)]
+pub struct FSlabs<T: ItsBase> {
+    ws1: [u8; 8],
+    b: f32,
+    ws2: [u8; 4],
+    xz1: f32,
+    ws3: [u8; 3],
+    xz2: f32,
+    ws4: [u8; 4],
+    xz3: f32,
+    xz4: f32,
+    type_base: u8,
+    ws5: [u8; 8],
+    f_c: f32,
+    f_l: f32,
+    f_s: f32,
+    ws6: Vec<u8>, //32b
+    xz5: f32,
+    xz6: f32,
+    xz7: f32,
+    ws7: Vec<u8>, //37
+    base: T
+}
+pub trait ItsPiles {
+}
+#[derive(Debug)]
+pub struct PilesEF {
+    ef: f32,
+    ws1: [u8; 2]
+}
+impl ItsPiles for PilesEF {
+}
+#[derive(Debug)]
+pub struct PilesFL {
+    f: f32,
+    delta_l: f32,
+    ws1: [u8; 2]
+}
+impl ItsPiles for PilesFL {
+}
+#[derive(Debug)]
+pub struct PilesSize {
+    xz1: u8,
+    l: f32,
+    xz2: u8,
+    broaden: f32,
+    k: f32,
+    ws1: [u8; 9],
+    b: f32,
+    h: f32,
+    ws2: [u8; 2]
+}
+impl ItsPiles for PilesSize {
+}
+#[derive(Debug)]
+pub struct  PilesVec<T: ItsPiles> {
+    pile: Vec<(Piles<T>)>
+}
+#[derive(Debug)]
+pub struct Piles<T: ItsPiles> {
+    ws1: [u8; 2],
+    p: Point,
+    type_pil: u8,
+    ws2: [u8; 15],
+    base: T
+}
+#[derive(Debug)]
+pub struct  FBeamVec<T: ItsSec> {
+    f_beam: Vec<(FBeam<T>)>
+}
+#[derive(Debug)]
+pub struct FBeam<T: ItsSec> {
+    p1: Point,
+    p2: Point,
+    ws1: [u8; 2],
+    xz1: u16,
+    type_sec: u8,
+    ws2: Vec<u8>, //40b
+    sec: T
+}
+
+
+
 
 #[derive(Debug)]
 pub struct RabO0 {
@@ -2039,6 +2212,7 @@ pub fn read_file(path: &Path) -> Building {
         Err(why) => panic!("parse error {}", why),
         Ok(building) => building
     };
+
     if building.0.len() != 0 {
         println!("remainder of parsing: {:?}", building.0);
     };
@@ -2064,46 +2238,46 @@ pub fn write_by_file(building: &Building) {
     let out = Path::new("out");
     match remove_dir_all(out) {Err(_)=>(),Ok(_)=>(),};
     match create_dir    (out) {Err(_)=>(),Ok(_)=>(),};
-    write_sig(building.barpbres_fe.borrow());
-    write_sig(building.bkngwl_bnw.borrow());
-    write_sig(building.boknagr_bkn.borrow());
-    write_sig(building.clmn_uni.borrow());
-    write_sig(building.coeffs_rsu.borrow());
-    write_sig(building.elems_fe.borrow());
-    write_sig(building.elemsres_fe.borrow());
-    write_sig(building.elsss_fe.borrow());
-    write_sig(building.etnames_et.borrow());
-    write_sig(building.expert.borrow());
-    write_sig(building.head_fe.borrow());
-    write_sig(building.isoar_fe.borrow());
-    write_sig(building.loadcomb_cds.borrow());
-    write_sig(building.material_mt.borrow());
-    write_sig(building.ndunions_fe.borrow());
-    write_sig(building.nodes_fe.borrow());
-    write_sig(building.nodesres_fe.borrow());
-    write_sig(building.object_nam.borrow());
-    write_sig(building.pop_cut.borrow());
-    write_sig(building.procalc_set.borrow());
-    write_sig(building.prores_use.borrow());
-    write_sig(building.rab_a0.borrow());
+    write_sig(&building.barpbres_fe);
+    write_sig(&building.bkngwl_bnw);
+    write_sig(&building.boknagr_bkn);
+    write_sig(&building.clmn_uni);
+    write_sig(&building.coeffs_rsu);
+    write_sig(&building.elems_fe);
+    write_sig(&building.elemsres_fe);
+    write_sig(&building.elsss_fe);
+    write_sig(&building.etnames_et);
+    write_sig(&building.expert);
+    write_sig(&building.head_fe);
+    write_sig(&building.isoar_fe);
+    write_sig(&building.loadcomb_cds);
+    write_sig(&building.material_mt);
+    write_sig(&building.ndunions_fe);
+    write_sig(&building.nodes_fe);
+    write_sig(&building.nodesres_fe);
+    write_sig(&building.object_nam);
+    write_sig(&building.pop_cut);
+    write_sig(&building.procalc_set);
+    write_sig(&building.prores_use);
+    write_sig(&building.rab_a0);
     for i in 0..(*&building.rab_e.etazh.len()) {
         let etazh = &building.rab_e.etazh[i];
         write_sig(etazh);
     }
-    write_sig(building.rab_o0.borrow());
-    write_sig(building.rab_sdr.borrow());
-    write_sig(building.rab_zag.borrow());
-    write_sig(building.reper_pos.borrow());
-    write_sig(building.rigbodys_fe.borrow());
-    write_sig(building.rigids_fe.borrow());
-    write_sig(building.rzagnums_fe.borrow());
-    write_sig(building.seism_rsp.borrow());
-    write_sig(building.slits_slt.borrow());
-    write_sig(building.szinfo_szi.borrow());
-    write_sig(building.vnum_fe.borrow());
-    write_sig(building.wallascn_uni.borrow());
-    write_sig(building.wind_rsp.borrow());
-    write_sig(building.zagrcmbs_zc.borrow());
-    write_sig(building.zagrs_fe.borrow());
+    write_sig(&building.rab_o0);
+    write_sig(&building.rab_sdr);
+    write_sig(&building.rab_zag);
+    write_sig(&building.reper_pos);
+    write_sig(&building.rigbodys_fe);
+    write_sig(&building.rigids_fe);
+    write_sig(&building.rzagnums_fe);
+    write_sig(&building.seism_rsp);
+    write_sig(&building.slits_slt);
+    write_sig(&building.szinfo_szi);
+    write_sig(&building.vnum_fe);
+    write_sig(&building.wallascn_uni);
+    write_sig(&building.wind_rsp);
+    write_sig(&building.zagrcmbs_zc);
+    write_sig(&building.zagrs_fe);
     write_sig(building.borrow());
 }
