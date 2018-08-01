@@ -22,7 +22,7 @@ mod tests;
 use io::*;
 
 fn main() {
-    let input = Path::new("Одна_колонна.chg");
+    let input = Path::new("Одна_балка4.chg");
     let test_building = read_file(input);
     write_by_file(&test_building);
     let f = parse_rab_e(&test_building.rab_e[0].source);

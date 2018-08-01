@@ -531,7 +531,8 @@ enum Sec {
     Cross(CrossSec),
     Ring(RingSec),
     Box(BoxSec),
-    Bead(BeadSec)
+    Bead(BeadSec),
+    Shelves(ShelvesSec)
 }
 #[derive(Debug)]
 pub struct RectangleSec {
@@ -578,7 +579,16 @@ pub struct BeadSec {
     h2: f32,
     ws: [u8; 2]
 }
-
+#[derive(Debug)]
+pub struct ShelvesSec {
+    b: f32,
+    h: f32,
+    b1: f32,
+    h1: f32,
+    b2: f32,
+    h2: f32,
+    ws: [u8; 2]
+}
 #[derive(Debug)]
 pub struct ColumnVec {
     column: Vec<Column>
@@ -597,7 +607,7 @@ pub struct Column {
 impl Column {
     pub fn print(&self) {
         println!("Тип сечения:  {}", &self.type_sec);
-        //println!("Sec:          {:?}", &self.sec);
+        println!("Sec:          {:?}", &self.sec);
     }
 }
 #[derive(Debug)]
@@ -613,8 +623,9 @@ pub struct Wall {
     b: f32,
     ws1: [u8; 20], //20b
     op_num: u16,
+    ws2: Vec<u8>, //38b
     k: f32,
-    ws2: Vec<u8>, //34b
+    ws3: Vec<u8>, //34b
     op: Vec<Openings>
 }
 #[derive(Debug)]
@@ -1526,25 +1537,25 @@ named!(read_rab_e_head<&[u8], HeadEtazh>,
         fbeam_num: le_u16                   >>
         ws6: take!(180)                     >>
         (HeadEtazh {
-            etazh_num: etazh_num,
-            etazh_h: etazh_h,
+            etazh_num,
+            etazh_h,
             ws1: ws1.to_vec(),
-            columns_num: columns_num,
-            walls_num: walls_num,
-            beams_num: beams_num,
-            slabs_num:  slabs_num,
-            loads_num: loads_num,
-            poly_num: poly_num,
-            nodes_num: nodes_num,
+            columns_num,
+            walls_num,
+            beams_num,
+            slabs_num,
+            loads_num,
+            poly_num,
+            nodes_num,
             ws2: *array_ref!(ws2, 0, 12),
-            fwalls_num: fwalls_num,
-            part_num: part_num,
+            fwalls_num,
+            part_num,
             ws3: *array_ref!(ws3, 0, 8),
-            fslabs: fslabs,
+            fslabs,
             ws4: *array_ref!(ws4, 0, 4),
-            piles_num: piles_num,
+            piles_num,
             ws5: *array_ref!(ws5, 0 ,4),
-            fbeam_num: fbeam_num,
+            fbeam_num,
             ws6: ws6.to_vec()
         })
     )
@@ -1633,21 +1644,37 @@ named!(read_bead_sec<&[u8], BeadSec>,
         })
     )
 );
+named!(read_shelves_sec<&[u8], ShelvesSec>,
+    do_parse!(
+        b: le_f32                           >>
+        h: le_f32                           >>
+        b1: le_f32                          >>
+        h1: le_f32                          >>
+        b2: le_f32                          >>
+        h2: le_f32                          >>
+        ws: take!(2)                        >>
+        (ShelvesSec {
+            b, h, b1, h1, b2, h2,
+            ws: *array_ref!(ws, 0 ,2),
+        })
+    )
+);
 named_args!(read_sec(type_sec: u8)<&[u8], Sec>,
     do_parse!(
-        rectangle:  cond!(type_sec == 1,
-            read_rectangle_sec)         >>
-        circle:     cond!(type_sec == 2,
-            read_circle_sec)            >>
-        cross:      cond!(type_sec == 3,
-            read_cross_sec)             >>
-        ring:       cond!(type_sec == 4,
-            read_ring_sec)              >>
-        _box:       cond!(type_sec == 5,
-            read_box_sec)               >>
-        bead:       cond!(type_sec == 6,
-            read_bead_sec)              >>
-        //TODO Add type 7
+        rectangle: cond!(type_sec == 1,
+            read_rectangle_sec)             >>
+        circle: cond!(type_sec    == 2,
+            read_circle_sec)                >>
+        cross: cond!(type_sec     == 3,
+            read_cross_sec)                 >>
+        ring: cond!(type_sec      == 4,
+            read_ring_sec)                  >>
+        _box: cond!(type_sec      == 5,
+            read_box_sec)                   >>
+        bead: cond!(type_sec      == 6,
+            read_bead_sec)                  >>
+        shelves: cond!(type_sec   == 7,
+            read_shelves_sec)               >>
         (match type_sec {
                 1 => Sec::Rectangle(rectangle.unwrap()),
                 2 => Sec::Circle(circle.unwrap()),
@@ -1655,33 +1682,92 @@ named_args!(read_sec(type_sec: u8)<&[u8], Sec>,
                 4 => Sec::Ring(ring.unwrap()),
                 5 => Sec::Box(_box.unwrap()),
                 6 => Sec::Bead(bead.unwrap()),
+                7 => Sec::Shelves(shelves.unwrap()),
                 _ => panic!("type_sec error"),
             }
         )
     )
 );
 named!(read_rab_e_column<&[u8], Column >,
+    do_parse!(
+        take!(294)                          >>//without head
+        p: read_point                       >>
+        ws1: take!(2)                       >>
+        fi: le_f32                          >>
+        ws2: take!(32)                      >>
+        ws3: take!(44)                      >>
+        type_sec: le_u8                     >>
+        ws4: take!(33)                      >>
+        sec: apply!(read_sec, type_sec)     >>
+        (Column {
+            p,
+            ws1: *array_ref!(ws1, 0, 2),
+            fi,
+            ws2: ws2.to_vec(), //32b
+            ws3: ws3.to_vec(), //44b
+            type_sec: type_sec,
+            ws4: ws4.to_vec(), //33b
+            sec
+        })
+    )
+);
+named!(read_rab_e_wall<&[u8], Wall>,
+    do_parse!(
+        take!(294)                          >>//without head
+        p1: read_point                      >>
+        p2: read_point                      >>
+        agt: le_u8                          >>
+        flag: le_u8                         >>
+        b: le_f32                           >>
+        ws1: take!(20)                      >>
+        op_num: le_u16                      >>
+        ws2: take!(38)                      >>
+        k: le_f32                           >>
+        ws3: take!(34)                      >>
+        op: apply!(read_wall_op, op_num as usize) >>
+        (Wall {
+            p1,
+            p2,
+            agt,
+            flag,
+            b,
+            ws1: *array_ref!(ws1, 0, 20),//20b
+            op_num,
+            ws2: ws2.to_vec(),//38b
+            k,
+            ws3: ws3.to_vec(),//34b
+            op
+        })
+    )
+);
+named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Openings> >,
+    count!(
         do_parse!(
-            take!(294)                      >>//without head
-            p: read_point                   >>
-            ws1: take!(2)                   >>
-            fi: le_f32                      >>
-            ws2: take!(32)                  >>
-            ws3: take!(44)                  >>
-            type_sec: le_u8                 >>
-            ws4: take!(33)                  >>
-            sec: apply!(read_sec, type_sec) >>
-            (Column {
-                p: p,
-                ws1: *array_ref!(ws1, 0, 2),
-                fi: fi,
-                ws2: ws2.to_vec(), //32b
-                ws3: ws3.to_vec(), //44b
-                type_sec: type_sec,
-                ws4: ws4.to_vec(), //33b
-                sec: sec
+            source: take!(42)               >>
+            (Openings {
+                source: source.to_vec()
             })
         )
+    ,op_num)
+);
+named!(read_rab_e_beam<&[u8], Beam >,
+    do_parse!(
+        take!(294)                          >>//without head
+        p1: read_point                      >>
+        p2: read_point                      >>
+        ws1: take!(36)                      >>
+        type_sec: le_u8                     >>
+        ws2: take!(41)                      >>
+        sec: apply!(read_sec, type_sec)     >>
+        (Beam {
+            p1,
+            p2,
+            ws1: ws1.to_vec(), //36b
+            type_sec: type_sec,
+            ws2: ws2.to_vec(), //41b
+            sec
+        })
+    )
 );
 
 
@@ -1922,45 +2008,20 @@ named!(read_original<&[u8], Building>,
         zagrcmbs_zc: opt!(read_zagrcmbs_zc) >>
         zagrs_fe: opt!(read_zagrs_fe)       >>
         (Building{
-            file_type: file_type,
-            barpbres_fe: barpbres_fe,
-            bkngwl_bnw: bkngwl_bnw,
-            boknagr_bkn: boknagr_bkn,
-            clmn_uni: clmn_uni,
-            coeffs_rsu: coeffs_rsu,
-            elems_fe: elems_fe,
-            elemsres_fe: elemsres_fe,
-            elsss_fe: elsss_fe,
-            etnames_et: etnames_et,
-            expert: expert,
-            head_fe: head_fe,
-            isoar_fe: isoar_fe,
-            loadcomb_cds: loadcomb_cds,
-            material_mt: material_mt,
-            ndunions_fe: ndunions_fe,
-            nodes_fe: nodes_fe,
-            nodesres_fe: nodesres_fe,
-            object_nam: object_nam,
-            pop_cut: pop_cut,
-            procalc_set: procalc_set,
-            prores_use: prores_use,
-            rab_a0: rab_a0,
-            rab_e: rab_e.unwrap_or(vec![]),
-            rab_o0: rab_o0,
-            rab_sdr: rab_sdr,
-            rab_zag: rab_zag,
-            reper_pos: reper_pos,
-            rigbodys_fe: rigbodys_fe,
-            rigids_fe: rigids_fe,
-            rzagnums_fe: rzagnums_fe,
-            seism_rsp: seism_rsp,
-            slits_slt: slits_slt,
-            szinfo_szi: szinfo_szi,
-            vnum_fe: vnum_fe,
-            wallascn_uni: wallascn_uni,
-            wind_rsp: wind_rsp,
-            zagrcmbs_zc: zagrcmbs_zc,
-            zagrs_fe: zagrs_fe
+            file_type,      barpbres_fe,    bkngwl_bnw,
+            boknagr_bkn,    clmn_uni,       coeffs_rsu,
+            elems_fe,       elemsres_fe,    elsss_fe,
+            etnames_et,     expert,         head_fe,
+            isoar_fe,       loadcomb_cds,   material_mt,
+            ndunions_fe,    nodes_fe,       nodesres_fe,
+            object_nam,     pop_cut,        procalc_set,
+            prores_use,     rab_a0,
+            rab_e: rab_e.unwrap_or(vec![]),             //Vec rab.e
+            rab_o0,         rab_sdr,        rab_zag,
+            reper_pos,      rigbodys_fe,    rigids_fe,
+            rzagnums_fe,    seism_rsp,      slits_slt,
+            szinfo_szi,     vnum_fe,        wallascn_uni,
+            wind_rsp,       zagrcmbs_zc,    zagrs_fe
         })
     )
 );
@@ -2083,6 +2144,6 @@ pub fn write_by_file(building: &Building) {
     write_sig(building.borrow());
 }
 
-pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Column> {
-    read_rab_e_column(source)
+pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Beam> {
+    read_rab_e_beam(source)
 }
