@@ -22,7 +22,7 @@ mod tests;
 use io::*;
 
 fn main() {
-    let input = Path::new("Одна_Фбалка2.chg");
+    let input = Path::new("hello.chg");
     let test_building = read_file(input);
     write_by_file(&test_building);
 }
