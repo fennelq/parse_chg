@@ -2,7 +2,8 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::error::Error;
 use std::path::Path;
-use nom::{le_u64, /*le_u16,*/ le_u8 /*,le_f32*/};
+use nom::{le_u64, le_u16, le_u8, le_f32};
+use nom::IResult;
 use std::vec::Vec;
 use std::fs::{create_dir, remove_dir_all};
 use std::str::{from_utf8};
@@ -432,7 +433,7 @@ impl HasWrite for RabE {
 pub struct RabE {
     name: [u8; 7],
     flag_line: [u8; 6],
-    source: Vec<u8>,
+    pub source: Vec<u8>,
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
@@ -462,7 +463,7 @@ impl HasWrite for RabE {
     }
 }
 
-/*#[derive(Debug)]
+#[derive(Debug)]
 pub struct HeadEtazh {
     etazh_num: u16,
     etazh_h: f32,
@@ -485,6 +486,25 @@ pub struct HeadEtazh {
     fbeam_num: u16,
     ws6: Vec<u8>, //180
 }
+impl HeadEtazh {
+    pub fn print(&self) {
+        println!("Номер этажа:          {}", &self.etazh_num);
+        println!("Высота этажа:         {}", &self.etazh_h);
+        println!("Количество колонн:    {}", &self.columns_num);
+        println!("Количество стен:      {}", &self.walls_num);
+        println!("Количество балок:     {}", &self.beams_num);
+        println!("Количество плит:      {}", &self.slabs_num);
+        println!("Количество нагрузок:  {}", &self.loads_num);
+        println!("Количество полилиний: {}", &self.poly_num);
+        println!("Количество узлов:     {}", &self.nodes_num);
+        println!("Количество фунд.стен: {}", &self.fwalls_num);
+        println!("Количество перегород.:{}", &self.part_num);
+        println!("Количество фунд.плит: {}", &self.fslabs);
+        println!("Количество свай:      {}", &self.piles_num);
+        println!("Количество фунд.балок:{}", &self.fbeam_num);
+
+    }
+}
 #[derive(Debug)]
 pub struct Point {
     x: f32,
@@ -504,7 +524,14 @@ impl Point {
         self.y = y;
     }
 }
-pub trait ItsSec {
+#[derive(Debug)]
+enum Sec {
+    Rectangle(RectangleSec),
+    Circle(CircleSec),
+    Cross(CrossSec),
+    Ring(RingSec),
+    Box(BoxSec),
+    Bead(BeadSec)
 }
 #[derive(Debug)]
 pub struct RectangleSec {
@@ -512,14 +539,10 @@ pub struct RectangleSec {
     h: f32,
     ws: [u8; 3]
 }
-impl ItsSec for RectangleSec {
-}
 #[derive(Debug)]
 pub struct CircleSec {
     d: f32,
     ws: [u8; 3]
-}
-impl ItsSec for CircleSec {
 }
 #[derive(Debug)]
 pub struct CrossSec {
@@ -531,15 +554,11 @@ pub struct CrossSec {
     h3: f32,
     ws: [u8; 2]
 }
-impl ItsSec for CrossSec {
-}
 #[derive(Debug)]
 pub struct RingSec {
     d: f32,
     t: f32,
     ws: [u8; 2]
-}
-impl ItsSec for RingSec {
 }
 #[derive(Debug)]
 pub struct BoxSec {
@@ -548,8 +567,6 @@ pub struct BoxSec {
     h: f32,
     h1: f32,
     ws: [u8; 2]
-}
-impl ItsSec for BoxSec {
 }
 #[derive(Debug)]
 pub struct BeadSec {
@@ -561,15 +578,13 @@ pub struct BeadSec {
     h2: f32,
     ws: [u8; 2]
 }
-impl ItsSec for BeadSec {
-}
 
 #[derive(Debug)]
-pub struct ColumnVec<T: ItsSec> {
-    column: Vec<(Column<T>)>
+pub struct ColumnVec {
+    column: Vec<Column>
 }
 #[derive(Debug)]
-pub struct Column<T: ItsSec> {
+pub struct Column {
     p: Point,
     ws1: [u8; 2], //2b
     fi: f32,
@@ -577,7 +592,13 @@ pub struct Column<T: ItsSec> {
     ws3: Vec<u8>, //44b
     type_sec: u8,
     ws4: Vec<u8>, //33b
-    sec: T
+    sec: Sec
+}
+impl Column {
+    pub fn print(&self) {
+        println!("Тип сечения:  {}", &self.type_sec);
+        //println!("Sec:          {:?}", &self.sec);
+    }
 }
 #[derive(Debug)]
 pub struct WallsVec {
@@ -601,17 +622,17 @@ pub struct Openings {
     source: Vec<u8> //42b
 }
 #[derive(Debug)]
-pub struct BeamVec<T: ItsSec> {
-    beam: Vec<(Beam<T>)>
+pub struct BeamVec {
+    beam: Vec<Beam>
 }
 #[derive(Debug)]
-pub struct Beam<T: ItsSec> {
+pub struct Beam {
     p1: Point,
     p2: Point,
     ws1: Vec<u8>, //36b
     type_sec: u8,
     ws2: Vec<u8>, //41b
-    sec: T
+    sec: Sec
 }
 #[derive(Debug)]
 pub struct  SlabsVec {
@@ -791,19 +812,19 @@ pub struct Piles<T: ItsPiles> {
     base: T
 }
 #[derive(Debug)]
-pub struct  FBeamVec<T: ItsSec> {
-    f_beam: Vec<(FBeam<T>)>
+pub struct  FBeamVec {
+    f_beam: Vec<FBeam>
 }
 #[derive(Debug)]
-pub struct FBeam<T: ItsSec> {
+pub struct FBeam {
     p1: Point,
     p2: Point,
     ws1: [u8; 2],
     xz1: u16,
     type_sec: u8,
     ws2: Vec<u8>, //40b
-    sec: T
-}*/
+    sec: Sec
+}
 
 
 
@@ -1482,7 +1503,7 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
         )
     )
 );
-/*named! (read_rab_e_head<&[u8], HeadEtazh>,
+named!(read_rab_e_head<&[u8], HeadEtazh>,
     do_parse!(
         etazh_num: le_u16                   >>
         etazh_h: le_f32                     >>
@@ -1527,7 +1548,143 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
             ws6: ws6.to_vec()
         })
     )
-);*/
+);
+named!(read_point<&[u8], Point>,
+    do_parse!(
+        x: le_f32                           >>
+        y: le_f32                           >>
+        (Point {
+            x, y
+        })
+    )
+);
+named!(read_rectangle_sec<&[u8], RectangleSec>,
+    do_parse!(
+        b: le_f32                           >>
+        h: le_f32                           >>
+        ws: take!(3)                        >>
+        (RectangleSec {
+            b, h,
+            ws: *array_ref!(ws, 0 ,3),
+        })
+    )
+);
+named!(read_circle_sec<&[u8], CircleSec>,
+    do_parse!(
+        d: le_f32                           >>
+        ws: take!(3)                        >>
+        (CircleSec {
+            d,
+            ws: *array_ref!(ws, 0 ,3),
+        })
+    )
+);
+named!(read_cross_sec<&[u8], CrossSec>,
+    do_parse!(
+        b1: le_f32                          >>
+        b2: le_f32                          >>
+        b3: le_f32                          >>
+        h1: le_f32                          >>
+        h2: le_f32                          >>
+        h3: le_f32                          >>
+        ws: take!(2)                        >>
+        (CrossSec {
+            b1, b2, b3, h1, h2, h3,
+            ws: *array_ref!(ws, 0 ,2),
+        })
+    )
+);
+named!(read_ring_sec<&[u8], RingSec>,
+    do_parse!(
+        d: le_f32                           >>
+        t: le_f32                           >>
+        ws: take!(2)                        >>
+        (RingSec {
+            d, t,
+            ws: *array_ref!(ws, 0 ,2),
+        })
+    )
+);
+named!(read_box_sec<&[u8], BoxSec>,
+    do_parse!(
+        b: le_f32                           >>
+        b1: le_f32                          >>
+        h: le_f32                           >>
+        h1: le_f32                          >>
+        ws: take!(2)                        >>
+        (BoxSec {
+            b, b1, h, h1,
+            ws: *array_ref!(ws, 0 ,2),
+        })
+    )
+);
+named!(read_bead_sec<&[u8], BeadSec>,
+    do_parse!(
+        b: le_f32                           >>
+        b1: le_f32                          >>
+        b2: le_f32                          >>
+        h: le_f32                           >>
+        h1: le_f32                          >>
+        h2: le_f32                          >>
+        ws: take!(2)                        >>
+        (BeadSec {
+            b, b1, b2, h, h1, h2,
+            ws: *array_ref!(ws, 0 ,2),
+        })
+    )
+);
+named_args!(read_sec(type_sec: u8)<&[u8], Sec>,
+    do_parse!(
+        rectangle:  cond!(type_sec == 1,
+            read_rectangle_sec)         >>
+        circle:     cond!(type_sec == 2,
+            read_circle_sec)            >>
+        cross:      cond!(type_sec == 3,
+            read_cross_sec)             >>
+        ring:       cond!(type_sec == 4,
+            read_ring_sec)              >>
+        _box:       cond!(type_sec == 5,
+            read_box_sec)               >>
+        bead:       cond!(type_sec == 6,
+            read_bead_sec)              >>
+        //TODO Add type 7
+        (match type_sec {
+                1 => Sec::Rectangle(rectangle.unwrap()),
+                2 => Sec::Circle(circle.unwrap()),
+                3 => Sec::Cross(cross.unwrap()),
+                4 => Sec::Ring(ring.unwrap()),
+                5 => Sec::Box(_box.unwrap()),
+                6 => Sec::Bead(bead.unwrap()),
+                _ => panic!("type_sec error"),
+            }
+        )
+    )
+);
+named!(read_rab_e_column<&[u8], Column >,
+        do_parse!(
+            take!(294)                      >>//without head
+            p: read_point                   >>
+            ws1: take!(2)                   >>
+            fi: le_f32                      >>
+            ws2: take!(32)                  >>
+            ws3: take!(44)                  >>
+            type_sec: le_u8                 >>
+            ws4: take!(33)                  >>
+            sec: apply!(read_sec, type_sec) >>
+            (Column {
+                p: p,
+                ws1: *array_ref!(ws1, 0, 2),
+                fi: fi,
+                ws2: ws2.to_vec(), //32b
+                ws3: ws3.to_vec(), //44b
+                type_sec: type_sec,
+                ws4: ws4.to_vec(), //33b
+                sec: sec
+            })
+        )
+);
+
+
 named!(read_rab_o0<&[u8], RabO0>,
     complete!(do_parse!(
         tag!("rab.o0")                      >>
@@ -1924,4 +2081,8 @@ pub fn write_by_file(building: &Building) {
     write_sig_opt(&building.zagrcmbs_zc);
     write_sig_opt(&building.zagrs_fe);
     write_sig(building.borrow());
+}
+
+pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Column> {
+    read_rab_e_column(source)
 }
