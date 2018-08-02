@@ -1769,7 +1769,27 @@ named!(read_rab_e_beam<&[u8], Beam >,
         })
     )
 );
-
+named!(read_rab_e_slabs<&[u8], Slabs >,
+    do_parse!(
+        take!(294)                          >>//without head
+        ws1: take!(2)                       >>
+        b: le_f32                           >>
+        ws2: take!(14)                      >>
+        c_load: le_f32                      >>
+        l_load: le_f32                      >>
+        s_load: le_f32                      >>
+        ws3: take!(100)                     >>
+        (Slabs {
+            ws1: *array_ref!(ws1, 0, 2),
+            b,
+            ws2: *array_ref!(ws2, 0, 14),
+            c_load,
+            l_load,
+            s_load,
+            ws3: ws3.to_vec() //100b
+        })
+    )
+);
 
 named!(read_rab_o0<&[u8], RabO0>,
     complete!(do_parse!(
@@ -2144,6 +2164,6 @@ pub fn write_by_file(building: &Building) {
     write_sig(building.borrow());
 }
 
-pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Beam> {
-    read_rab_e_beam(source)
+pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Slabs> {
+    read_rab_e_slabs(source)
 }
