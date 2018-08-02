@@ -1688,7 +1688,7 @@ named_args!(read_sec(type_sec: u8)<&[u8], Sec>,
         )
     )
 );
-named!(read_rab_e_column<&[u8], Column >,
+named!(read_rab_e_column<&[u8], Column>,
     do_parse!(
         take!(294)                          >>//without head
         p: read_point                       >>
@@ -1750,7 +1750,7 @@ named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Openings> >,
         )
     ,op_num)
 );
-named!(read_rab_e_beam<&[u8], Beam >,
+named!(read_rab_e_beam<&[u8], Beam>,
     do_parse!(
         take!(294)                          >>//without head
         p1: read_point                      >>
@@ -1769,7 +1769,7 @@ named!(read_rab_e_beam<&[u8], Beam >,
         })
     )
 );
-named!(read_rab_e_slabs<&[u8], Slabs >,
+named!(read_rab_e_slabs<&[u8], Slabs>,
     do_parse!(
         take!(294)                          >>//without head
         ws1: take!(2)                       >>
@@ -1790,6 +1790,54 @@ named!(read_rab_e_slabs<&[u8], Slabs >,
         })
     )
 );
+named!(read_rab_e_loads<&[u8], Loads>,
+    do_parse!(
+        take!(426)                          >> //without head, slabs
+        source: take!(32)                   >>
+        (Loads {
+            source: source.to_vec() //31b
+        })
+    )
+);
+named!(read_rab_e_poly<&[u8], Poly>,
+    do_parse!(
+        take!(426)                          >>//without head, slabs
+        name: le_u16                        >>
+        from: le_u16                        >>
+        to: le_u16                          >>
+        amount: le_u16                      >>
+        ws1: take!(4)                       >>
+        typ: le_u8                          >>
+        number: le_u16                      >>
+        ws2: take!(8)                       >>
+        (Poly {
+            name,
+            from,
+            to,
+            amount,
+            ws1: *array_ref!(ws1, 0 ,4),
+            typ,
+            number,
+            ws2: *array_ref!(ws2, 0 ,8)
+        })
+    )
+);
+named!(read_rab_e_node<&[u8], Node>,
+    do_parse!(
+        take!(449)                          >>//without head, slabs, poly
+        p: read_point                       >>
+        from: le_u16                        >>
+        to: le_u16                          >>
+        ws1: take!(10)                      >>
+        (Node {
+            p,
+            from,
+            to,
+            ws1: *array_ref!(ws1, 0 ,10)
+        })
+    )
+);
+
 
 named!(read_rab_o0<&[u8], RabO0>,
     complete!(do_parse!(
@@ -2164,6 +2212,6 @@ pub fn write_by_file(building: &Building) {
     write_sig(building.borrow());
 }
 
-pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Slabs> {
-    read_rab_e_slabs(source)
+pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Node> {
+    read_rab_e_node(source)
 }
