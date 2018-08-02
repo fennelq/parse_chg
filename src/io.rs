@@ -431,9 +431,16 @@ impl HasWrite for RabE {
 }*/
 #[derive(Debug)]
 pub struct RabE {
-    name: [u8; 7],
-    flag_line: [u8; 6],
-    pub source: Vec<u8>,
+    pub name: [u8; 7],
+    pub flag_line: [u8; 6],
+    pub head: HeadEtazh,
+    pub column: Vec<Column>,
+    pub wall: Vec<Wall>,
+    pub beam: Vec<Beam>,
+    pub slab: Vec<Slabs>,
+    pub load: Vec<Loads>,
+    pub poly: Vec<Poly>,
+    pub node: Vec<Node>
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
@@ -442,14 +449,14 @@ impl HasWrite for RabE {
             out.push(0u8);
         };
         out.extend(&self.flag_line);
-        out.extend(offset(&self.source.len()).iter());
-        out.extend(&self.source);
+        //out.extend(offset(&self.source.len()).iter());
+        //out.extend(&self.source);
         out
     }
     fn name(&self) -> &str {
-        if *&self.source.len() == 0 {
-            return ""
-        };
+        //if *&self.source.len() == 0 {
+        //    return ""
+        //};
         if *&self.name[6] == 0 {
             return match from_utf8(&self.name[0..6]) {
                 Err(_) => "",
@@ -590,10 +597,6 @@ pub struct ShelvesSec {
     ws: [u8; 2]
 }
 #[derive(Debug)]
-pub struct ColumnVec {
-    column: Vec<Column>
-}
-#[derive(Debug)]
 pub struct Column {
     p: Point,
     ws1: [u8; 2], //2b
@@ -609,10 +612,6 @@ impl Column {
         println!("Тип сечения:  {}", &self.type_sec);
         println!("Sec:          {:?}", &self.sec);
     }
-}
-#[derive(Debug)]
-pub struct WallsVec {
-    wall: Vec<Wall>
 }
 #[derive(Debug)]
 pub struct Wall {
@@ -633,10 +632,6 @@ pub struct Openings {
     source: Vec<u8> //42b
 }
 #[derive(Debug)]
-pub struct BeamVec {
-    beam: Vec<Beam>
-}
-#[derive(Debug)]
 pub struct Beam {
     p1: Point,
     p2: Point,
@@ -644,10 +639,6 @@ pub struct Beam {
     type_sec: u8,
     ws2: Vec<u8>, //41b
     sec: Sec
-}
-#[derive(Debug)]
-pub struct  SlabsVec {
-    slabs: Vec<Slabs>
 }
 #[derive(Debug)]
 pub struct Slabs {
@@ -658,10 +649,6 @@ pub struct Slabs {
     l_load: f32,
     s_load: f32,
     ws3: Vec<u8> //100b
-}
-#[derive(Debug)]
-pub struct  LoadsVec {
-    load: Vec<Loads>
 }
 #[derive(Debug)]
 pub struct Loads {
@@ -681,10 +668,6 @@ pub struct Poly {
     typ: u8,
     number: u16,
     ws2: [u8; 8]
-}
-#[derive(Debug)]
-pub struct  NodeVec {
-    node: Vec<Node>
 }
 #[derive(Debug)]
 pub struct Node {
@@ -1504,16 +1487,45 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                 num2: le_u8                 >>
                 flag_line: take!(6)         >>
                 offset: le_u64              >>
-                source: take!(offset)       >>
+                head: read_rab_e_head       >>
+                column: count!(
+                    read_rab_e_column,
+                    head.columns_num as usize) >>
+                wall: count!(
+                    read_rab_e_wall,
+                    head.walls_num as usize) >>
+                beam: count!(
+                    read_rab_e_beam,
+                    head.beams_num as usize) >>
+                slab: count!(
+                    read_rab_e_slabs,
+                    head.slabs_num as usize) >>
+                load: count!(
+                    read_rab_e_loads,
+                    head.loads_num as usize) >>
+                poly: count!(
+                    read_rab_e_poly,
+                    head.poly_num as usize) >>
+                node: count!(
+                    read_rab_e_node,
+                    head.nodes_num as usize) >>
                 (RabE {
+                    name: [114,97,98,46,101,num1,num2],
                     flag_line: *array_ref!(flag_line, 0 ,6),
-                    source: source.to_vec(),
-                    name: [114,97,98,46,101,num1,num2]
+                    head,
+                    column,
+                    wall,
+                    beam,
+                    slab,
+                    load,
+                    poly,
+                    node
                 })
             )
         )
     )
 );
+
 named!(read_rab_e_head<&[u8], HeadEtazh>,
     do_parse!(
         etazh_num: le_u16                   >>
@@ -1690,7 +1702,6 @@ named_args!(read_sec(type_sec: u8)<&[u8], Sec>,
 );
 named!(read_rab_e_column<&[u8], Column>,
     do_parse!(
-        take!(294)                          >>//without head
         p: read_point                       >>
         ws1: take!(2)                       >>
         fi: le_f32                          >>
@@ -1713,7 +1724,6 @@ named!(read_rab_e_column<&[u8], Column>,
 );
 named!(read_rab_e_wall<&[u8], Wall>,
     do_parse!(
-        take!(294)                          >>//without head
         p1: read_point                      >>
         p2: read_point                      >>
         agt: le_u8                          >>
@@ -1752,7 +1762,6 @@ named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Openings> >,
 );
 named!(read_rab_e_beam<&[u8], Beam>,
     do_parse!(
-        take!(294)                          >>//without head
         p1: read_point                      >>
         p2: read_point                      >>
         ws1: take!(36)                      >>
@@ -1771,7 +1780,6 @@ named!(read_rab_e_beam<&[u8], Beam>,
 );
 named!(read_rab_e_slabs<&[u8], Slabs>,
     do_parse!(
-        take!(294)                          >>//without head
         ws1: take!(2)                       >>
         b: le_f32                           >>
         ws2: take!(14)                      >>
@@ -1792,7 +1800,6 @@ named!(read_rab_e_slabs<&[u8], Slabs>,
 );
 named!(read_rab_e_loads<&[u8], Loads>,
     do_parse!(
-        take!(426)                          >> //without head, slabs
         source: take!(32)                   >>
         (Loads {
             source: source.to_vec() //31b
@@ -1801,7 +1808,6 @@ named!(read_rab_e_loads<&[u8], Loads>,
 );
 named!(read_rab_e_poly<&[u8], Poly>,
     do_parse!(
-        take!(426)                          >>//without head, slabs
         name: le_u16                        >>
         from: le_u16                        >>
         to: le_u16                          >>
@@ -1824,7 +1830,6 @@ named!(read_rab_e_poly<&[u8], Poly>,
 );
 named!(read_rab_e_node<&[u8], Node>,
     do_parse!(
-        take!(449)                          >>//without head, slabs, poly
         p: read_point                       >>
         from: le_u16                        >>
         to: le_u16                          >>
