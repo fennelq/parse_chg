@@ -47,7 +47,7 @@ impl HasWrite for BarpbresFe {
 }
 impl fmt::Display for BarpbresFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "BarpbresFe source.len(): {}", &self.source.len())
+        write!(f, "BarpbresFe source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -71,13 +71,13 @@ impl HasWrite for BkngwlBnw {
 impl fmt::Display for BkngwlBnw {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "BkngwlBnw flag_line(): ")?;
+        write!(f, "BkngwlBnw flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -101,13 +101,13 @@ impl HasWrite for BoknagrBkn {
 impl fmt::Display for BoknagrBkn {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "BoknagrBkn flag_line(): ")?;
+        write!(f, "BoknagrBkn flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -131,13 +131,13 @@ impl HasWrite for ClmnUni {
 impl fmt::Display for ClmnUni {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ClmnUni flag_line(): ")?;
+        write!(f, "ClmnUni flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -161,13 +161,13 @@ impl HasWrite for CoeffsRsu {
 impl fmt::Display for CoeffsRsu {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "CoeffsRsu flag_line(): ")?;
+        write!(f, "CoeffsRsu flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -191,13 +191,13 @@ impl HasWrite for ElemsFe {
 impl fmt::Display for ElemsFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ElemsFe flag_line(): ")?;
+        write!(f, "ElemsFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -221,13 +221,13 @@ impl HasWrite for ElemsresFe {
 impl fmt::Display for ElemsresFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ElemsresFe flag_line(): ")?;
+        write!(f, "ElemsresFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -251,13 +251,13 @@ impl HasWrite for ElsssFe {
 impl fmt::Display for ElsssFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ElsssFe flag_line(): ")?;
+        write!(f, "ElsssFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -281,13 +281,13 @@ impl HasWrite for EtnamesEt {
 impl fmt::Display for EtnamesEt {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "EtnamesEt flag_line(): ")?;
+        write!(f, "EtnamesEt flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -311,13 +311,13 @@ impl HasWrite for Expert {
 impl fmt::Display for Expert {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "Expert flag_line(): ")?;
+        write!(f, "Expert flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -341,13 +341,13 @@ impl HasWrite for HeadFe {
 impl fmt::Display for HeadFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "HeadFe flag_line(): ")?;
+        write!(f, "HeadFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -371,13 +371,13 @@ impl HasWrite for IsoarFe {
 impl fmt::Display for IsoarFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "IsoarFe flag_line(): ")?;
+        write!(f, "IsoarFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -398,7 +398,7 @@ impl HasWrite for LoadcombCds {
 }
 impl fmt::Display for LoadcombCds {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "LoadcombCds source.len(): {}", &self.source.len())
+        write!(f, "LoadcombCds source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -422,13 +422,13 @@ impl HasWrite for MaterialMt {
 impl fmt::Display for MaterialMt {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "MaterialMt flag_line(): ")?;
+        write!(f, "MaterialMt flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -452,13 +452,13 @@ impl HasWrite for NdunionsFe {
 impl fmt::Display for NdunionsFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "NdunionsFe flag_line(): ")?;
+        write!(f, "NdunionsFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -482,13 +482,13 @@ impl HasWrite for NodesFe {
 impl fmt::Display for NodesFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "NodesFe flag_line(): ")?;
+        write!(f, "NodesFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -512,13 +512,13 @@ impl HasWrite for NodesresFe {
 impl fmt::Display for NodesresFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "NodesresFe flag_line(): ")?;
+        write!(f, "NodesresFe flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -542,13 +542,13 @@ impl HasWrite for ObjectNam {
 impl fmt::Display for ObjectNam {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ObjectNam flag_line(): ")?;
+        write!(f, "ObjectNam flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -572,13 +572,13 @@ impl HasWrite for PopCut {
 impl fmt::Display for PopCut {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "PopCut flag_line(): ")?;
+        write!(f, "PopCut flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -602,13 +602,13 @@ impl HasWrite for ProcalcSet {
 impl fmt::Display for ProcalcSet {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ProcalcSet flag_line(): ")?;
+        write!(f, "ProcalcSet flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -632,13 +632,13 @@ impl HasWrite for ProresUse {
 impl fmt::Display for ProresUse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ProresUse flag_line(): ")?;
+        write!(f, "ProresUse flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -662,13 +662,13 @@ impl HasWrite for RabA0 {
 impl fmt::Display for RabA0 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "RabA0 flag_line(): ")?;
+        write!(f, "RabA0 flag_line: [")?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
-        write!(f, "source.len(): {}", &self.source.len())
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -719,37 +719,36 @@ impl fmt::Display for RabE {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;
         }
-        writeln!(f, "];\n{}", &self.head)?;
+        write!(f, "];\n{}", &self.head)?;
         let vec = &self.column;
         for (count, v) in vec.iter().enumerate() {
-            writeln!(f, "   Column №{}: {}", count, v)?;
+            write!(f, "\n   Column №{}: {}", count, v)?;
         }
         let vec = &self.wall;
         for (count, v) in vec.iter().enumerate() {
-            writeln!(f, "   Wall   №{}: {}", count, v)?;
+            write!(f, "\n   Wall   №{}: {}", count, v)?;
         }
         let vec = &self.beam;
         for (count, v) in vec.iter().enumerate() {
-            writeln!(f, "   Beam   №{}: {}", count, v)?;
+            write!(f, "\n   Beam   №{}: {}", count, v)?;
         }
         let vec = &self.slab;
         for (count, v) in vec.iter().enumerate() {
-            writeln!(f, "   Slab   №{}: {}", count, v)?;
+            write!(f, "\n   Slab   №{}: {}", count, v)?;
         }
         let vec = &self.load;
         for (count, v) in vec.iter().enumerate() {
-            writeln!(f, "   Load   №{}: {}", count, v)?;
+            write!(f, "\n   Load   №{}: {}", count, v)?;
         }
         let vec = &self.poly;
         for (count, v) in vec.iter().enumerate() {
-            writeln!(f, "   Poly   №{}: {}", count, v)?;
+            write!(f, "\n   Poly   №{}: {}", count, v)?;
         }
         let vec = &self.node;
         for (count, v) in vec.iter().enumerate() {
-            writeln!(f, "   Node   №{}: {}", count, v)?;
+            write!(f, "\n   Node   №{}: {}", count, v)?;
         }
-
-        writeln!(f, "->")
+        writeln!(f, "")
     }
 }
 #[derive(Debug)]
@@ -807,7 +806,7 @@ pub struct Point {
 }*/
 impl fmt::Display for Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x: {}, y: {}", &self.x, &self.y)
+        write!(f, "x: {:.3}, y: {:.3}", &self.x, &self.y)
     }
 }
 #[derive(Debug)]
@@ -1009,7 +1008,7 @@ pub struct Slabs {
 }
 impl fmt::Display for Slabs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "b: {}, loads |count: {}, long: {}, short: {}|",
+        write!(f, "b: {}, loads |const: {}, long: {}, short: {}|",
                &self.b, &self.c_load, &self.l_load, &self.s_load)
     }
 }
@@ -1035,7 +1034,7 @@ pub struct Poly {
 }
 impl fmt::Display for Poly {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "name: {}, from: {}, to: {}, amount: {}, typ: {}, №{}",
+        write!(f, "name: {}, |{} -> {}| ({}), typ: {}, №{}",
                &self.name, &self.from, &self.to,
                &self.amount, &self.typ, &self.number)
     }
@@ -1049,7 +1048,7 @@ pub struct Node {
 }
 impl fmt::Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "p |{}|, from: {}, to: {}",
+        write!(f, "p |{}|, line |{} -> {}|",
                &self.p, &self.from, &self.to)
     }
 }
@@ -1218,6 +1217,18 @@ impl HasWrite for RabO0 {
        "rab.o0"
     }
 }
+impl fmt::Display for RabO0 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "RabO0e flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct RabSdr {
     flag_line: [u8; 5],
@@ -1234,6 +1245,18 @@ impl HasWrite for RabSdr {
     }
     fn name(&self) -> &str {
        "rab.sdr"
+    }
+}
+impl fmt::Display for RabSdr {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "RabSdr flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -1254,6 +1277,18 @@ impl HasWrite for RabZag {
        "rab.zag"
     }
 }
+impl fmt::Display for RabZag {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "RabZag flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct ReperPos {
     flag_line: [u8; 3],
@@ -1270,6 +1305,18 @@ impl HasWrite for ReperPos {
     }
     fn name(&self) -> &str {
        "reper.pos"
+    }
+}
+impl fmt::Display for ReperPos {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "ReperPos flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -1290,6 +1337,18 @@ impl HasWrite for RigbodysFe {
        "rigbodys.fe"
     }
 }
+impl fmt::Display for RigbodysFe {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "RigbodysFe flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct RigidsFe {
     flag_line: [u8; 3],
@@ -1306,6 +1365,18 @@ impl HasWrite for RigidsFe {
     }
     fn name(&self) -> &str {
        "rigids.fe"
+    }
+}
+impl fmt::Display for RigidsFe {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "RigidsFe flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -1326,6 +1397,18 @@ impl HasWrite for RzagnumsFe {
        "rzagnums.fe"
     }
 }
+impl fmt::Display for RzagnumsFe {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "RzagnumsFe flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct SeismRsp {
     flag_line: [u8; 3],
@@ -1342,6 +1425,18 @@ impl HasWrite for SeismRsp {
     }
     fn name(&self) -> &str {
        "seism.rsp"
+    }
+}
+impl fmt::Display for SeismRsp {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "SeismRsp flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -1362,6 +1457,18 @@ impl HasWrite for SlitsSlt {
        "slits.slt"
     }
 }
+impl fmt::Display for SlitsSlt {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "SlitsSlt flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct SzinfoSzi {
     flag_line: [u8; 2],
@@ -1378,6 +1485,18 @@ impl HasWrite for SzinfoSzi {
     }
     fn name(&self) -> &str {
        "szinfo.szi"
+    }
+}
+impl fmt::Display for SzinfoSzi {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "SzinfoSzi flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -1398,6 +1517,18 @@ impl HasWrite for VnumFe {
        "vnum.fe"
     }
 }
+impl fmt::Display for VnumFe {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "VnumFe flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct WallascnUni {
     source: Vec<u8>
@@ -1412,6 +1543,11 @@ impl HasWrite for WallascnUni {
     }
     fn name(&self) -> &str {
        "wallascn.uni"
+    }
+}
+impl fmt::Display for WallascnUni {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "WallascnUni source.len: {}", &self.source.len())
     }
 }
 #[derive(Debug)]
@@ -1432,6 +1568,18 @@ impl HasWrite for WindRsp {
        "wind.rsp"
     }
 }
+impl fmt::Display for WindRsp {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "WindRsp flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct ZagrcmbsZc {
     flag_line: [u8; 1],
@@ -1450,6 +1598,18 @@ impl HasWrite for ZagrcmbsZc {
        "zagrcmbs.zc"
     }
 }
+impl fmt::Display for ZagrcmbsZc {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "ZagrcmbsZc flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
+    }
+}
 #[derive(Debug)]
 pub struct ZagrsFe {
     flag_line: [u8; 4],
@@ -1466,6 +1626,18 @@ impl HasWrite for ZagrsFe {
     }
     fn name(&self) -> &str {
        "zagrs.fe"
+    }
+}
+impl fmt::Display for ZagrsFe {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let vec = &self.flag_line;
+        write!(f, "ZagrsFe flag_line: [")?;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 { write!(f, ", ")?; }
+            write!(f, "{}", v)?;
+        }
+        write!(f, "]; ")?;
+        write!(f, "source.len: {}", &self.source.len())
     }
 }
 
@@ -1563,6 +1735,163 @@ impl HasWrite for Building {
     }
     fn name(&self) -> &str {
         "BUILDING.chg"
+    }
+}
+impl fmt::Display for Building {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{}", &self.file_type)?;
+        match &self.barpbres_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.bkngwl_bnw {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.boknagr_bkn {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.clmn_uni {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.coeffs_rsu {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.elems_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.elemsres_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.elsss_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.etnames_et {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.expert {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.head_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.isoar_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.loadcomb_cds {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.material_mt {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.ndunions_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.nodes_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.nodesres_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.object_nam {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.pop_cut {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.procalc_set {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.prores_use {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.rab_a0 {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        let vec = &self.rab_e;
+        for (count, v) in vec.iter().enumerate() {
+            if count != 0 {
+                writeln!(f, "")?;
+            };
+            write!(f, "{}->{}", count, v)?;
+        };
+        match &self.rab_o0 {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.rab_sdr {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.rab_zag {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.reper_pos {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.rigbodys_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.rigids_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.rzagnums_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.seism_rsp {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.slits_slt {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.szinfo_szi {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.vnum_fe {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.wallascn_uni {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.wind_rsp {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        match &self.zagrcmbs_zc {
+            None => {},
+            Some(sig) => writeln!(f, "{}", sig)?,
+        };
+        write!(f, "")
     }
 }
 
@@ -2177,7 +2506,7 @@ named!(read_rab_e_slabs<&[u8], Slabs>,
 );
 named!(read_rab_e_loads<&[u8], Load>,
     do_parse!(
-        source: take!(32)                   >>
+        source: take!(31)                   >>
         (Load {
             source: source.to_vec() //31b
         })

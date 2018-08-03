@@ -23,10 +23,10 @@ use io::*;
 
 
 fn main() {
-    let input = Path::new("Одна_плита.chg");
+    let input = Path::new("Плита2_штамп.chg");
     let test_building = read_file(input);
     write_by_file(&test_building);
-    println!("{}", &test_building.rab_e[0]);
+    println!("{}", &test_building);
 
 }
 
