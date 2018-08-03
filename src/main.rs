@@ -21,10 +21,14 @@ mod io;
 mod tests;
 use io::*;
 
+
 fn main() {
-    let input = Path::new("hello.chg");
+    let input = Path::new("Одна_плита.chg");
     let test_building = read_file(input);
     write_by_file(&test_building);
-    &test_building.rab_e[0].head.print();
+    println!("{}", &test_building.rab_e[0]);
 
 }
+
+
+
