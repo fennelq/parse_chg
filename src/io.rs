@@ -682,7 +682,8 @@ pub struct RabE {
     pub slab: Vec<Slabs>,
     pub load: Vec<Load>,
     pub poly: Vec<Poly>,
-    pub node: Vec<Node>
+    pub node: Vec<Node>,
+    pub f_wall: Vec<FWall>
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
@@ -747,6 +748,10 @@ impl fmt::Display for RabE {
         let vec = &self.node;
         for (count, v) in vec.iter().enumerate() {
             write!(f, "\n   Node   №{}: {}", count, v)?;
+        }
+        let vec = &self.f_wall;
+        for (count, v) in vec.iter().enumerate() {
+            write!(f, "\n   F wall №{}: {}", count, v)?;
         }
         writeln!(f, "")
     }
@@ -1053,10 +1058,6 @@ impl fmt::Display for Node {
     }
 }
 #[derive(Debug)]
-pub struct  FWallVec {
-    f_wall: Vec<FWall>
-}
-#[derive(Debug)]
 pub struct FWall {
     b: f32,
     l: f32,
@@ -1065,6 +1066,12 @@ pub struct FWall {
     f_l: f32,
     f_h: f32,
     ws2: [u8; 12]
+}
+impl fmt::Display for FWall {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "b: {}, l: {}, F |b: {}, l: {}, h: {}|",
+               &self.b, &self.l, &self.f_b, &self.f_l, &self.f_h)
+    }
 }
 #[derive(Debug)]
 pub struct  PartitionVec {
@@ -2106,6 +2113,9 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                 node: count!(
                     read_rab_e_node,
                     head.nodes_num as usize) >>
+                f_wall: count!(
+                    read_rab_e_fwall,
+                    (head.fwalls_num/2) as usize) >>
                 (RabE {
                     name: [114,97,98,46,101,num1,num2],
                     flag_line: *array_ref!(flag_line, 0 ,6),
@@ -2116,7 +2126,8 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                     slab,
                     load,
                     poly,
-                    node
+                    node,
+                    f_wall
                 })
             )
         )
@@ -2439,7 +2450,26 @@ named!(read_rab_e_node<&[u8], Node>,
         })
     )
 );
-
+named!(read_rab_e_fwall<&[u8], FWall>,
+    do_parse!(
+        b: le_f32                           >>
+        l: le_f32                           >>
+        ws1: take!(16)                      >>
+        f_b: le_f32                         >>
+        f_l: le_f32                         >>
+        f_h: le_f32                         >>
+        ws2: take!(12)                      >>
+        (FWall {
+            b,
+            l,
+            ws1: *array_ref!(ws1, 0 ,16),
+            f_b,
+            f_l,
+            f_h,
+            ws2: *array_ref!(ws2, 0 ,12)
+        })
+    )
+);
 
 named!(read_rab_o0<&[u8], RabO0>,
     complete!(do_parse!(
