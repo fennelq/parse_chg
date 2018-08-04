@@ -23,7 +23,7 @@ use io::*;
 
 
 fn main() {
-    let input = Path::new("Стена2_две_2ф.chg");
+    let input = Path::new("Плита2_перегородка.chg");
     let test_building = read_file(input);
     write_by_file(&test_building);
     println!("{}", &test_building);

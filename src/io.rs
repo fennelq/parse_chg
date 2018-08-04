@@ -683,7 +683,8 @@ pub struct RabE {
     pub load: Vec<Load>,
     pub poly: Vec<Poly>,
     pub node: Vec<Node>,
-    pub f_wall: Vec<FWall>
+    pub f_wall: Vec<FWall>,
+    pub part: Vec<Partition>
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
@@ -752,6 +753,10 @@ impl fmt::Display for RabE {
         let vec = &self.f_wall;
         for (count, v) in vec.iter().enumerate() {
             write!(f, "\n   F wall №{}: {}", count, v)?;
+        }
+        let vec = &self.part;
+        for (count, v) in vec.iter().enumerate() {
+            write!(f, "\n   Part.  №{}: {}", count, v)?;
         }
         writeln!(f, "")
     }
@@ -1074,17 +1079,19 @@ impl fmt::Display for FWall {
     }
 }
 #[derive(Debug)]
-pub struct  PartitionVec {
-    part: Vec<Partition>
-}
-#[derive(Debug)]
 pub struct Partition {
     p1: Point,
     p2: Point,
     ws1: [u8; 2],
     b: f32,
     h: f32,
-    ws2: [u8; 20]
+    ws2: Vec<u8> //30b
+}
+impl fmt::Display for Partition {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "p1 |{}|, p2 |{}|, b: {}, h: {}",
+               &self.p1, &self.p2, &self.b, &self.h)
+    }
 }
 pub trait ItsBase {
 }
@@ -2116,6 +2123,9 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                 f_wall: count!(
                     read_rab_e_fwall,
                     (head.fwalls_num/2) as usize) >>
+                part: count!(
+                    read_rab_e_part,
+                    head.part_num as usize)  >>
                 (RabE {
                     name: [114,97,98,46,101,num1,num2],
                     flag_line: *array_ref!(flag_line, 0 ,6),
@@ -2127,7 +2137,8 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                     load,
                     poly,
                     node,
-                    f_wall
+                    f_wall,
+                    part
                 })
             )
         )
@@ -2470,6 +2481,25 @@ named!(read_rab_e_fwall<&[u8], FWall>,
         })
     )
 );
+named!(read_rab_e_part<&[u8], Partition>,
+    do_parse!(
+        p1: read_point                      >>
+        p2: read_point                      >>
+        ws1: take!(2)                       >>
+        b: le_f32                           >>
+        h: le_f32                           >>
+        ws2: take!(30)                      >>
+        (Partition {
+            p1,
+            p2,
+            ws1: *array_ref!(ws1, 0 ,2),
+            b,
+            h,
+            ws2: ws2.to_vec()
+        })
+    )
+);
+
 
 named!(read_rab_o0<&[u8], RabO0>,
     complete!(do_parse!(
