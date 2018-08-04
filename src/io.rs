@@ -1691,46 +1691,47 @@ impl HasWrite for Building {
             FileType::CHARGE37 => b"CHARGE 3.7".to_vec(),
             FileType::ERROR => vec![],//panic!("FileType::ERROR couldn't write"),
         };
-        out.extend(write_opt(&self.barpbres_fe));
-        out.extend(write_opt(&self.bkngwl_bnw));
-        out.extend(write_opt(&self.boknagr_bkn));
-        out.extend(write_opt(&self.clmn_uni));
-        out.extend(write_opt(&self.coeffs_rsu));
-        out.extend(write_opt(&self.elems_fe));
-        out.extend(write_opt(&self.elemsres_fe));
-        out.extend(write_opt(&self.elsss_fe));
-        out.extend(write_opt(&self.etnames_et));
-        out.extend(write_opt(&self.expert));
-        out.extend(write_opt(&self.head_fe));
-        out.extend(write_opt(&self.isoar_fe));
-        out.extend(write_opt(&self.loadcomb_cds));
-        out.extend(write_opt(&self.material_mt));
-        out.extend(write_opt(&self.ndunions_fe));
-        out.extend(write_opt(&self.nodes_fe));
-        out.extend(write_opt(&self.nodesres_fe));
-        out.extend(write_opt(&self.object_nam));
-        out.extend(write_opt(&self.pop_cut));
-        out.extend(write_opt(&self.procalc_set));
-        out.extend(write_opt(&self.prores_use));
-        out.extend(write_opt(&self.rab_a0));
-        for i in 0..(&self.rab_e).len() {
-            out.extend(&self.rab_e[i].write());
+
+        if let Some(ref s) = &self.barpbres_fe  { out.extend(s.write()) };
+        if let Some(ref s) = &self.bkngwl_bnw   { out.extend(s.write()) };
+        if let Some(ref s) = &self.boknagr_bkn  { out.extend(s.write()) };
+        if let Some(ref s) = &self.clmn_uni     { out.extend(s.write()) };
+        if let Some(ref s) = &self.coeffs_rsu   { out.extend(s.write()) };
+        if let Some(ref s) = &self.elems_fe     { out.extend(s.write()) };
+        if let Some(ref s) = &self.elemsres_fe  { out.extend(s.write()) };
+        if let Some(ref s) = &self.elsss_fe     { out.extend(s.write()) };
+        if let Some(ref s) = &self.etnames_et   { out.extend(s.write()) };
+        if let Some(ref s) = &self.expert       { out.extend(s.write()) };
+        if let Some(ref s) = &self.head_fe      { out.extend(s.write()) };
+        if let Some(ref s) = &self.isoar_fe     { out.extend(s.write()) };
+        if let Some(ref s) = &self.loadcomb_cds { out.extend(s.write()) };
+        if let Some(ref s) = &self.material_mt  { out.extend(s.write()) };
+        if let Some(ref s) = &self.ndunions_fe  { out.extend(s.write()) };
+        if let Some(ref s) = &self.nodes_fe     { out.extend(s.write()) };
+        if let Some(ref s) = &self.nodesres_fe  { out.extend(s.write()) };
+        if let Some(ref s) = &self.object_nam   { out.extend(s.write()) };
+        if let Some(ref s) = &self.pop_cut      { out.extend(s.write()) };
+        if let Some(ref s) = &self.procalc_set  { out.extend(s.write()) };
+        if let Some(ref s) = &self.prores_use   { out.extend(s.write()) };
+        if let Some(ref s) = &self.rab_a0       { out.extend(s.write()) };
+        for rab_e_n in (&self.rab_e).iter() {
+            out.extend(rab_e_n.write());
         }
-        out.extend(write_opt(&self.rab_o0));
-        out.extend(write_opt(&self.rab_sdr));
-        out.extend(write_opt(&self.rab_zag));
-        out.extend(write_opt(&self.reper_pos));
-        out.extend(write_opt(&self.rigbodys_fe));
-        out.extend(write_opt(&self.rigids_fe));
-        out.extend(write_opt(&self.rzagnums_fe));
-        out.extend(write_opt(&self.seism_rsp));
-        out.extend(write_opt(&self.slits_slt));
-        out.extend(write_opt(&self.szinfo_szi));
-        out.extend(write_opt(&self.vnum_fe));
-        out.extend(write_opt(&self.wallascn_uni));
-        out.extend(write_opt(&self.wind_rsp));
-        out.extend(write_opt(&self.zagrcmbs_zc));
-        out.extend(write_opt(&self.zagrs_fe));
+        if let Some(ref s) = &self.rab_o0       { out.extend(s.write()) };
+        if let Some(ref s) = &self.rab_sdr      { out.extend(s.write()) };
+        if let Some(ref s) = &self.rab_zag      { out.extend(s.write()) };
+        if let Some(ref s) = &self.reper_pos    { out.extend(s.write()) };
+        if let Some(ref s) = &self.rigbodys_fe  { out.extend(s.write()) };
+        if let Some(ref s) = &self.rigids_fe    { out.extend(s.write()) };
+        if let Some(ref s) = &self.rzagnums_fe  { out.extend(s.write()) };
+        if let Some(ref s) = &self.seism_rsp    { out.extend(s.write()) };
+        if let Some(ref s) = &self.slits_slt    { out.extend(s.write()) };
+        if let Some(ref s) = &self.szinfo_szi   { out.extend(s.write()) };
+        if let Some(ref s) = &self.vnum_fe      { out.extend(s.write()) };
+        if let Some(ref s) = &self.wallascn_uni { out.extend(s.write()) };
+        if let Some(ref s) = &self.wind_rsp     { out.extend(s.write()) };
+        if let Some(ref s) = &self.zagrcmbs_zc  { out.extend(s.write()) };
+        if let Some(ref s) = &self.zagrs_fe     { out.extend(s.write()) };
         out
     }
     fn name(&self) -> &str {
@@ -1740,157 +1741,47 @@ impl HasWrite for Building {
 impl fmt::Display for Building {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "{}", &self.file_type)?;
-        match &self.barpbres_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.bkngwl_bnw {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.boknagr_bkn {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.clmn_uni {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.coeffs_rsu {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.elems_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.elemsres_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.elsss_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.etnames_et {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.expert {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.head_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.isoar_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.loadcomb_cds {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.material_mt {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.ndunions_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.nodes_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.nodesres_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.object_nam {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.pop_cut {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.procalc_set {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.prores_use {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.rab_a0 {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
+        if let Some(ref s) = &self.barpbres_fe  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.bkngwl_bnw   { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.boknagr_bkn  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.clmn_uni     { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.coeffs_rsu   { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.elems_fe     { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.elemsres_fe  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.elsss_fe     { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.etnames_et   { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.expert       { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.head_fe      { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.isoar_fe     { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.loadcomb_cds { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.material_mt  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.ndunions_fe  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.nodes_fe     { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.nodesres_fe  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.object_nam   { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.pop_cut      { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.procalc_set  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.prores_use   { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.rab_a0       { writeln!(f, "{}", *s)? };
         let vec = &self.rab_e;
         for (count, v) in vec.iter().enumerate() {
-            if count != 0 {
-                writeln!(f, "")?;
-            };
+            if count != 0 { writeln!(f, "")?; };
             write!(f, "{}->{}", count, v)?;
         };
-        match &self.rab_o0 {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.rab_sdr {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.rab_zag {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.reper_pos {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.rigbodys_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.rigids_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.rzagnums_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.seism_rsp {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.slits_slt {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.szinfo_szi {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.vnum_fe {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.wallascn_uni {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.wind_rsp {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
-        match &self.zagrcmbs_zc {
-            None => {},
-            Some(sig) => writeln!(f, "{}", sig)?,
-        };
+        if let Some(ref s) = &self.rab_o0       { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.rab_sdr      { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.rab_zag      { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.reper_pos    { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.rigbodys_fe  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.rigids_fe    { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.rzagnums_fe  { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.seism_rsp    { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.slits_slt    { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.szinfo_szi   { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.vnum_fe      { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.wallascn_uni { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.wind_rsp     { writeln!(f, "{}", *s)? };
+        if let Some(ref s) = &self.zagrcmbs_zc  { writeln!(f, "{}", *s)? };
         write!(f, "")
     }
 }
@@ -2804,12 +2695,6 @@ named!(read_original<&[u8], Building>,
         })
     )
 );
-fn write_opt<T: HasWrite> (sig: &Option<T>) -> Vec<u8> {
-    match sig {
-        None => vec![],
-        Some(s) => s.write(),
-    }
-}
 fn offset(len: &usize) -> [u8; 8] {
     let offset = *len as u64;
     let mut buff8 = [0u8; 8];
@@ -2840,7 +2725,7 @@ pub fn read_file(path: &Path) -> Building {
     };
     building.1
 }
-pub fn write_sig_opt<T: HasWrite> (sig: &Option<T>) {
+pub fn write_sig<T: HasWrite> (sig: Option<&T>) {
     match sig {
         None => (),
         Some(s) => {
@@ -2859,68 +2744,51 @@ pub fn write_sig_opt<T: HasWrite> (sig: &Option<T>) {
         }
     };
 }
-pub fn write_sig<T: HasWrite> (sig: &T) {
-    let s = sig.write();
-    if s.len() != 0 {
-        let path_buf = Path::new("out").join(sig.name());
-        let display = path_buf.as_path().display();
-        let mut file = match File::create(path_buf.as_path()) {
-            Err(why) => panic!("couldn't create {}: {}", display,
-                               why.description()),
-            Ok(file) => file,
-        };
-        match file.write_all(&s) {
-            Err(why) => panic!("couldn't write {}: {}", display,
-                               why.description()),
-            Ok(file) => file,
-        };
-    };
-}
 pub fn write_by_file(building: &Building) {
     let out = Path::new("out");
     match remove_dir_all(out) {Err(_)=>(),Ok(_)=>(),};
     match create_dir    (out) {Err(_)=>(),Ok(_)=>(),};
-    write_sig_opt(&building.barpbres_fe);
-    write_sig_opt(&building.bkngwl_bnw);
-    write_sig_opt(&building.boknagr_bkn);
-    write_sig_opt(&building.clmn_uni);
-    write_sig_opt(&building.coeffs_rsu);
-    write_sig_opt(&building.elems_fe);
-    write_sig_opt(&building.elemsres_fe);
-    write_sig_opt(&building.elsss_fe);
-    write_sig_opt(&building.etnames_et);
-    write_sig_opt(&building.expert);
-    write_sig_opt(&building.head_fe);
-    write_sig_opt(&building.isoar_fe);
-    write_sig_opt(&building.loadcomb_cds);
-    write_sig_opt(&building.material_mt);
-    write_sig_opt(&building.ndunions_fe);
-    write_sig_opt(&building.nodes_fe);
-    write_sig_opt(&building.nodesres_fe);
-    write_sig_opt(&building.object_nam);
-    write_sig_opt(&building.pop_cut);
-    write_sig_opt(&building.procalc_set);
-    write_sig_opt(&building.prores_use);
-    write_sig_opt(&building.rab_a0);
-    for i in 0..(&building.rab_e).len() {
-        write_sig(&building.rab_e[i]);
+    write_sig(building.barpbres_fe  .as_ref());
+    write_sig(building.bkngwl_bnw   .as_ref());
+    write_sig(building.boknagr_bkn  .as_ref());
+    write_sig(building.clmn_uni     .as_ref());
+    write_sig(building.coeffs_rsu   .as_ref());
+    write_sig(building.elems_fe     .as_ref());
+    write_sig(building.elemsres_fe  .as_ref());
+    write_sig(building.elsss_fe     .as_ref());
+    write_sig(building.etnames_et   .as_ref());
+    write_sig(building.expert       .as_ref());
+    write_sig(building.head_fe      .as_ref());
+    write_sig(building.isoar_fe     .as_ref());
+    write_sig(building.loadcomb_cds .as_ref());
+    write_sig(building.material_mt  .as_ref());
+    write_sig(building.ndunions_fe  .as_ref());
+    write_sig(building.nodes_fe     .as_ref());
+    write_sig(building.nodesres_fe  .as_ref());
+    write_sig(building.object_nam   .as_ref());
+    write_sig(building.pop_cut      .as_ref());
+    write_sig(building.procalc_set  .as_ref());
+    write_sig(building.prores_use   .as_ref());
+    write_sig(building.rab_a0       .as_ref());
+    for rab_e_n in (building.rab_e).iter() {
+        write_sig(Some(rab_e_n));
     };
-    write_sig_opt(&building.rab_o0);
-    write_sig_opt(&building.rab_sdr);
-    write_sig_opt(&building.rab_zag);
-    write_sig_opt(&building.reper_pos);
-    write_sig_opt(&building.rigbodys_fe);
-    write_sig_opt(&building.rigids_fe);
-    write_sig_opt(&building.rzagnums_fe);
-    write_sig_opt(&building.seism_rsp);
-    write_sig_opt(&building.slits_slt);
-    write_sig_opt(&building.szinfo_szi);
-    write_sig_opt(&building.vnum_fe);
-    write_sig_opt(&building.wallascn_uni);
-    write_sig_opt(&building.wind_rsp);
-    write_sig_opt(&building.zagrcmbs_zc);
-    write_sig_opt(&building.zagrs_fe);
-    write_sig(building.borrow());
+    write_sig(building.rab_o0       .as_ref());
+    write_sig(building.rab_sdr      .as_ref());
+    write_sig(building.rab_zag      .as_ref());
+    write_sig(building.reper_pos    .as_ref());
+    write_sig(building.rigbodys_fe  .as_ref());
+    write_sig(building.rigids_fe    .as_ref());
+    write_sig(building.rzagnums_fe  .as_ref());
+    write_sig(building.seism_rsp    .as_ref());
+    write_sig(building.slits_slt    .as_ref());
+    write_sig(building.szinfo_szi   .as_ref());
+    write_sig(building.vnum_fe      .as_ref());
+    write_sig(building.wallascn_uni .as_ref());
+    write_sig(building.wind_rsp     .as_ref());
+    write_sig(building.zagrcmbs_zc  .as_ref());
+    write_sig(building.zagrs_fe     .as_ref());
+    write_sig(Some(building));
 }
 
 pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Node> {
