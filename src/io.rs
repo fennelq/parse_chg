@@ -4,12 +4,12 @@ use std::fmt;
 use std::error::Error;
 use std::path::Path;
 use nom::{le_u64, le_u16, le_u8, le_f32};
-use nom::IResult;
+//use nom::IResult;
 use std::vec::Vec;
 use std::fs::{create_dir, remove_dir_all};
 use std::str::{from_utf8};
 use byteorder::{LittleEndian, WriteBytesExt};
-use std::borrow::Borrow;
+//use std::borrow::Borrow;
 
 
 pub trait HasWrite {
@@ -686,7 +686,8 @@ pub struct RabE {
     pub f_wall: Vec<FWall>,
     pub part: Vec<Partition>,
     pub f_slab: Vec<FSlab>,
-    pub pile: Vec<Pile>
+    pub pile: Vec<Pile>,
+    pub f_beam: Vec<FBeam>
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
@@ -768,6 +769,10 @@ impl fmt::Display for RabE {
         for (count, v) in vec.iter().enumerate() {
             write!(f, "\n   Pile   №{}: {}", count, v)?;
         }
+        let vec = &self.f_beam;
+        for (count, v) in vec.iter().enumerate() {
+            write!(f, "\n   Pile   №{}: {}", count, v)?;
+        }
         writeln!(f, "")
     }
 }
@@ -785,13 +790,13 @@ pub struct HeadEtazh {
     nodes_num: u16,
     ws2: [u8; 12],
     fwalls_num: u16,
-    part_num: u16,
+    parts_num: u16,
     ws3: [u8; 8],
     fslabs_num: u16,
     ws4: [u8; 4],
     piles_num: u16,
     ws5: [u8; 4],
-    fbeam_num: u16,
+    fbeams_num: u16,
     ws6: Vec<u8>, //180
 }
 impl fmt::Display for HeadEtazh {
@@ -801,8 +806,8 @@ impl fmt::Display for HeadEtazh {
                  &self.columns_num, &self.walls_num, &self.beams_num,
                  &self.slabs_num, &self.loads_num, &self.poly_num)?;
         write!(f, "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}   ",
-                 &self.nodes_num, &self.fwalls_num, &self.part_num,
-                 &self.fslabs_num, &self.piles_num, &self.fbeam_num)
+                 &self.nodes_num, &self.fwalls_num, &self.parts_num,
+                 &self.fslabs_num, &self.piles_num, &self.fbeams_num)
     }
 }
 #[derive(Debug)]
@@ -962,7 +967,7 @@ pub struct Column {
 }
 impl fmt::Display for Column {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "p1 |{}|, fi: {}, Sec №{}, {}",
+        write!(f, "p1 |{}|, fi: {}, sec №{}, {}",
                &self.p, &self.fi, &self.type_sec, &self.sec)
     }
 }
@@ -1262,13 +1267,9 @@ pub struct Pile {
 }
 impl fmt::Display for Pile {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "p |{}|, type № {}, {}",
+        write!(f, "p |{}|, type №{}, {}",
                &self.p, &self.type_pile, &self.base)
     }
-}
-#[derive(Debug)]
-pub struct  FBeamVec {
-    f_beam: Vec<FBeam>
 }
 #[derive(Debug)]
 pub struct FBeam {
@@ -1280,7 +1281,13 @@ pub struct FBeam {
     ws2: Vec<u8>, //40b
     sec: Sec
 }
-
+impl fmt::Display for FBeam {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "p1 |{}|, p2 |{}|, zx1: {}, sec №{}, {}",
+               &self.p1, &self.p2, &self.xz1,
+               &self.type_sec, &self.sec)
+    }
+}
 
 
 
@@ -2168,7 +2175,7 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                 num1: le_u8                 >>
                 num2: le_u8                 >>
                 flag_line: take!(6)         >>
-                offset: le_u64              >>
+                /*offset: */le_u64              >>
                 head: read_rab_e_head       >>
                 column: count!(
                     read_rab_e_column,
@@ -2196,13 +2203,16 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                     (head.fwalls_num/2) as usize) >>
                 part: count!(
                     read_rab_e_part,
-                    head.part_num as usize)  >>
+                    head.parts_num as usize)  >>
                 f_slab: count!(
                     read_rab_e_fslab,
                     head.fslabs_num as usize) >>
                 pile: count!(
                     read_rab_e_pile,
                     head.piles_num as usize) >>
+                f_beam: count!(
+                    read_rab_e_fbeam,
+                    head.fbeams_num as usize) >>
                 (RabE {
                     name: [114,97,98,46,101,num1,num2],
                     flag_line: *array_ref!(flag_line, 0 ,6),
@@ -2217,7 +2227,8 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                     f_wall,
                     part,
                     f_slab,
-                    pile
+                    pile,
+                    f_beam
                 })
             )
         )
@@ -2238,13 +2249,13 @@ named!(read_rab_e_head<&[u8], HeadEtazh>,
         nodes_num: le_u16                   >>
         ws2: take!(12)                      >>
         fwalls_num: le_u16                  >>
-        part_num: le_u16                    >>
+        parts_num: le_u16                   >>
         ws3: take!(8)                       >>
         fslabs_num: le_u16                  >>
         ws4: take!(4)                       >>
         piles_num: le_u16                   >>
         ws5: take!(4)                       >>
-        fbeam_num: le_u16                   >>
+        fbeams_num: le_u16                  >>
         ws6: take!(180)                     >>
         (HeadEtazh {
             etazh_num,
@@ -2259,13 +2270,13 @@ named!(read_rab_e_head<&[u8], HeadEtazh>,
             nodes_num,
             ws2: *array_ref!(ws2, 0, 12),
             fwalls_num,
-            part_num,
+            parts_num,
             ws3: *array_ref!(ws3, 0, 8),
             fslabs_num,
             ws4: *array_ref!(ws4, 0, 4),
             piles_num,
             ws5: *array_ref!(ws5, 0 ,4),
-            fbeam_num,
+            fbeams_num,
             ws6: ws6.to_vec()
         })
     )
@@ -2769,6 +2780,26 @@ named!(read_rab_e_pile<&[u8], Pile>,
         })
     )
 );
+named!(read_rab_e_fbeam<&[u8], FBeam>,
+    do_parse!(
+        p1: read_point                      >>
+        p2: read_point                      >>
+        ws1: take!(2)                       >>
+        xz1: le_u16                         >>
+        type_sec: le_u8                     >>
+        ws2: take!(40)                      >>
+        sec: apply!(read_sec, type_sec)     >>
+        (FBeam {
+            p1,
+            p2,
+            ws1: *array_ref!(ws1, 0 ,2),
+            xz1,
+            type_sec,
+            ws2: ws2.to_vec(), //40b
+            sec
+        })
+    )
+);
 
 named!(read_rab_o0<&[u8], RabO0>,
     complete!(do_parse!(
@@ -3120,6 +3151,7 @@ pub fn write_by_file(building: &Building) {
     write_sig(Some(building));
 }
 
+/*
 pub fn parse_rab_e(source: &Vec<u8>) -> IResult<&[u8], Node> {
     read_rab_e_node(source)
-}
+}*/
