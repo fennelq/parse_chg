@@ -679,13 +679,14 @@ pub struct RabE {
     pub column: Vec<Column>,
     pub wall: Vec<Wall>,
     pub beam: Vec<Beam>,
-    pub slab: Vec<Slabs>,
+    pub slab: Vec<Slab>,
     pub load: Vec<Load>,
     pub poly: Vec<Poly>,
     pub node: Vec<Node>,
     pub f_wall: Vec<FWall>,
     pub part: Vec<Partition>,
-    pub f_slab: Vec<FSlab>
+    pub f_slab: Vec<FSlab>,
+    pub pile: Vec<Pile>
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
@@ -762,6 +763,10 @@ impl fmt::Display for RabE {
         let vec = &self.f_slab;
         for (count, v) in vec.iter().enumerate() {
             write!(f, "\n   F slab №{}: {}", count, v)?;
+        }
+        let vec = &self.pile;
+        for (count, v) in vec.iter().enumerate() {
+            write!(f, "\n   Pile   №{}: {}", count, v)?;
         }
         writeln!(f, "")
     }
@@ -973,7 +978,7 @@ pub struct Wall {
     ws2: Vec<u8>, //38b
     k: f32,
     ws3: Vec<u8>, //34b
-    op: Vec<Openings>
+    op: Vec<Opening>
 }
 impl fmt::Display for Wall {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -988,10 +993,10 @@ impl fmt::Display for Wall {
     }
 }
 #[derive(Debug)]
-pub struct Openings {
+pub struct Opening {
     source: Vec<u8> //42b
 }
-impl fmt::Display for Openings {
+impl fmt::Display for Opening {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "|_|")
     }
@@ -1012,7 +1017,7 @@ impl fmt::Display for Beam {
     }
 }
 #[derive(Debug)]
-pub struct Slabs {
+pub struct Slab {
     ws1: [u8; 2],
     b: f32,
     ws2: [u8; 14],
@@ -1021,7 +1026,7 @@ pub struct Slabs {
     s_load: f32,
     ws3: Vec<u8> //100b
 }
-impl fmt::Display for Slabs {
+impl fmt::Display for Slab {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "b: {}, loads |const: {}, long: {}, short: {}|",
                &self.b, &self.c_load, &self.l_load, &self.s_load)
@@ -1192,25 +1197,44 @@ impl fmt::Display for FSlab {
                &self.type_base, &self.base)
     }
 }
-pub trait ItsPiles {
+#[derive(Debug)]
+enum PileType {
+    PileEF(PileEF),
+    PileFL(PileFL),
+    PileSize(PileSize),
+}
+impl fmt::Display for PileType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self {
+            PileType::PileEF(r)   => write!(f, "Type: EF |{}|", r),
+            PileType::PileFL(r)   => write!(f, "Type: F-L |{}|", r),
+            PileType::PileSize(r) => write!(f, "Type: size |{}|", r),
+        }
+    }
 }
 #[derive(Debug)]
-pub struct PilesEF {
+pub struct PileEF {
     ef: f32,
     ws1: [u8; 2]
 }
-impl ItsPiles for PilesEF {
+impl fmt::Display for PileEF {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "EF: {}", &self.ef)
+    }
 }
 #[derive(Debug)]
-pub struct PilesFL {
+pub struct PileFL {
     f: f32,
     delta_l: f32,
     ws1: [u8; 2]
 }
-impl ItsPiles for PilesFL {
+impl fmt::Display for PileFL {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "f: {}, delta L: {}", &self.f, &self.delta_l)
+    }
 }
 #[derive(Debug)]
-pub struct PilesSize {
+pub struct PileSize {
     xz1: u8,
     l: f32,
     xz2: u8,
@@ -1221,19 +1245,26 @@ pub struct PilesSize {
     h: f32,
     ws2: [u8; 2]
 }
-impl ItsPiles for PilesSize {
+impl fmt::Display for PileSize {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "xz1: {}, l: {}, xz2: {}, broaden: {}, k: {}, b: {}, h: {}",
+               &self.xz1, &self.l, &self.xz2, &self.broaden,
+               &self.k, &self.b, &self.h)
+    }
 }
 #[derive(Debug)]
-pub struct  PilesVec<T: ItsPiles> {
-    pile: Vec<(Piles<T>)>
-}
-#[derive(Debug)]
-pub struct Piles<T: ItsPiles> {
+pub struct Pile {
     ws1: [u8; 2],
     p: Point,
-    type_pil: u8,
+    type_pile: u8,
     ws2: [u8; 15],
-    base: T
+    base: PileType
+}
+impl fmt::Display for Pile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "p |{}|, type № {}, {}",
+               &self.p, &self.type_pile, &self.base)
+    }
 }
 #[derive(Debug)]
 pub struct  FBeamVec {
@@ -2149,10 +2180,10 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                     read_rab_e_beam,
                     head.beams_num as usize) >>
                 slab: count!(
-                    read_rab_e_slabs,
+                    read_rab_e_slab,
                     head.slabs_num as usize) >>
                 load: count!(
-                    read_rab_e_loads,
+                    read_rab_e_load,
                     head.loads_num as usize) >>
                 poly: count!(
                     read_rab_e_poly,
@@ -2169,6 +2200,9 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                 f_slab: count!(
                     read_rab_e_fslab,
                     head.fslabs_num as usize) >>
+                pile: count!(
+                    read_rab_e_pile,
+                    head.piles_num as usize) >>
                 (RabE {
                     name: [114,97,98,46,101,num1,num2],
                     flag_line: *array_ref!(flag_line, 0 ,6),
@@ -2182,7 +2216,8 @@ named!(read_rab_e<&[u8], Vec<RabE> >,
                     node,
                     f_wall,
                     part,
-                    f_slab
+                    f_slab,
+                    pile
                 })
             )
         )
@@ -2413,11 +2448,11 @@ named!(read_rab_e_wall<&[u8], Wall>,
         })
     )
 );
-named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Openings> >,
+named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Opening> >,
     count!(
         do_parse!(
             source: take!(42)               >>
-            (Openings {
+            (Opening {
                 source: source.to_vec()
             })
         )
@@ -2441,7 +2476,7 @@ named!(read_rab_e_beam<&[u8], Beam>,
         })
     )
 );
-named!(read_rab_e_slabs<&[u8], Slabs>,
+named!(read_rab_e_slab<&[u8], Slab>,
     do_parse!(
         ws1: take!(2)                       >>
         b: le_f32                           >>
@@ -2450,7 +2485,7 @@ named!(read_rab_e_slabs<&[u8], Slabs>,
         l_load: le_f32                      >>
         s_load: le_f32                      >>
         ws3: take!(100)                     >>
-        (Slabs {
+        (Slab {
             ws1: *array_ref!(ws1, 0, 2),
             b,
             ws2: *array_ref!(ws2, 0, 14),
@@ -2461,7 +2496,7 @@ named!(read_rab_e_slabs<&[u8], Slabs>,
         })
     )
 );
-named!(read_rab_e_loads<&[u8], Load>,
+named!(read_rab_e_load<&[u8], Load>,
     do_parse!(
         source: take!(31)                   >>
         (Load {
@@ -2651,6 +2686,85 @@ named!(read_rab_e_fslab<&[u8], FSlab>,
             xz7,
             xz8,
             ws7: ws7.to_vec(),
+            base
+        })
+    )
+);
+named!(read_pile_ef<&[u8], PileEF>,
+    do_parse!(
+        ef: le_f32                          >>
+        ws1: take!(2)                       >>
+        (PileEF {
+            ef,
+            ws1: *array_ref!(ws1, 0 ,2)
+        })
+    )
+);
+named!(read_pile_f_l<&[u8], PileFL>,
+    do_parse!(
+        f: le_f32                           >>
+        delta_l: le_f32                     >>
+        ws1: take!(2)                       >>
+        (PileFL {
+            f,
+            delta_l,
+            ws1: *array_ref!(ws1, 0 ,2)
+        })
+    )
+);
+named!(read_pile_size<&[u8], PileSize>,
+    do_parse!(
+        xz1: le_u8                          >>
+        l: le_f32                           >>
+        xz2: le_u8                          >>
+        broaden: le_f32                     >>
+        k: le_f32                           >>
+        ws1: take!(9)                       >>
+        b: le_f32                           >>
+        h: le_f32                           >>
+        ws2: take!(2)                       >>
+        (PileSize {
+            xz1,
+            l,
+            xz2,
+            broaden,
+            k,
+            ws1: *array_ref!(ws1, 0 ,9),
+            b,
+            h,
+            ws2: *array_ref!(ws2, 0 ,2)
+        })
+    )
+);
+named_args!(read_pile_type(type_pile: u8)<&[u8], PileType>,
+    do_parse!(
+        pile_ef: cond!(type_pile   == 1,
+            read_pile_ef)                   >>
+        pile_f_l: cond!(type_pile  == 2,
+            read_pile_f_l)                  >>
+        pile_size: cond!(type_pile == 3,
+            read_pile_size)              >>
+        (match type_pile {
+                1 => PileType::PileEF(pile_ef.unwrap()),
+                2 => PileType::PileFL(pile_f_l.unwrap()),
+                3 => PileType::PileSize(pile_size.unwrap()),
+                _ => panic!("type_pile error"),
+            }
+        )
+    )
+);
+named!(read_rab_e_pile<&[u8], Pile>,
+    do_parse!(
+        ws1: take!(2)                       >>
+        p: read_point                       >>
+        type_pile: le_u8                    >>
+        ws2: take!(15)                      >>
+        base: apply!(read_pile_type, type_pile) >>
+        (Pile {
+            ws1: *array_ref!(ws1, 0 ,2),
+            p,
+            type_pile,
+            ws2: *array_ref!(ws2, 0 ,15),
             base
         })
     )
