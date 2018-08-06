@@ -17,16 +17,18 @@ use std::fmt;
 use std::str;
 use byteorder::{LittleEndian, WriteBytesExt};*/
 
-mod io;
+mod sig;
+mod read_write;
 mod tests;
-use io::*;
 
+use read_write::{read_file, read_file_source, write_by_file_source};
 
 fn main() {
     let input = Path::new("txt_all_окна.chg");
-    let test_building = read_file(input);
-    write_by_file(&test_building);
-    println!("{}", &test_building);
+    let building_s = read_file_source(input);
+    let building = read_file(input);
+    write_by_file_source(&building_s);
+    println!("{}", &building);
 }
 
 

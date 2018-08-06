@@ -1,13 +1,14 @@
 #[cfg(test)]
 mod tests {
 
-    use io::*;
     use std::path::Path;
     use std::io::prelude::*;
     use std::fs::File;
     use std::error::Error;
+    use sig;
+    use read_write::*;
 
-    fn write_test<T: HasWrite> (sig: &T) -> Vec<u8> {
+    fn write_test<T: sig::HasWrite> (sig: &T) -> Vec<u8> {
         sig.write()
     }
     #[test]
@@ -29,7 +30,7 @@ mod tests {
                                        why.description()),
                     Ok(_) => (),
                 };
-                assert_eq!(original_in, write_test(&read_file(&input)));
+                assert_eq!(original_in, write_test(&read_file_source(&input)));
             }
         }
     }
