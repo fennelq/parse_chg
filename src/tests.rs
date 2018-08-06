@@ -30,7 +30,7 @@ mod tests {
                                        why.description()),
                     Ok(_) => (),
                 };
-                assert_eq!(original_in, write_test(&read_file_source(&input)));
+                assert_eq!(original_in, write_test(&read_file_raw(&input)));
             }
         }
     }

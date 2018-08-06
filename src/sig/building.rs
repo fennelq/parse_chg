@@ -23,7 +23,7 @@ use sig::pop_cut::read_pop_cut;
 use sig::procalc_set::read_procalc_set;
 use sig::prores_use::read_prores_use;
 use sig::rab_a0::read_rab_a0;
-use sig::rab_e::read_rab_e;
+use sig::rab_e::rab_e::read_rab_e;
 use sig::rab_o0::read_rab_o0;
 use sig::rab_sdr::read_rab_sdr;
 use sig::rab_zag::read_rab_zag;
@@ -65,7 +65,7 @@ pub struct Building {
     pub procalc_set:    Option<procalc_set::ProcalcSet>,
     pub prores_use:     Option<prores_use::ProresUse>,
     pub rab_a0:         Option<rab_a0::RabA0>,
-    pub rab_e:          Vec<rab_e::RabE>,
+    pub rab_e:          Vec<rab_e::rab_e::RabE>,
     pub rab_o0:         Option<rab_o0::RabO0>,
     pub rab_sdr:        Option<rab_sdr::RabSdr>,
     pub rab_zag:        Option<rab_zag::RabZag>,

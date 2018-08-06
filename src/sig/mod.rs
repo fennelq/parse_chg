@@ -40,7 +40,7 @@ mod zagrcmbs_zc;
 mod zagrs_fe;
 
 pub mod building;
-pub mod building_source;
+pub mod building_raw;
 
 use byteorder::{LittleEndian, WriteBytesExt};
 

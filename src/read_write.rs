@@ -33,7 +33,7 @@ pub fn read_file(path: &Path) -> sig::building::Building {
     };
     building.1
 }
-pub fn read_file_source(path: &Path) -> sig::building_source::Building {
+pub fn read_file_raw(path: &Path) -> sig::building_raw::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
         Err(why) => panic!("couldn't open {}: {}", display,
@@ -46,7 +46,7 @@ pub fn read_file_source(path: &Path) -> sig::building_source::Building {
                            why.description()),
         Ok(_) => (),
     };
-    let building = match sig::building_source::read_original(&original_in) {
+    let building = match sig::building_raw::read_original(&original_in) {
         Err(why) => panic!("parse error {}", why),
         Ok(building) => building
     };
@@ -76,7 +76,7 @@ pub fn write_sig<T: sig::HasWrite> (sig: Option<&T>) {
         }
     };
 }
-pub fn write_by_file_source(building: &sig::building_source::Building) {
+pub fn write_by_file_raw(building: &sig::building_raw::Building) {
     let out = Path::new("out");
     match remove_dir_all(out) {Err(_)=>(),Ok(_)=>(),};
     match create_dir    (out) {Err(_)=>(),Ok(_)=>(),};

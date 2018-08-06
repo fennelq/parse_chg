@@ -1,4 +1,4 @@
-use nom::{le_u8, le_f32};
+use nom::{le_u8, le_u16, le_f32};
 use std::fmt;
 use sig::rab_e::*;
 
