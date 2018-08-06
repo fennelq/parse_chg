@@ -1,18 +1,18 @@
 use nom::le_u64;
 use std::fmt;
-use sig;
+use sig::*;
 
 #[derive(Debug)]
 pub struct ProresUse {
     flag_line: [u8; 2],
     source: Vec<u8>
 }
-impl sig::HasWrite for ProresUse {
+impl HasWrite for ProresUse {
     fn write(&self) -> Vec<u8> {
         let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
-        out.extend(sig::offset(&self.source.len()).iter());
+        out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
     }
@@ -23,7 +23,7 @@ impl sig::HasWrite for ProresUse {
 impl fmt::Display for ProresUse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let vec = &self.flag_line;
-        write!(f, "ProresUse flag_line: [")?;
+        write!(f, "{} flag_line: [", &self.name())?;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
             write!(f, "{}", v)?;

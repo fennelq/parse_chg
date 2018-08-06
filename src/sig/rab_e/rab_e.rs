@@ -64,7 +64,7 @@ impl HasWrite for RabE {
 }
 impl fmt::Display for RabE {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "RabE name: {}; flag_line: [", str::from_utf8(&self.name).unwrap_or("_"))?;
+        write!(f, "{}; flag_line: [", &self.name())?;
         let vec = &self.flag_line;
         for (count, v) in vec.iter().enumerate() {
             if count != 0 { write!(f, ", ")?; }
@@ -147,7 +147,7 @@ pub struct HeadEtazh {
 }
 impl fmt::Display for HeadEtazh {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Etazh №{}; h = {} | ", &self.etazh_num, &self.etazh_h)?;
+        write!(f, " №{}; h = {} | ", &self.etazh_num, &self.etazh_h)?;
         write!(f, "columns: {}, walls: {}, beams: {}, slabs: {}, loads: {}, poly: {}, ",
                &self.columns_num, &self.walls_num, &self.beams_num,
                &self.slabs_num, &self.loads_num, &self.poly_num)?;

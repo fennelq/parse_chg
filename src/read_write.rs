@@ -7,10 +7,10 @@ use std::path::Path;
 use std::vec::Vec;
 use std::fs::{create_dir, remove_dir_all};
 //use std::str::{from_utf8};
-use sig;
+use sig::*;
 //use std::borrow::Borrow;
 
-pub fn read_file(path: &Path) -> sig::building::Building {
+pub fn read_file(path: &Path) -> building::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
         Err(why) => panic!("couldn't open {}: {}", display,
@@ -23,7 +23,7 @@ pub fn read_file(path: &Path) -> sig::building::Building {
                            why.description()),
         Ok(_) => (),
     };
-    let building = match sig::building::read_original(&original_in) {
+    let building = match building::read_original(&original_in) {
         Err(why) => panic!("parse error {}", why),
         Ok(building) => building
     };
@@ -33,7 +33,7 @@ pub fn read_file(path: &Path) -> sig::building::Building {
     };
     building.1
 }
-pub fn read_file_raw(path: &Path) -> sig::building_raw::Building {
+pub fn read_file_raw(path: &Path) -> building_raw::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
         Err(why) => panic!("couldn't open {}: {}", display,
@@ -46,7 +46,7 @@ pub fn read_file_raw(path: &Path) -> sig::building_raw::Building {
                            why.description()),
         Ok(_) => (),
     };
-    let building = match sig::building_raw::read_original(&original_in) {
+    let building = match building_raw::read_original(&original_in) {
         Err(why) => panic!("parse error {}", why),
         Ok(building) => building
     };
@@ -57,7 +57,7 @@ pub fn read_file_raw(path: &Path) -> sig::building_raw::Building {
     building.1
 }
 
-pub fn write_sig<T: sig::HasWrite> (sig: Option<&T>) {
+pub fn write_sig<T: HasWrite> (sig: Option<&T>) {
     match sig {
         None => (),
         Some(s) => {
@@ -76,7 +76,7 @@ pub fn write_sig<T: sig::HasWrite> (sig: Option<&T>) {
         }
     };
 }
-pub fn write_by_file_raw(building: &sig::building_raw::Building) {
+pub fn write_by_file_raw(building: &building_raw::Building) {
     let out = Path::new("out");
     match remove_dir_all(out) {Err(_)=>(),Ok(_)=>(),};
     match create_dir    (out) {Err(_)=>(),Ok(_)=>(),};

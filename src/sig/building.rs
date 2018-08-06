@@ -162,9 +162,8 @@ impl fmt::Display for Building {
         if let Some(ref s) = &self.prores_use   { writeln!(f, "{}", *s)? };
         if let Some(ref s) = &self.rab_a0       { writeln!(f, "{}", *s)? };
         let vec = &self.rab_e;
-        for (count, v) in vec.iter().enumerate() {
-            if count != 0 { writeln!(f, "")?; };
-            write!(f, "{}->{}", count, v)?;
+        for v in vec.iter() {
+            write!(f, "{}", v)?;
         };
         if let Some(ref s) = &self.rab_o0       { writeln!(f, "{}", *s)? };
         if let Some(ref s) = &self.rab_sdr      { writeln!(f, "{}", *s)? };

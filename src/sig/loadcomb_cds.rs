@@ -1,16 +1,16 @@
 use nom::le_u64;
 use std::fmt;
-use sig;
+use sig::*;
 
 #[derive(Debug)]
 pub struct LoadcombCds {
     source: Vec<u8>
 }
-impl sig::HasWrite for LoadcombCds {
+impl HasWrite for LoadcombCds {
     fn write(&self) -> Vec<u8> {
         let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
-        out.extend(sig::offset(&self.source.len()).iter());
+        out.extend(offset(&self.source.len()).iter());
         out.extend(&self.source);
         out
     }
@@ -20,7 +20,7 @@ impl sig::HasWrite for LoadcombCds {
 }
 impl fmt::Display for LoadcombCds {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "LoadcombCds source.len: {}", &self.source.len())
+        write!(f, "{} source.len: {}", &self.name(), &self.source.len())
     }
 }
 

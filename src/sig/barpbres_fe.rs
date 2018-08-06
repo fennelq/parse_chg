@@ -1,11 +1,11 @@
 use std::fmt;
-use sig;
+use sig::*;
 
 #[derive(Debug)]
 pub struct BarpbresFe {
     source: Vec<u8>
 }
-impl sig::HasWrite for BarpbresFe {
+impl HasWrite for BarpbresFe {
     fn write(&self) -> Vec<u8> {
         let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(&self.source);
@@ -17,7 +17,7 @@ impl sig::HasWrite for BarpbresFe {
 }
 impl fmt::Display for BarpbresFe {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "BarpbresFe source.len: {}", &self.source.len())
+        write!(f, "{} source.len: {}", &self.name(), &self.source.len())
     }
 }
 
