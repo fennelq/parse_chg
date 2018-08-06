@@ -71,53 +71,41 @@ impl fmt::Display for RabE {
             write!(f, "{}", v)?;
         }
         write!(f, "];\n{}", &self.head)?;
-        let vec = &self.column;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Column №{}: {}", count, v)?;
+        for (count, v) in (&self.column).iter().enumerate() {
+            write!(f, "\n   column №{}: {}", count, v)?;
         }
-        let vec = &self.wall;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Wall   №{}: {}", count, v)?;
+        for (count, v) in (&self.wall).iter().enumerate() {
+            write!(f, "\n   wall   №{}: {}", count, v)?;
         }
-        let vec = &self.beam;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Beam   №{}: {}", count, v)?;
+        for (count, v) in (&self.beam).iter().enumerate() {
+            write!(f, "\n   beam   №{}: {}", count, v)?;
         }
-        let vec = &self.slab;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Slab   №{}: {}", count, v)?;
+        for (count, v) in (&self.slab).iter().enumerate() {
+            write!(f, "\n   slab   №{}: {}", count, v)?;
         }
-        let vec = &self.load;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Load   №{}: {}", count, v)?;
+        for (count, v) in (&self.load).iter().enumerate() {
+            write!(f, "\n   load   №{}: {}", count, v)?;
         }
-        let vec = &self.poly;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Poly   №{}: {}", count, v)?;
+        for (count, v) in (&self.poly).iter().enumerate() {
+            write!(f, "\n   poly   №{}: {}", count, v)?;
         }
-        let vec = &self.node;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Node   №{}: {}", count, v)?;
+        for (count, v) in (&self.node).iter().enumerate() {
+            write!(f, "\n   node   №{}: {}", count, v)?;
         }
-        let vec = &self.f_wall;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   F wall №{}: {}", count, v)?;
+        for (count, v) in (&self.f_wall).iter().enumerate() {
+            write!(f, "\n   f wall №{}: {}", count, v)?;
         }
-        let vec = &self.part;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Part.  №{}: {}", count, v)?;
+        for (count, v) in (&self.part).iter().enumerate() {
+            write!(f, "\n   part.  №{}: {}", count, v)?;
         }
-        let vec = &self.f_slab;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   F slab №{}: {}", count, v)?;
+        for (count, v) in (&self.f_slab).iter().enumerate() {
+            write!(f, "\n   f slab №{}: {}", count, v)?;
         }
-        let vec = &self.pile;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Pile   №{}: {}", count, v)?;
+        for (count, v) in (&self.pile).iter().enumerate() {
+            write!(f, "\n   pile   №{}: {}", count, v)?;
         }
-        let vec = &self.f_beam;
-        for (count, v) in vec.iter().enumerate() {
-            write!(f, "\n   Pile   №{}: {}", count, v)?;
+        for (count, v) in (&self.f_beam).iter().enumerate() {
+            write!(f, "\n   f beam №{}: {}", count, v)?;
         }
         writeln!(f, "")
     }
@@ -167,42 +155,18 @@ named!(pub read_rab_e<&[u8], Vec<RabE> >,
                 flag_line: take!(6)         >>
                 /*offset: */le_u64              >>
                 head: read_head             >>
-                column: count!(
-                    read_column,
-                    head.columns_num as usize) >>
-                wall: count!(
-                    read_wall,
-                    head.walls_num as usize) >>
-                beam: count!(
-                    read_beam,
-                    head.beams_num as usize) >>
-                slab: count!(
-                    read_slab,
-                    head.slabs_num as usize) >>
-                load: count!(
-                    read_load,
-                    head.loads_num as usize) >>
-                poly: count!(
-                    read_poly,
-                    head.poly_num as usize) >>
-                node: count!(
-                    read_node,
-                    head.nodes_num as usize) >>
-                f_wall: count!(
-                    read_fwall,
-                    (head.fwalls_num/2) as usize) >>
-                part: count!(
-                    read_part,
-                    head.parts_num as usize)  >>
-                f_slab: count!(
-                    read_fslab,
-                    head.fslabs_num as usize) >>
-                pile: count!(
-                    read_pile,
-                    head.piles_num as usize) >>
-                f_beam: count!(
-                    read_fbeam,
-                    head.fbeams_num as usize) >>
+                column: count!(read_column, head.columns_num as usize) >>
+                wall: count!(read_wall, head.walls_num as usize) >>
+                beam: count!(read_beam, head.beams_num as usize) >>
+                slab: count!(read_slab, head.slabs_num as usize) >>
+                load: count!(read_load, head.loads_num as usize) >>
+                poly: count!(read_poly, head.poly_num as usize) >>
+                node: count!(read_node, head.nodes_num as usize) >>
+                f_wall: count!(read_fwall, (head.fwalls_num/2) as usize) >>
+                part: count!(read_part, head.parts_num as usize) >>
+                f_slab: count!(read_fslab, head.fslabs_num as usize) >>
+                pile: count!(read_pile, head.piles_num as usize) >>
+                f_beam: count!(read_fbeam, head.fbeams_num as usize) >>
                 (RabE {
                     name: [114,97,98,46,101,num1,num2],
                     flag_line: *array_ref!(flag_line, 0 ,6),
