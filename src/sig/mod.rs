@@ -47,11 +47,15 @@ pub mod building_raw;
 
 use byteorder::{LittleEndian, WriteBytesExt};
 
+/// Преобразование в байты
 pub trait HasWrite {
+    /// Тело сигнатуры в байты
     fn write(&self) -> Vec<u8>;
+    /// Имя сигнатуры
     fn name(&self) -> &str;
 }
 
+/// Смещение, до конца данных в сигнатуре в байты
 fn offset(len: &usize) -> [u8; 8] {
     let offset = *len as u64;
     let mut buff8 = [0u8; 8];

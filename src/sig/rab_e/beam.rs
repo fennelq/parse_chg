@@ -5,12 +5,17 @@ use sig::rab_e::*;
 use sig::rab_e::sec::*;
 
 #[derive(Debug)]
+/// Балка
 pub struct Beam {
+    /// Первая точка балки
     p1: Point,
+    /// Вторая точка балки
     p2: Point,
     ws1: Vec<u8>, //36b
+    /// Укзатель типа сечения балки
     type_sec: u8,
     ws2: Vec<u8>, //41b
+    /// Тип сечения балки
     sec: Sec
 }
 impl fmt::Display for Beam {
