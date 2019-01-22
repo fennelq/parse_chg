@@ -112,26 +112,35 @@ impl fmt::Display for RabE {
 }
 #[derive(Debug)]
 pub struct HeadEtazh {
-    pub etazh_num: u16,
-    pub etazh_h: f32,
-    pub ws1: Vec<u8>, //56b
-    pub columns_num: u16,
-    pub walls_num: u16,
-    pub beams_num: u16,
-    pub slabs_num: u16,
-    pub loads_num: u16,
-    pub poly_num: u16,
-    pub nodes_num: u16,
-    pub ws2: [u8; 12],
-    pub fwalls_num: u16,
-    pub parts_num: u16,
-    pub ws3: [u8; 8],
-    pub fslabs_num: u16,
-    pub ws4: [u8; 4],
-    pub piles_num: u16,
-    pub ws5: [u8; 4],
-    pub fbeams_num: u16,
-    pub ws6: Vec<u8>, //180
+    etazh_num: u16,
+    etazh_h: f32,
+    num1: u16,
+    num2: u16,
+    ws1_1: [u8; 17],
+    xm1: f32,//центр тяжести х
+    ym1: f32, // центр тяжести у
+    xm2: f32,
+    ym2: f32,
+    c_sum: [u8; 4], //контрольная сумма?
+    ws1_2: [u8; 15],
+    columns_num: u16,
+    walls_num: u16,
+    beams_num: u16,
+    slabs_num: u16,
+    loads_num: u16,
+    poly_num: u16,
+    nodes_num: u16,
+    wtf: u16,
+    ws2: [u8; 10],
+    fwalls_num: u16,
+    parts_num: u16,
+    ws3: [u8; 8],
+    fslabs_num: u16,
+    ws4: [u8; 4],
+    piles_num: u16,
+    ws5: [u8; 4],
+    fbeams_num: u16,
+    ws6: Vec<u8>, //180
 }
 impl fmt::Display for HeadEtazh {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -139,9 +148,13 @@ impl fmt::Display for HeadEtazh {
         write!(f, "columns: {}, walls: {}, beams: {}, slabs: {}, loads: {}, poly: {}, ",
                &self.columns_num, &self.walls_num, &self.beams_num,
                &self.slabs_num, &self.loads_num, &self.poly_num)?;
-        write!(f, "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}   ",
+        writeln!(f, "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}   ",
                &self.nodes_num, &self.fwalls_num, &self.parts_num,
-               &self.fslabs_num, &self.piles_num, &self.fbeams_num)
+               &self.fslabs_num, &self.piles_num, &self.fbeams_num)?;
+        write!(f, "  num1: {}, num2: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
+               &self.num1, &self.num2, &self.xm1,
+               &self.xm2, &self.ym1, &self.ym2)
+
     }
 }
 
@@ -192,7 +205,15 @@ named!(pub read_head<&[u8], HeadEtazh>,
     do_parse!(
         etazh_num: le_u16                   >>
         etazh_h: le_f32                     >>
-        ws1: take!(56)                      >>
+        num1: le_u16                        >>
+        num2: le_u16                        >>
+        ws1_1: take!(17)                    >>
+        xm1: le_f32                         >>
+        ym1: le_f32                         >>
+        xm2: le_f32                         >>
+        ym2: le_f32                         >>
+        c_sum: take!(4)                     >>
+        ws1_2: take!(15)                    >>
         columns_num: le_u16                 >>
         walls_num: le_u16                   >>
         beams_num: le_u16                   >>
@@ -200,7 +221,8 @@ named!(pub read_head<&[u8], HeadEtazh>,
         loads_num: le_u16                   >>
         poly_num: le_u16                    >>
         nodes_num: le_u16                   >>
-        ws2: take!(12)                      >>
+        wtf: le_u16                   >>
+        ws2: take!(10)                      >>
         fwalls_num: le_u16                  >>
         parts_num: le_u16                   >>
         ws3: take!(8)                       >>
@@ -213,7 +235,15 @@ named!(pub read_head<&[u8], HeadEtazh>,
         (HeadEtazh {
             etazh_num,
             etazh_h,
-            ws1: ws1.to_vec(),
+            num1,
+            num2,
+            ws1_1: *array_ref!(ws1_1, 0, 17),
+            xm1,
+            ym1,
+            xm2,
+            ym2,
+            c_sum: *array_ref!(c_sum, 0, 4),
+            ws1_2: *array_ref!(ws1_2, 0, 15),
             columns_num,
             walls_num,
             beams_num,
@@ -221,7 +251,8 @@ named!(pub read_head<&[u8], HeadEtazh>,
             loads_num,
             poly_num,
             nodes_num,
-            ws2: *array_ref!(ws2, 0, 12),
+            wtf,
+            ws2: *array_ref!(ws2, 0, 10),
             fwalls_num,
             parts_num,
             ws3: *array_ref!(ws3, 0, 8),
