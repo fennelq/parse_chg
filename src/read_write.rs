@@ -1,3 +1,5 @@
+//! Чтение/запись файлов
+
 use std::io::prelude::*;
 use std::fs::File;
 use std::error::Error;
@@ -10,6 +12,7 @@ use std::fs::{create_dir, remove_dir_all};
 use sig::*;
 //use std::borrow::Borrow;
 
+/// Чтение *.chg файла (данные как переменные)
 pub fn read_file(path: &Path) -> building::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
@@ -33,6 +36,9 @@ pub fn read_file(path: &Path) -> building::Building {
     };
     building.1
 }
+/// Чтение *.chg файла (данные как вектор байт)
+///
+/// Функции _raw возвращают "сырой" вектор байт для дальнейшего анализа
 pub fn read_file_raw(path: &Path) -> building_raw::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
@@ -56,7 +62,10 @@ pub fn read_file_raw(path: &Path) -> building_raw::Building {
     };
     building.1
 }
-
+/// Запись указанной сигнатуры в отдельный файл директории "out/"
+///
+/// Имя файла = название сигнатуры. Типаж HasWrite требует реализаций функций write и name.
+/// Write - вектор байт для записи, name - имя.
 pub fn write_sig<T: HasWrite> (sig: Option<&T>) {
     match sig {
         None => (),
@@ -76,6 +85,9 @@ pub fn write_sig<T: HasWrite> (sig: Option<&T>) {
         }
     };
 }
+/// Запись здания как группу файлов посигнатурно
+///
+/// Имя файла = название сигнатуры. BUILDING.chg = все здание = исходный файл.
 pub fn write_by_file_raw(building: &building_raw::Building) {
     let out = Path::new("out");
     match remove_dir_all(out) {Err(_)=>(),Ok(_)=>(),};

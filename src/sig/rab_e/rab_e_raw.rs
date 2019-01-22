@@ -1,3 +1,4 @@
+//! Сырой элемент этажа
 use nom::{le_u64,le_u8};
 use std::fmt;
 use std::str;

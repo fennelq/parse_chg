@@ -1,3 +1,4 @@
+//! Полилинии
 use nom::{le_u8, le_u16};
 use std::fmt;
 

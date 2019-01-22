@@ -1,3 +1,4 @@
+//! Элемент этажа
 use std::fmt;
 use std::str;
 use nom::{le_u64, le_u16, le_u8, le_f32};

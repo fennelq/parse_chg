@@ -1,3 +1,4 @@
+//! Загружения
 use std::fmt;
 
 #[derive(Debug)]
