@@ -31,7 +31,7 @@ use byteorder::{LittleEndian, WriteBytesExt};*/
 mod sig;
 mod read_write;
 mod tests;
-use read_write::{read_file, read_file_raw, write_by_file_raw};
+use crate::read_write::{read_file, read_file_raw, write_by_file_raw};
 
 fn main() {
     let input = Path::new("к1.chg");

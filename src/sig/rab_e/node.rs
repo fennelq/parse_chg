@@ -1,7 +1,7 @@
 //! Узловые точки
 use nom::le_u16;
 use std::fmt;
-use sig::rab_e::*;
+use crate::sig::rab_e::*;
 
 #[derive(Debug)]
 pub struct Node {

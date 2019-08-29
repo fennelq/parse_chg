@@ -9,7 +9,7 @@ use std::path::Path;
 use std::vec::Vec;
 use std::fs::{create_dir, remove_dir_all};
 //use std::str::{from_utf8};
-use sig::*;
+use crate::sig::*;
 //use std::borrow::Borrow;
 
 /// Чтение *.chg файла (данные как переменные)

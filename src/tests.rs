@@ -8,8 +8,8 @@ mod tests {
     use std::io::prelude::*;
     use std::fs::File;
     use std::error::Error;
-    use sig::*;
-    use read_write::*;
+    use crate::sig::*;
+    use crate::read_write::*;
 
     fn write_test<T: HasWrite> (sig: &T) -> Vec<u8> {
         sig.write()

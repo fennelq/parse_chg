@@ -2,7 +2,7 @@
 use nom::{le_u64,le_u8};
 use std::fmt;
 use std::str;
-use sig::*;
+use crate::sig::*;
 
 #[derive(Debug)]
 pub struct RabERaw {

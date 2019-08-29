@@ -1,6 +1,6 @@
 use nom::le_u64;
 use std::fmt;
-use sig::*;
+use crate::sig::*;
 
 #[derive(Debug)]
 pub struct BoknagrBkn {

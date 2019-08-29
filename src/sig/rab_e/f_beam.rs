@@ -1,8 +1,8 @@
 //! Фундаментные балки
 use nom::{le_u8, le_u16};
 use std::fmt;
-use sig::rab_e::*;
-use sig::rab_e::sec::*;
+use crate::sig::rab_e::*;
+use crate::sig::rab_e::sec::*;
 
 #[derive(Debug)]
 pub struct FBeam {
