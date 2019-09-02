@@ -2,3 +2,4 @@
 **/*.rs.bk
 **/*.chg
 /.idea
+**/Cargo.toml

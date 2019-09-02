@@ -4,9 +4,6 @@
 //!
 //! Парсим файл, затем собираем его обратно. Модули _raw для анализа фрагментов исходного файла
 //!
-//! <div>
-//! <img src="../../../images/image.png"/>
-//! </div>
 //! <hr/>
 
 #![recursion_limit="128"]
@@ -31,14 +28,14 @@ use byteorder::{LittleEndian, WriteBytesExt};*/
 mod sig;
 mod read_write;
 mod tests;
-use crate::read_write::{read_file, read_file_raw, write_by_file_raw};
+use crate::read_write::{/*read_file,*/ read_file_raw, write_by_file_raw};
 
 fn main() {
     let input = Path::new("к1.chg");
     let building_s = read_file_raw(input);
-    let building = read_file(input);
+//    let building = read_file(input);
     write_by_file_raw(&building_s);
-    println!("{}", &building);
+    println!("{}", &building_s);
 }
 
 

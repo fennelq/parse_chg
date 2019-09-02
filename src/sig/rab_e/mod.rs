@@ -1,3 +1,4 @@
+/*
 //! Массив этажей
 //!
 //! Каждый элемент массива - отдельный этаж, со всеми графическими элементами
@@ -14,8 +15,10 @@ mod f_slab;
 mod pile;
 mod f_beam;
 mod sec;
+*/
 
 pub mod rab_e_raw;
+/*
 pub mod rab_e;
 
 use nom::le_f32;
@@ -41,5 +44,6 @@ named!(read_point<&[u8], Point>,
         })
     )
 );
+*/
 
 

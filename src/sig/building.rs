@@ -1,3 +1,4 @@
+/*
 use std::fmt;
 use crate::sig::*;
 use crate::sig::file_type::read_file_type;
@@ -241,4 +242,4 @@ named!(pub read_original<&[u8], Building>,
             wind_rsp,       zagrcmbs_zc,    zagrs_fe
         })
     )
-);
+);*/

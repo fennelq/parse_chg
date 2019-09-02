@@ -12,7 +12,7 @@ use std::fs::{create_dir, remove_dir_all};
 use crate::sig::*;
 //use std::borrow::Borrow;
 
-/// Чтение *.chg файла (данные как переменные)
+/*/// Чтение *.chg файла (данные как переменные)
 pub fn read_file(path: &Path) -> building::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
@@ -35,7 +35,7 @@ pub fn read_file(path: &Path) -> building::Building {
         println!("remainder of parsing: {:?}", building.0);
     };
     building.1
-}
+}*/
 /// Чтение *.chg файла (данные как вектор байт)
 ///
 /// Функции _raw возвращают "сырой" вектор байт для дальнейшего анализа
