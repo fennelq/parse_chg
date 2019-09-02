@@ -1,9 +1,11 @@
-use std::fmt;
 use crate::sig::*;
+use nom::bytes::complete::{tag, take};
+use nom::IResult;
+use std::fmt;
 
 #[derive(Debug)]
 pub struct BarpbresFe {
-    source: Vec<u8>
+    source: Vec<u8>,
 }
 impl HasWrite for BarpbresFe {
     fn write(&self) -> Vec<u8> {
@@ -21,6 +23,7 @@ impl fmt::Display for BarpbresFe {
     }
 }
 
+/*
 named!(pub read_barpbres_fe<&[u8], BarpbresFe>,
     complete!(do_parse!(
         tag!("barpbres.fe")                 >>
@@ -29,4 +32,15 @@ named!(pub read_barpbres_fe<&[u8], BarpbresFe>,
             source: source.to_vec()
         })
     ))
-);
+);*/
+
+fn read_barpbres_fe(i: &[u8]) -> IResult<&[u8], BarpbresFe> {
+    let (i, _) = tag("barpbres.fe")(i)?;
+    let (i, source) = take(10u8)(i)?;
+    Ok((
+        i,
+        BarpbresFe {
+            source: source.to_vec(),
+        },
+    ))
+}
