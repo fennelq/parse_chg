@@ -1,11 +1,15 @@
-use nom::le_u64;
-use std::fmt;
 use crate::sig::*;
+use nom::{
+    bytes::complete::{tag, take},
+    number::complete::le_u64,
+    IResult,
+};
+use std::fmt;
 
 #[derive(Debug)]
 pub struct ClmnUni {
     flag_line: [u8; 4],
-    source: Vec<u8>
+    source: Vec<u8>,
 }
 impl HasWrite for ClmnUni {
     fn write(&self) -> Vec<u8> {
@@ -25,7 +29,9 @@ impl fmt::Display for ClmnUni {
         let vec = &self.flag_line;
         write!(f, "{} flag_line: [", &self.name())?;
         for (count, v) in vec.iter().enumerate() {
-            if count != 0 { write!(f, ", ")?; }
+            if count != 0 {
+                write!(f, ", ")?;
+            }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
@@ -33,7 +39,7 @@ impl fmt::Display for ClmnUni {
     }
 }
 
-named!(pub read_clmn_uni<&[u8], ClmnUni>,
+/*named!(pub read_clmn_uni<&[u8], ClmnUni>,
     complete!(do_parse!(
         tag!("clmn.uni")                    >>
         take!(1)                            >>
@@ -45,4 +51,19 @@ named!(pub read_clmn_uni<&[u8], ClmnUni>,
             source: source.to_vec()
         })
     ))
-);
+);*/
+
+pub fn read_clmn_uni(i: &[u8]) -> IResult<&[u8], ClmnUni> {
+    let (i, _) = tag("clmn.uni")(i)?;
+    let (i, _) = take(1u8)(i)?;
+    let (i, flag_line) = take(4u8)(i)?;
+    let (i, offset) = le_u64(i)?;
+    let (i, source) = take(offset)(i)?;
+    Ok((
+        i,
+        ClmnUni {
+            flag_line: *array_ref!(flag_line, 0, 4),
+            source: source.to_vec(),
+        },
+    ))
+}

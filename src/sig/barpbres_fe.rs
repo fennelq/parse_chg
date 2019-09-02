@@ -1,6 +1,8 @@
 use crate::sig::*;
-use nom::bytes::complete::{tag, take};
-use nom::IResult;
+use nom::{
+    bytes::complete::{tag, take},
+    IResult,
+};
 use std::fmt;
 
 #[derive(Debug)]
@@ -34,7 +36,7 @@ named!(pub read_barpbres_fe<&[u8], BarpbresFe>,
     ))
 );*/
 
-fn read_barpbres_fe(i: &[u8]) -> IResult<&[u8], BarpbresFe> {
+pub fn read_barpbres_fe(i: &[u8]) -> IResult<&[u8], BarpbresFe> {
     let (i, _) = tag("barpbres.fe")(i)?;
     let (i, source) = take(10u8)(i)?;
     Ok((
