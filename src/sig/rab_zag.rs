@@ -1,11 +1,15 @@
-use nom::le_u64;
-use std::fmt;
 use crate::sig::*;
+use nom::{
+    bytes::complete::{tag, take},
+    number::complete::le_u64,
+    IResult,
+};
+use std::fmt;
 
 #[derive(Debug)]
 pub struct RabZag {
     flag_line: [u8; 5],
-    source: Vec<u8>
+    source: Vec<u8>,
 }
 impl HasWrite for RabZag {
     fn write(&self) -> Vec<u8> {
@@ -25,7 +29,9 @@ impl fmt::Display for RabZag {
         let vec = &self.flag_line;
         write!(f, "{} flag_line: [", &self.name())?;
         for (count, v) in vec.iter().enumerate() {
-            if count != 0 { write!(f, ", ")?; }
+            if count != 0 {
+                write!(f, ", ")?;
+            }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
@@ -33,7 +39,7 @@ impl fmt::Display for RabZag {
     }
 }
 
-named!(pub read_rab_zag<&[u8], RabZag>,
+/*named!(pub read_rab_zag<&[u8], RabZag>,
     complete!(do_parse!(
         tag!("rab.zag")                     >>
         take!(1)                            >>
@@ -45,4 +51,19 @@ named!(pub read_rab_zag<&[u8], RabZag>,
             source: source.to_vec()
         })
     ))
-);
+);*/
+
+pub fn read_rab_zag(i: &[u8]) -> IResult<&[u8], RabZag> {
+    let (i, _) = tag("rab.zag")(i)?;
+    let (i, _) = take(1u8)(i)?;
+    let (i, flag_line) = take(5u8)(i)?;
+    let (i, offset) = le_u64(i)?;
+    let (i, source) = take(offset)(i)?;
+    Ok((
+        i,
+        RabZag {
+            flag_line: *array_ref!(flag_line, 0, 5),
+            source: source.to_vec(),
+        },
+    ))
+}
