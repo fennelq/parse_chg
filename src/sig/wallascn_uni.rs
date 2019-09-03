@@ -1,10 +1,14 @@
-use nom::le_u64;
-use std::fmt;
 use crate::sig::*;
+use nom::{
+    bytes::complete::{tag, take},
+    number::complete::le_u64,
+    IResult,
+};
+use std::fmt;
 
 #[derive(Debug)]
 pub struct WallascnUni {
-    source: Vec<u8>
+    source: Vec<u8>,
 }
 impl HasWrite for WallascnUni {
     fn write(&self) -> Vec<u8> {
@@ -24,7 +28,7 @@ impl fmt::Display for WallascnUni {
     }
 }
 
-named!(pub read_wallascn_uni<&[u8], WallascnUni>,
+/*named!(pub read_wallascn_uni<&[u8], WallascnUni>,
     complete!(do_parse!(
         tag!("wallascn.uni")                >>
         take!(1)                            >>
@@ -34,4 +38,17 @@ named!(pub read_wallascn_uni<&[u8], WallascnUni>,
             source: source.to_vec()
         })
     ))
-);
+);*/
+
+pub fn read_wallascn_uni(i: &[u8]) -> IResult<&[u8], WallascnUni> {
+    let (i, _) = tag("wallascn.uni")(i)?;
+    let (i, _) = take(1u8)(i)?;
+    let (i, offset) = le_u64(i)?;
+    let (i, source) = take(offset)(i)?;
+    Ok((
+        i,
+        WallascnUni {
+            source: source.to_vec(),
+        },
+    ))
+}
