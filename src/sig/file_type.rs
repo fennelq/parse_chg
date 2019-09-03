@@ -1,6 +1,5 @@
-use nom::{branch::alt, bytes::complete::tag, IResult};
+use nom::{bytes::complete::tag, IResult};
 use std::fmt;
-use std::fs::File;
 
 #[derive(Debug)]
 pub enum FileType {
@@ -19,7 +18,7 @@ impl fmt::Display for FileType {
 }
 
 /*named!(pub read_file_type<&[u8], FileType>,
-    alt_complete!(
+    alt!(
         map!(tag!("BUILDER011"),
                  |_| FileType::BUILDER011)  |
         map!(tag!("CHARGE 3.7"),
@@ -29,17 +28,15 @@ impl fmt::Display for FileType {
 );*/
 
 pub fn read_file_type(i: &[u8]) -> IResult<&[u8], FileType> {
-    let mut part = [0; 10];
-    let mut f: FileType = FileType::ERROR;
-    part.clone_from_slice(&i[0..9]);
-    if &part[0..9] == b"BUILDER011" {
-        f = FileType::BUILDER011;
-        let (i, _) = tag("BUILDER011")(i)?;
-    } else if &part[0..7] == b"CHARGE37" {
-        f = FileType::CHARGE37;
-        let (i, _) = tag("CHARGE37")(i)?;
+    let mut part = vec![];
+    part.extend_from_slice(&i[0..10]);
+    if &part[0..10] == b"BUILDER011" {
+        let (i, _) = tag(b"BUILDER011")(i)?;
+        Ok((i, FileType::BUILDER011))
+    } else if &part[0..8] == b"CHARGE37" {
+        let (i, _) = tag(b"CHARGE37")(i)?;
+        Ok((i, FileType::CHARGE37))
     } else {
-        f = FileType::ERROR;
+        Ok((i, FileType::ERROR))
     }
-    Ok((i, f))
 }

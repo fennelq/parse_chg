@@ -2,6 +2,7 @@
 use crate::sig::*;
 use nom::{
     bytes::complete::{tag, take},
+    multi::many1,
     number::complete::{le_u64, le_u8},
     IResult,
 };
@@ -16,7 +17,7 @@ pub struct RabERaw {
 }
 impl HasWrite for RabERaw {
     fn write(&self) -> Vec<u8> {
-        if self.source.len() == 0 {
+        if self.source.is_empty() {
             return vec![];
         }
         let mut out = (&self.name().as_bytes()).to_vec();
@@ -29,7 +30,7 @@ impl HasWrite for RabERaw {
         out
     }
     fn name(&self) -> &str {
-        if self.source.len() == 0 {
+        if self.source.is_empty() {
             return "";
         };
         if self.name[6] == 0 {
@@ -58,7 +59,6 @@ impl fmt::Display for RabERaw {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
 /*named!(pub read_rab_e_raw<&[u8], Vec<RabERaw> >,
     complete!(
         many1!(
@@ -80,11 +80,8 @@ impl fmt::Display for RabERaw {
 );*/
 
 pub fn read_rab_e_raw(i: &[u8]) -> IResult<&[u8], Vec<RabERaw>> {
-    let mut rab_e_vec: Vec<RabERaw> = vec![];
-    while let (i, etazh) = read_etazh(i)? {
-        rab_e_vec.push(etazh);
-    }
-    Ok((i, rab_e_vec))
+    let (i, etazh) = many1(read_etazh)(i)?;
+    Ok((i, etazh))
 }
 fn read_etazh(i: &[u8]) -> IResult<&[u8], RabERaw> {
     let (i, _) = tag("rab.e")(i)?;
