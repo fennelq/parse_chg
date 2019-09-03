@@ -1,11 +1,15 @@
-use nom::le_u64;
-use std::fmt;
 use crate::sig::*;
+use nom::{
+    bytes::complete::{tag, take},
+    number::complete::le_u64,
+    IResult,
+};
+use std::fmt;
 
 #[derive(Debug)]
 pub struct MaterialMt {
     flag_line: [u8; 1],
-    source: Vec<u8>
+    source: Vec<u8>,
 }
 impl HasWrite for MaterialMt {
     fn write(&self) -> Vec<u8> {
@@ -25,7 +29,9 @@ impl fmt::Display for MaterialMt {
         let vec = &self.flag_line;
         write!(f, "{} flag_line: [", &self.name())?;
         for (count, v) in vec.iter().enumerate() {
-            if count != 0 { write!(f, ", ")?; }
+            if count != 0 {
+                write!(f, ", ")?;
+            }
             write!(f, "{}", v)?;
         }
         write!(f, "]; ")?;
@@ -33,7 +39,7 @@ impl fmt::Display for MaterialMt {
     }
 }
 
-named!(pub read_material_mt<&[u8], MaterialMt>,
+/*named!(pub read_material_mt<&[u8], MaterialMt>,
     complete!(do_parse!(
         tag!("material.mt")                 >>
         take!(1)                            >>
@@ -45,4 +51,19 @@ named!(pub read_material_mt<&[u8], MaterialMt>,
             source: source.to_vec()
         })
     ))
-);
+);*/
+
+pub fn read_material_mt(i: &[u8]) -> IResult<&[u8], MaterialMt> {
+    let (i, _) = tag("material.mt")(i)?;
+    let (i, _) = take(1u8)(i)?;
+    let (i, flag_line) = take(1u8)(i)?;
+    let (i, offset) = le_u64(i)?;
+    let (i, source) = take(offset)(i)?;
+    Ok((
+        i,
+        MaterialMt {
+            flag_line: *array_ref!(flag_line, 0, 1),
+            source: source.to_vec(),
+        },
+    ))
+}
