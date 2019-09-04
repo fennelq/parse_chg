@@ -1,5 +1,9 @@
 //! Фундаментные плиты
-use nom::{le_u8, le_f32};
+use nom::{
+    bytes::complete::take,
+    number::complete::{le_f32, le_u8},
+    IResult,
+};
 use std::fmt;
 
 #[derive(Debug)]
@@ -7,7 +11,7 @@ enum FSlabType {
     NaturalPreset(NaturalPreset),
     NaturalComp(NaturalComp),
     PilingField(PilingField),
-    PilingAsNatural(PilingAsNatural)
+    PilingAsNatural(PilingAsNatural),
 }
 impl fmt::Display for FSlabType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -23,7 +27,7 @@ impl fmt::Display for FSlabType {
 pub struct NaturalPreset {
     c1: f32,
     c2: f32,
-    ws1: [u8; 8]
+    ws1: [u8; 8],
 }
 impl fmt::Display for NaturalPreset {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -32,7 +36,7 @@ impl fmt::Display for NaturalPreset {
 }
 #[derive(Debug)]
 pub struct NaturalComp {
-    ws1: [u8; 20]
+    ws1: [u8; 20],
 }
 impl fmt::Display for NaturalComp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -41,7 +45,7 @@ impl fmt::Display for NaturalComp {
 }
 #[derive(Debug)]
 pub struct PilingField {
-    ws1: [u8; 8]
+    ws1: [u8; 8],
 }
 impl fmt::Display for PilingField {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -54,12 +58,15 @@ pub struct PilingAsNatural {
     step_y: f32,
     f: f32,
     delta_l: f32,
-    ws1: [u8; 8]
+    ws1: [u8; 8],
 }
 impl fmt::Display for PilingAsNatural {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "step X: {}, step Y: {}, f: {}, delta L: {}",
-               &self.step_x, &self.step_y, &self.f, &self.delta_l)
+        write!(
+            f,
+            "step X: {}, step Y: {}, f: {}, delta L: {}",
+            &self.step_x, &self.step_y, &self.f, &self.delta_l
+        )
     }
 }
 #[derive(Debug)]
@@ -84,20 +91,32 @@ pub struct FSlab {
     xz7: f32,
     xz8: f32,
     ws7: Vec<u8>, //37
-    base: FSlabType
+    base: FSlabType,
 }
 impl fmt::Display for FSlab {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "b: {}, xz1: {}, xz2: {}, xz3: {}, xz4: {}, xz5: {}, xz6: {}, xz7: {}, xz8: {}",
-                 &self.b, &self.xz1, &self.xz2, &self.xz3, &self.xz4,
-                 &self.xz5, &self.xz6, &self.xz7, &self.xz8)?;
-        write!(f, "          f_c: {}, f_l: {}, f_s: {}, type №{}, {}",
-               &self.f_c, &self.f_l, &self.f_s,
-               &self.type_base, &self.base)
+        writeln!(
+            f,
+            "b: {}, xz1: {}, xz2: {}, xz3: {}, xz4: {}, xz5: {}, xz6: {}, xz7: {}, xz8: {}",
+            &self.b,
+            &self.xz1,
+            &self.xz2,
+            &self.xz3,
+            &self.xz4,
+            &self.xz5,
+            &self.xz6,
+            &self.xz7,
+            &self.xz8
+        )?;
+        write!(
+            f,
+            "          f_c: {}, f_l: {}, f_s: {}, type №{}, {}",
+            &self.f_c, &self.f_l, &self.f_s, &self.type_base, &self.base
+        )
     }
 }
 
-named!(pub read_fslab<&[u8], FSlab>,
+/*named!(pub read_fslab<&[u8], FSlab>,
     do_parse!(
         ws1: take!(8)                       >>
         b: le_f32                           >>
@@ -144,8 +163,58 @@ named!(pub read_fslab<&[u8], FSlab>,
             base
         })
     )
-);
-named!(read_natural_preset<&[u8], NaturalPreset>,
+);*/
+pub fn read_fslab(i: &[u8]) -> IResult<&[u8], FSlab> {
+    let (i, ws1) = take(8u8)(i)?;
+    let (i, b) = le_f32(i)?;
+    let (i, ws2) = take(4u8)(i)?;
+    let (i, xz1) = le_f32(i)?;
+    let (i, ws3) = take(3u8)(i)?;
+    let (i, xz2) = le_f32(i)?;
+    let (i, xz3) = le_f32(i)?;
+    let (i, ws4) = take(4u8)(i)?;
+    let (i, xz4) = le_f32(i)?;
+    let (i, xz5) = le_f32(i)?;
+    let (i, type_base) = le_u8(i)?;
+    let (i, ws5) = take(5u8)(i)?;
+    let (i, f_c) = le_f32(i)?;
+    let (i, f_l) = le_f32(i)?;
+    let (i, f_s) = le_f32(i)?;
+    let (i, ws6) = take(32u8)(i)?;
+    let (i, xz6) = le_f32(i)?;
+    let (i, xz7) = le_f32(i)?;
+    let (i, xz8) = le_f32(i)?;
+    let (i, ws7) = take(37u8)(i)?;
+    let (i, base) = read_fslab_type(i, type_base)?;
+    Ok((
+        i,
+        FSlab {
+            ws1: *array_ref!(ws1, 0, 8),
+            b,
+            ws2: *array_ref!(ws2, 0, 4),
+            xz1,
+            ws3: *array_ref!(ws3, 0, 3),
+            xz2,
+            xz3,
+            ws4: *array_ref!(ws4, 0, 4),
+            xz4,
+            xz5,
+            type_base,
+            ws5: *array_ref!(ws5, 0, 8),
+            f_c,
+            f_l,
+            f_s,
+            ws6: ws6.to_vec(),
+            xz6,
+            xz7,
+            xz8,
+            ws7: ws7.to_vec(),
+            base,
+        },
+    ))
+}
+
+/*named!(read_natural_preset<&[u8], NaturalPreset>,
     do_parse!(
         c1: le_f32                          >>
         c2: le_f32                          >>
@@ -156,24 +225,58 @@ named!(read_natural_preset<&[u8], NaturalPreset>,
             ws1: *array_ref!(ws1, 0 ,8)
         })
     )
-);
-named!(read_natural_comp<&[u8], NaturalComp>,
+);*/
+fn read_natural_preset(i: &[u8]) -> IResult<&[u8], NaturalPreset> {
+    let (i, c1) = le_f32(i)?;
+    let (i, c2) = le_f32(i)?;
+    let (i, ws1) = take(8u8)(i)?;
+    Ok((
+        i,
+        NaturalPreset {
+            c1,
+            c2,
+            ws1: *array_ref!(ws1, 0, 8),
+        },
+    ))
+}
+
+/*named!(read_natural_comp<&[u8], NaturalComp>,
     do_parse!(
         ws1: take!(20)                      >>
         (NaturalComp {
             ws1: *array_ref!(ws1, 0 ,20)
         })
     )
-);
-named!(read_piling_field<&[u8], PilingField>,
+);*/
+fn read_natural_comp(i: &[u8]) -> IResult<&[u8], NaturalComp> {
+    let (i, ws1) = take(20u8)(i)?;
+    Ok((
+        i,
+        NaturalComp {
+            ws1: *array_ref!(ws1, 0, 20),
+        },
+    ))
+}
+
+/*named!(read_piling_field<&[u8], PilingField>,
     do_parse!(
         ws1: take!(8)                       >>
         (PilingField {
             ws1: *array_ref!(ws1, 0 ,8)
         })
     )
-);
-named!(read_piling_as_natural<&[u8], PilingAsNatural>,
+);*/
+fn read_piling_field(i: &[u8]) -> IResult<&[u8], PilingField> {
+    let (i, ws1) = take(8u8)(i)?;
+    Ok((
+        i,
+        PilingField {
+            ws1: *array_ref!(ws1, 0, 8),
+        },
+    ))
+}
+
+/*named!(read_piling_as_natural<&[u8], PilingAsNatural>,
     do_parse!(
         step_x: le_f32                      >>
         step_y: le_f32                      >>
@@ -188,8 +291,26 @@ named!(read_piling_as_natural<&[u8], PilingAsNatural>,
             ws1: *array_ref!(ws1, 0 ,8)
         })
     )
-);
-named_args!(read_fslab_type(type_base: u8)<&[u8], FSlabType>,
+);*/
+fn read_piling_as_natural(i: &[u8]) -> IResult<&[u8], PilingAsNatural> {
+    let (i, step_x) = le_f32(i)?;
+    let (i, step_y) = le_f32(i)?;
+    let (i, f) = le_f32(i)?;
+    let (i, delta_l) = le_f32(i)?;
+    let (i, ws1) = take(8u8)(i)?;
+    Ok((
+        i,
+        PilingAsNatural {
+            step_x,
+            step_y,
+            f,
+            delta_l,
+            ws1: *array_ref!(ws1, 0, 8),
+        },
+    ))
+}
+
+/*named_args!(read_fslab_type(type_base: u8)<&[u8], FSlabType>,
     do_parse!(
         natural_preset: cond!(type_base    == 10,
             read_natural_preset)            >>
@@ -208,4 +329,25 @@ named_args!(read_fslab_type(type_base: u8)<&[u8], FSlabType>,
             }
         )
     )
-);
+);*/
+pub fn read_fslab_type(i: &[u8], type_sec: u8) -> IResult<&[u8], FSlabType> {
+    match type_sec {
+        10 => {
+            let (i, natural_preset) = read_natural_preset(i)?;
+            Ok((i, FSlabType::NaturalPreset(natural_preset)))
+        }
+        11 => {
+            let (i, natural_comp) = read_natural_comp(i)?;
+            Ok((i, FSlabType::NaturalComp(natural_comp)))
+        }
+        12 => {
+            let (i, piling_field) = read_piling_field(i)?;
+            Ok((i, FSlabType::PilingField(piling_field)))
+        }
+        13 => {
+            let (i, piling_as_natural) = read_piling_as_natural(i)?;
+            Ok((i, FSlabType::PilingAsNatural(piling_as_natural)))
+        }
+        _ => panic!("type_base error"),
+    }
+}
