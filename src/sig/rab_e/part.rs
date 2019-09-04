@@ -1,7 +1,7 @@
 //! Отверстия
-use nom::le_f32;
-use std::fmt;
 use crate::sig::rab_e::*;
+use nom::{bytes::complete::take, number::complete::le_f32, IResult};
+use std::fmt;
 
 #[derive(Debug)]
 pub struct Partition {
@@ -10,15 +10,19 @@ pub struct Partition {
     ws1: [u8; 2],
     b: f32,
     h: f32,
-    ws2: Vec<u8> //30b
+    ws2: Vec<u8>, //30b
 }
 impl fmt::Display for Partition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "p1 |{}|, p2 |{}|, b: {}, h: {}",
-               &self.p1, &self.p2, &self.b, &self.h)
+        write!(
+            f,
+            "p1 |{}|, p2 |{}|, b: {}, h: {}",
+            &self.p1, &self.p2, &self.b, &self.h
+        )
     }
 }
 
+/*
 named!(pub read_part<&[u8], Partition>,
     do_parse!(
         p1: read_point                      >>
@@ -36,4 +40,24 @@ named!(pub read_part<&[u8], Partition>,
             ws2: ws2.to_vec()
         })
     )
-);
+);*/
+
+pub fn read_part(i: &[u8]) -> IResult<&[u8], Partition> {
+    let (i, p1) = read_point(i)?;
+    let (i, p2) = read_point(i)?;
+    let (i, ws1) = take(2u8)(i)?;
+    let (i, b) = le_f32(i)?;
+    let (i, h) = le_f32(i)?;
+    let (i, ws2) = take(30u8)(i)?;
+    Ok((
+        i,
+        Partition {
+            p1,
+            p2,
+            ws1: *array_ref!(ws1, 0, 2),
+            b,
+            h,
+            ws2: ws2.to_vec(),
+        },
+    ))
+}
