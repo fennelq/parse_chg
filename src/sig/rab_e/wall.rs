@@ -1,7 +1,11 @@
 //! Стены
-use nom::{le_u8, le_u16, le_f32};
-use std::fmt;
 use crate::sig::rab_e::*;
+use nom::{
+    bytes::complete::take,
+    number::complete::{le_f32, le_u16, le_u8},
+    IResult,
+};
+use std::fmt;
 
 #[derive(Debug)]
 pub struct Wall {
@@ -15,13 +19,15 @@ pub struct Wall {
     ws2: Vec<u8>, //38b
     k: f32,
     ws3: Vec<u8>, //34b
-    op: Vec<Opening>
+    op: Vec<Opening>,
 }
 impl fmt::Display for Wall {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "p1 |{}|, p2 |{}|, agt: {}, flag: {}, b: {}, k: {}, openings: {}",
-               &self.p1, &self.p2, &self.agt, &self.flag,
-               &self.b, &self.k, &self.op_num)?;
+        write!(
+            f,
+            "p1 |{}|, p2 |{}|, agt: {}, flag: {}, b: {}, k: {}, openings: {}",
+            &self.p1, &self.p2, &self.agt, &self.flag, &self.b, &self.k, &self.op_num
+        )?;
         let vec = &self.op;
         for (count, v) in vec.iter().enumerate() {
             write!(f, "\n       opening №{}: {}", count, v)?;
@@ -31,7 +37,7 @@ impl fmt::Display for Wall {
 }
 #[derive(Debug)]
 pub struct Opening {
-    source: Vec<u8> //42b
+    source: Vec<u8>, //42b
 }
 impl fmt::Display for Opening {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -39,7 +45,7 @@ impl fmt::Display for Opening {
     }
 }
 
-named!(pub read_wall<&[u8], Wall>,
+/*named!(pub read_wall<&[u8], Wall>,
     do_parse!(
         p1: read_point                      >>
         p2: read_point                      >>
@@ -66,7 +72,38 @@ named!(pub read_wall<&[u8], Wall>,
             op
         })
     )
-);
+);*/
+pub fn read_wall(i: &[u8]) -> IResult<&[u8], Wall> {
+    let (i, p1) = read_point(i)?;
+    let (i, p2) = read_point(i)?;
+    let (i, agt) = le_u8(i)?;
+    let (i, flag) = le_u8(i)?;
+    let (i, b) = le_f32(i)?;
+    let (i, ws1) = take(20u8)(i)?;
+    let (i, op_num) = le_u16(i)?;
+    let (i, ws2) = take(38u8)(i)?;
+    let (i, k) = le_f32(i)?;
+    let (i, ws3) = take(34u8)(i)?;
+    let (i, op) = read_wall_op(i, op_num)?;
+    Ok((
+        i,
+        Wall {
+            p1,
+            p2,
+            agt,
+            flag,
+            b,
+            ws1: *array_ref!(ws1, 0, 20), //20b
+            op_num,
+            ws2: ws2.to_vec(), //38b
+            k,
+            ws3: ws3.to_vec(), //34b
+            op,
+        },
+    ))
+}
+
+/*
 named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Opening> >,
     count!(
         do_parse!(
@@ -76,4 +113,14 @@ named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Opening> >,
             })
         )
     ,op_num)
-);
+);*/
+pub fn read_wall_op(i: &[u8], op_num: u16) -> IResult<&[u8], Vec<Opening>> {
+    let mut op_vec: Vec<Opening> = vec![];
+    for n in 0..=op_num {
+        let (i, source) = take(42u8)(i)?;
+        op_vec.push(Opening {
+            source: source.to_vec(),
+        })
+    }
+    Ok((i, op_vec))
+}
