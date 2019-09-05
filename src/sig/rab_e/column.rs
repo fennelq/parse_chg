@@ -68,10 +68,10 @@ pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
             p,
             ws1: *array_ref!(ws1, 0, 2),
             fi,
-            ws2: ws2.to_vec(),
-            ws3: ws3.to_vec(),
+            ws2: ws2.to_vec(), //32b
+            ws3: ws3.to_vec(), //44b
             type_sec,
-            ws4: ws4.to_vec(),
+            ws4: ws4.to_vec(), //33b
             sec,
         },
     ))

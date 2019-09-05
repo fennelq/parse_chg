@@ -52,9 +52,6 @@ impl HasWrite for RabE {
         out
     }
     fn name(&self) -> &str {
-        //if *&self.source.len() == 0 {
-        //    return ""
-        //};
         if self.name[6] == 0 {
             return match str::from_utf8(&self.name[0..6]) {
                 Err(_) => "",
@@ -114,7 +111,7 @@ impl fmt::Display for RabE {
         for (count, v) in (&self.f_beam).iter().enumerate() {
             write!(f, "\n   f beam №{}: {}", count, v)?;
         }
-        writeln!(f, "-------")
+        write!(f, "")
     }
 }
 #[derive(Debug)]
@@ -361,7 +358,7 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
     let (i, piles_num) = le_u16(i)?;
     let (i, ws5) = take(4u8)(i)?;
     let (i, fbeams_num) = le_u16(i)?;
-    let (i, ws6) = take(120u8)(i)?;
+    let (i, ws6) = take(180u8)(i)?;
     Ok((
         i,
         HeadEtazh {

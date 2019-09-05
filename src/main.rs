@@ -27,12 +27,13 @@ use byteorder::{LittleEndian, WriteBytesExt};*/
 mod read_write;
 mod sig;
 mod tests;
-use crate::read_write::{read_file, read_file_raw, write_by_file_raw};
+use crate::read_write::{read_file, read_file_raw, write_by_file_raw, write_recognize_sig};
 
 fn main() {
     let input = Path::new("к1.chg");
     let building_s = read_file_raw(input);
-    //let building = read_file(input);
+    let building = read_file(input);
     write_by_file_raw(&building_s);
-    println!("{}", &building_s);
+    write_recognize_sig();
+    println!("{}", &building);
 }

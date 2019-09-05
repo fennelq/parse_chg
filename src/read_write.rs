@@ -77,6 +77,34 @@ pub fn write_sig<T: HasWrite>(sig: Option<&T>) {
         }
     };
 }
+pub fn write_recognize_sig() {
+    let path_in = Path::new("recognize/in");
+    let path_out = Path::new("recognize/out");
+    for entry in path_in.read_dir().expect("read_dir call failed") {
+        if let Ok(entry) = entry {
+            let input = entry.path();
+            let display = input.display();
+            eprintln!("{:?}", input.file_name().expect("no file"));
+            let mut file_in = match File::open(&input) {
+                Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+                Ok(file) => file,
+            };
+            let building: &building_raw::Building = &read_file_raw(&input);
+            let rab_e = building.rab_e[0].write();
+            let (_, sig) = rab_e.split_at(316);
+            let path_buf = path_out.join(&input.file_name().expect("write_error"));
+            let display_out = path_buf.as_path().display();
+            let mut file_out = match File::create(path_buf.as_path()) {
+                Err(why) => panic!("couldn't create {}: {}", display_out, why.description()),
+                Ok(file) => file,
+            };
+            match file_out.write_all(&sig) {
+                Err(why) => panic!("couldn't write {}: {}", display, why.description()),
+                Ok(file) => file,
+            };
+        }
+    }
+}
 /// Запись здания как группу файлов посигнатурно
 ///
 /// Имя файла = название сигнатуры. BUILDING.chg = все здание = исходный файл.

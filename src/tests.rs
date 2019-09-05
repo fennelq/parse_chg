@@ -15,7 +15,7 @@ mod complex_tests {
         sig.write()
     }
     #[test]
-    fn complex_read_write() {
+    fn complex_read_write_raw() {
         let test_path = Path::new("test_cases");
         for entry in test_path.read_dir().expect("read_dir call failed") {
             if let Ok(entry) = entry {
@@ -35,3 +35,6 @@ mod complex_tests {
         }
     }
 }
+
+#[cfg(test)]
+mod rab_e_sig_test {}
