@@ -91,8 +91,10 @@ pub fn write_recognize_sig() {
             };
             let building: &building_raw::Building = &read_file_raw(&input);
             let rab_e = building.rab_e[0].write();
-            let (_, sig) = rab_e.split_at(316);
-            let path_buf = path_out.join(&input.file_name().expect("write_error"));
+            let (_, sig) = rab_e.split_at(315);
+            let path_buf = path_out
+                .join(&input.file_stem().expect("write_error"))
+                .with_extension("test");
             let display_out = path_buf.as_path().display();
             let mut file_out = match File::create(path_buf.as_path()) {
                 Err(why) => panic!("couldn't create {}: {}", display_out, why.description()),
