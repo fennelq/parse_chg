@@ -2,6 +2,7 @@
 use crate::sig::rab_e::*;
 use nom::{
     bytes::complete::take,
+    multi::count,
     number::complete::{le_f32, le_u16, le_u8},
     IResult,
 };
@@ -84,7 +85,7 @@ pub fn read_wall(i: &[u8]) -> IResult<&[u8], Wall> {
     let (i, ws2) = take(38u8)(i)?;
     let (i, k) = le_f32(i)?;
     let (i, ws3) = take(34u8)(i)?;
-    let (i, op) = read_wall_op(i, op_num)?;
+    let (i, op) = count(read_wall_op, op_num as usize)(i)?;
     Ok((
         i,
         Wall {
@@ -114,13 +115,12 @@ named_args!(read_wall_op(op_num: usize)<&[u8], Vec<Opening> >,
         )
     ,op_num)
 );*/
-pub fn read_wall_op(i: &[u8], op_num: u16) -> IResult<&[u8], Vec<Opening>> {
-    let mut op_vec: Vec<Opening> = vec![];
-    for n in 0..=op_num {
-        let (i, source) = take(42u8)(i)?;
-        op_vec.push(Opening {
+pub fn read_wall_op(i: &[u8]) -> IResult<&[u8], Opening> {
+    let (i, source) = take(42u8)(i)?;
+    Ok((
+        i,
+        Opening {
             source: source.to_vec(),
-        })
-    }
-    Ok((i, op_vec))
+        },
+    ))
 }

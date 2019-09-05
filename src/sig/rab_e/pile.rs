@@ -197,7 +197,7 @@ pub fn read_pile_size(i: &[u8]) -> IResult<&[u8], PileSize> {
         )
     )
 );*/
-pub fn read_pile_type(i: &[u8], type_sec: u8) -> IResult<&[u8], PileType> {
+fn read_pile_type(i: &[u8], type_sec: u8) -> IResult<&[u8], PileType> {
     match type_sec {
         1 => {
             let (i, pile_ef) = read_pile_ef(i)?;

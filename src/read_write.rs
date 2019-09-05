@@ -12,30 +12,27 @@ use std::vec::Vec;
 use crate::sig::*;
 //use std::borrow::Borrow;
 
-/*/// Чтение *.chg файла (данные как переменные)
+/// Чтение *.chg файла (данные как переменные)
 pub fn read_file(path: &Path) -> building::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display,
-                           why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
-    match file.read_to_end(&mut original_in) {
-        Err(why) => panic!("couldn't read {}: {}", display,
-                           why.description()),
-        Ok(_) => (),
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
     };
     let building = match building::read_original(&original_in) {
-        Err(why) => panic!("parse error {}", why),
-        Ok(building) => building
+        Err(_) => panic!("parse error"),
+        Ok(building) => building,
     };
 
-    if building.0.len() != 0 {
+    if !building.0.is_empty() {
         println!("remainder of parsing: {:?}", building.0);
     };
     building.1
-}*/
+}
 /// Чтение *.chg файла (данные как вектор байт)
 ///
 /// Функции _raw возвращают "сырой" вектор байт для дальнейшего анализа
@@ -85,13 +82,11 @@ pub fn write_sig<T: HasWrite>(sig: Option<&T>) {
 /// Имя файла = название сигнатуры. BUILDING.chg = все здание = исходный файл.
 pub fn write_by_file_raw(building: &building_raw::Building) {
     let out = Path::new("out");
-    match remove_dir_all(out) {
-        Err(_) => (),
-        Ok(_) => (),
+    if let Err(_) = remove_dir_all(out) {
+        ()
     };
-    match create_dir(out) {
-        Err(_) => (),
-        Ok(_) => (),
+    if let Err(_) = create_dir(out) {
+        ()
     };
     write_sig(building.barpbres_fe.as_ref());
     write_sig(building.bkngwl_bnw.as_ref());

@@ -330,7 +330,7 @@ fn read_piling_as_natural(i: &[u8]) -> IResult<&[u8], PilingAsNatural> {
         )
     )
 );*/
-pub fn read_fslab_type(i: &[u8], type_sec: u8) -> IResult<&[u8], FSlabType> {
+fn read_fslab_type(i: &[u8], type_sec: u8) -> IResult<&[u8], FSlabType> {
     match type_sec {
         10 => {
             let (i, natural_preset) = read_natural_preset(i)?;
