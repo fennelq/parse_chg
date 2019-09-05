@@ -1,22 +1,26 @@
 //! Элемент этажа
+use crate::sig::*;
+use nom::{
+    bytes::complete::{tag, take},
+    multi::{count, many1},
+    number::complete::{le_f32, le_u16, le_u64, le_u8},
+    IResult,
+};
 use std::fmt;
 use std::str;
-use nom::{le_u64, le_u16, le_u8, le_f32};
-use crate::sig::*;
 
-use crate::sig::rab_e::column::read_column;
-use crate::sig::rab_e::wall::read_wall;
 use crate::sig::rab_e::beam::read_beam;
-use crate::sig::rab_e::slab::read_slab;
-use crate::sig::rab_e::load::read_load;
-use crate::sig::rab_e::poly::read_poly;
-use crate::sig::rab_e::node::read_node;
-use crate::sig::rab_e::f_wall::read_fwall;
-use crate::sig::rab_e::part::read_part;
-use crate::sig::rab_e::f_slab::read_fslab;
-use crate::sig::rab_e::pile::read_pile;
+use crate::sig::rab_e::column::read_column;
 use crate::sig::rab_e::f_beam::read_fbeam;
-
+use crate::sig::rab_e::f_slab::read_fslab;
+use crate::sig::rab_e::f_wall::read_fwall;
+use crate::sig::rab_e::load::read_load;
+use crate::sig::rab_e::node::read_node;
+use crate::sig::rab_e::part::read_part;
+use crate::sig::rab_e::pile::read_pile;
+use crate::sig::rab_e::poly::read_poly;
+use crate::sig::rab_e::slab::read_slab;
+use crate::sig::rab_e::wall::read_wall;
 
 #[derive(Debug)]
 pub struct RabE {
@@ -34,12 +38,12 @@ pub struct RabE {
     pub part: Vec<rab_e::part::Partition>,
     pub f_slab: Vec<rab_e::f_slab::FSlab>,
     pub pile: Vec<rab_e::pile::Pile>,
-    pub f_beam: Vec<rab_e::f_beam::FBeam>
+    pub f_beam: Vec<rab_e::f_beam::FBeam>,
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
         let mut out = (&self.name().as_bytes()).to_vec();
-        if *&self.name[6] == 0 {
+        if self.name[6] == 0 {
             out.push(0u8);
         };
         out.extend(&self.flag_line);
@@ -51,11 +55,11 @@ impl HasWrite for RabE {
         //if *&self.source.len() == 0 {
         //    return ""
         //};
-        if *&self.name[6] == 0 {
+        if self.name[6] == 0 {
             return match str::from_utf8(&self.name[0..6]) {
                 Err(_) => "",
                 Ok(res) => res,
-            }
+            };
         }
         match str::from_utf8(&self.name) {
             Err(_) => "",
@@ -68,7 +72,9 @@ impl fmt::Display for RabE {
         write!(f, "{}; flag_line: [", &self.name())?;
         let vec = &self.flag_line;
         for (count, v) in vec.iter().enumerate() {
-            if count != 0 { write!(f, ", ")?; }
+            if count != 0 {
+                write!(f, ", ")?;
+            }
             write!(f, "{}", v)?;
         }
         write!(f, "];\n{}", &self.head)?;
@@ -108,7 +114,7 @@ impl fmt::Display for RabE {
         for (count, v) in (&self.f_beam).iter().enumerate() {
             write!(f, "\n   f beam №{}: {}", count, v)?;
         }
-        writeln!(f, "")
+        writeln!(f, "-------")
     }
 }
 #[derive(Debug)]
@@ -118,7 +124,7 @@ pub struct HeadEtazh {
     num1: u16,
     num2: u16,
     ws1_1: [u8; 17],
-    xm1: f32,//центр тяжести х
+    xm1: f32, //центр тяжести х
     ym1: f32, // центр тяжести у
     xm2: f32,
     ym2: f32,
@@ -146,20 +152,35 @@ pub struct HeadEtazh {
 impl fmt::Display for HeadEtazh {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, " №{}; h = {} | ", &self.etazh_num, &self.etazh_h)?;
-        write!(f, "columns: {}, walls: {}, beams: {}, slabs: {}, loads: {}, poly: {}, ",
-               &self.columns_num, &self.walls_num, &self.beams_num,
-               &self.slabs_num, &self.loads_num, &self.poly_num)?;
-        writeln!(f, "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}   ",
-               &self.nodes_num, &self.fwalls_num, &self.parts_num,
-               &self.fslabs_num, &self.piles_num, &self.fbeams_num)?;
-        write!(f, "  num1: {}, num2: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
-               &self.num1, &self.num2, &self.xm1,
-               &self.xm2, &self.ym1, &self.ym2)
-
+        write!(
+            f,
+            "columns: {}, walls: {}, beams: {}, slabs: {}, loads: {}, poly: {}, ",
+            &self.columns_num,
+            &self.walls_num,
+            &self.beams_num,
+            &self.slabs_num,
+            &self.loads_num,
+            &self.poly_num
+        )?;
+        writeln!(
+            f,
+            "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}   ",
+            &self.nodes_num,
+            &self.fwalls_num,
+            &self.parts_num,
+            &self.fslabs_num,
+            &self.piles_num,
+            &self.fbeams_num
+        )?;
+        write!(
+            f,
+            "  num1: {}, num2: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
+            &self.num1, &self.num2, &self.xm1, &self.xm2, &self.ym1, &self.ym2
+        )
     }
 }
 
-named!(pub read_rab_e<&[u8], Vec<RabE> >,
+/*named!(pub read_rab_e<&[u8], Vec<RabE> >,
     complete!(
         many1!(
             do_parse!(
@@ -167,7 +188,7 @@ named!(pub read_rab_e<&[u8], Vec<RabE> >,
                 num1: le_u8                 >>
                 num2: le_u8                 >>
                 flag_line: take!(6)         >>
-                /*offset: */le_u64              >>
+                *//*offset: *//*le_u64              >>
                 head: read_head             >>
                 column: count!(read_column, head.columns_num as usize) >>
                 wall: count!(read_wall, head.walls_num as usize) >>
@@ -201,8 +222,53 @@ named!(pub read_rab_e<&[u8], Vec<RabE> >,
             )
         )
     )
-);
-named!(pub read_head<&[u8], HeadEtazh>,
+);*/
+pub fn read_rab_e(i: &[u8]) -> IResult<&[u8], Vec<RabE>> {
+    let (i, rab_e_etazh) = many1(read_rab_e_etazh)(i)?;
+    Ok((i, rab_e_etazh))
+}
+fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
+    let (i, _) = tag("rab.e")(i)?;
+    let (i, num1) = le_u8(i)?;
+    let (i, num2) = le_u8(i)?;
+    let (i, flag_line) = take(6u8)(i)?;
+    let (i, _ /*offset*/) = le_u64(i)?;
+    let (i, head) = read_head(i)?;
+    let (i, column) = count(read_column, head.columns_num as usize)(i)?;
+    let (i, wall) = count(read_wall, head.walls_num as usize)(i)?;
+    let (i, beam) = count(read_beam, head.beams_num as usize)(i)?;
+    let (i, slab) = count(read_slab, head.slabs_num as usize)(i)?;
+    let (i, load) = count(read_load, head.loads_num as usize)(i)?;
+    let (i, poly) = count(read_poly, head.poly_num as usize)(i)?;
+    let (i, node) = count(read_node, head.nodes_num as usize)(i)?;
+    let (i, f_wall) = count(read_fwall, head.fwalls_num as usize)(i)?;
+    let (i, part) = count(read_part, head.parts_num as usize)(i)?;
+    let (i, f_slab) = count(read_fslab, head.fslabs_num as usize)(i)?;
+    let (i, pile) = count(read_pile, head.piles_num as usize)(i)?;
+    let (i, f_beam) = count(read_fbeam, head.fbeams_num as usize)(i)?;
+    Ok((
+        i,
+        RabE {
+            name: [114, 97, 98, 46, 101, num1, num2],
+            flag_line: *array_ref!(flag_line, 0, 6),
+            head,
+            column,
+            wall,
+            beam,
+            slab,
+            load,
+            poly,
+            node,
+            f_wall,
+            part,
+            f_slab,
+            pile,
+            f_beam,
+        },
+    ))
+}
+
+/*named!(pub read_head<&[u8], HeadEtazh>,
     do_parse!(
         etazh_num: le_u16                   >>
         etazh_h: le_f32                     >>
@@ -265,4 +331,69 @@ named!(pub read_head<&[u8], HeadEtazh>,
             ws6: ws6.to_vec()
         })
     )
-);
+);*/
+fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
+    let (i, etazh_num) = le_u16(i)?;
+    let (i, etazh_h) = le_f32(i)?;
+    let (i, num1) = le_u16(i)?;
+    let (i, num2) = le_u16(i)?;
+    let (i, ws1_1) = take(17u8)(i)?;
+    let (i, xm1) = le_f32(i)?;
+    let (i, ym1) = le_f32(i)?;
+    let (i, xm2) = le_f32(i)?;
+    let (i, ym2) = le_f32(i)?;
+    let (i, c_sum) = take(4u8)(i)?;
+    let (i, ws1_2) = take(15u8)(i)?;
+    let (i, columns_num) = le_u16(i)?;
+    let (i, walls_num) = le_u16(i)?;
+    let (i, beams_num) = le_u16(i)?;
+    let (i, slabs_num) = le_u16(i)?;
+    let (i, loads_num) = le_u16(i)?;
+    let (i, poly_num) = le_u16(i)?;
+    let (i, nodes_num) = le_u16(i)?;
+    let (i, wtf) = le_u16(i)?;
+    let (i, ws2) = take(10u8)(i)?;
+    let (i, fwalls_num) = le_u16(i)?;
+    let (i, parts_num) = le_u16(i)?;
+    let (i, ws3) = take(8u8)(i)?;
+    let (i, fslabs_num) = le_u16(i)?;
+    let (i, ws4) = take(4u8)(i)?;
+    let (i, piles_num) = le_u16(i)?;
+    let (i, ws5) = take(4u8)(i)?;
+    let (i, fbeams_num) = le_u16(i)?;
+    let (i, ws6) = take(120u8)(i)?;
+    Ok((
+        i,
+        HeadEtazh {
+            etazh_num,
+            etazh_h,
+            num1,
+            num2,
+            ws1_1: *array_ref!(ws1_1, 0, 17),
+            xm1,
+            ym1,
+            xm2,
+            ym2,
+            c_sum: *array_ref!(c_sum, 0, 4),
+            ws1_2: *array_ref!(ws1_2, 0, 15),
+            columns_num,
+            walls_num,
+            beams_num,
+            slabs_num,
+            loads_num,
+            poly_num,
+            nodes_num,
+            wtf,
+            ws2: *array_ref!(ws2, 0, 10),
+            fwalls_num,
+            parts_num,
+            ws3: *array_ref!(ws3, 0, 8),
+            fslabs_num,
+            ws4: *array_ref!(ws4, 0, 4),
+            piles_num,
+            ws5: *array_ref!(ws5, 0, 4),
+            fbeams_num,
+            ws6: ws6.to_vec(),
+        },
+    ))
+}
