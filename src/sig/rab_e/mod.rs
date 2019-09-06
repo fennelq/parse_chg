@@ -18,6 +18,7 @@ mod wall;
 pub mod rab_e;
 pub mod rab_e_raw;
 
+use crate::sig::HasWrite;
 use nom::{number::complete::le_f32, IResult};
 use std::fmt;
 
@@ -25,6 +26,17 @@ use std::fmt;
 pub struct Point {
     x: f32,
     y: f32,
+}
+impl HasWrite for Point {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.x.to_bits().to_le_bytes());
+        out.extend(&self.y.to_bits().to_le_bytes());
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

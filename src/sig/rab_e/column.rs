@@ -1,9 +1,10 @@
 //! Колонны
 use crate::sig::rab_e::sec::*;
 use crate::sig::rab_e::*;
+use crate::sig::HasWrite;
 use nom::{
     bytes::complete::take,
-    number::complete::{le_f32, le_i32, le_u16, le_u32, le_u8},
+    number::complete::{le_f32, le_i16, le_i32, le_u16, le_u32, le_u8},
     IResult,
 };
 use std::fmt;
@@ -19,8 +20,8 @@ pub struct Column {
     //2b WS
     r_ver_2: i32, //Зависит от расчета. 0=без,-1=расчет, МКЭ
     //10b WS
-    found_from: u16, //Фундамент под колонну 1 значение
-    found_to: u16,   //Фундамент под колонну 2 значение
+    found_from: i16, //Фундамент под колонну 1 значение
+    found_to: i16,   //Фундамент под колонну 2 значение
     //1b WS
     mu: f32,      //Процент армирования %/100
     wtf1: f32,    //Числовое значение, после расчета
@@ -45,6 +46,48 @@ pub struct Column {
     sec: Sec,    //Тип сечения
     ws: Vec<u8>, //60b
 }
+impl HasWrite for Column {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.p.write());
+        out.extend(&self.flag_agt.to_le_bytes());
+        out.extend(&self.flag_bearing.to_le_bytes());
+        out.extend(&self.fi.to_bits().to_le_bytes());
+        out.extend(&self.ws[0..8]);
+        out.extend(&self.r_ver_1.to_le_bytes());
+        out.extend(&self.ws[8..10]);
+        out.extend(&self.r_ver_2.to_le_bytes());
+        out.extend(&self.ws[10..20]);
+        out.extend(&self.found_from.to_le_bytes());
+        out.extend(&self.found_to.to_le_bytes());
+        out.push(self.ws[20]);
+        out.extend(&self.mu.to_bits().to_le_bytes());
+        out.extend(&self.wtf1.to_bits().to_le_bytes());
+        out.extend(&self.wtf2.to_bits().to_le_bytes());
+        out.extend(&self.r_ver_3.to_le_bytes());
+        out.extend(&self.r_ver_4.to_le_bytes());
+        out.extend(&self.r_ver_5.to_le_bytes());
+        out.extend(&self.r_ver_6.to_le_bytes());
+        out.extend(&self.cons_1.to_le_bytes());
+        out.push(self.ws[21]);
+        out.extend(&self.r_ver_7.to_le_bytes());
+        out.extend(&self.r_ver_8.to_le_bytes());
+        out.extend(&self.r_ver_9.to_le_bytes());
+        out.extend(&self.r_ver_10.to_le_bytes());
+        out.extend(&self.r_ver_11.to_le_bytes());
+        out.extend(&self.ws[22..30]);
+        out.extend(&self.type_sec.to_le_bytes());
+        out.extend(&self.cons_2.to_le_bytes());
+        out.extend(&self.flag_hinge.to_le_bytes());
+        out.extend(&self.cons_3.to_le_bytes());
+
+        out.extend(&self.ws[30..=60]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
+}
 impl fmt::Display for Column {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -65,8 +108,8 @@ pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
     let (i, ws2) = take(2u8)(i)?; //2b WS
     let (i, r_ver_2) = le_i32(i)?;
     let (i, ws3) = take(10u8)(i)?; //10b WS
-    let (i, found_from) = le_u16(i)?;
-    let (i, found_to) = le_u16(i)?;
+    let (i, found_from) = le_i16(i)?;
+    let (i, found_to) = le_i16(i)?;
     let (i, ws4) = take(1u8)(i)?; //1b WS
     let (i, mu) = le_f32(i)?;
     let (i, wtf1) = le_f32(i)?;
