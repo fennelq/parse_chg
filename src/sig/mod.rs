@@ -59,6 +59,9 @@ pub trait HasWrite {
 fn offset(len: &usize) -> [u8; 8] {
     let offset = *len as u64;
     let mut buff8 = [0u8; 8];
-    buff8.as_mut().write_u64::<LittleEndian>(offset).expect("offset_err");
+    buff8
+        .as_mut()
+        .write_u64::<LittleEndian>(offset)
+        .expect("offset_err");
     buff8
 }
