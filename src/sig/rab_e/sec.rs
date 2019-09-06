@@ -1,4 +1,5 @@
 //! Типы сечений колонн, балок, фундаментных балок
+use crate::sig::HasWrite;
 use nom::{bytes::complete::take, number::complete::le_f32, IResult};
 use std::fmt;
 
@@ -11,6 +12,24 @@ pub enum Sec {
     Box(BoxSec),
     Bead(BeadSec),
     Shelves(ShelvesSec),
+}
+impl HasWrite for Sec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        match self {
+            Sec::Rectangle(s) => out.extend(s.write()),
+            Sec::Circle(s) => out.extend(s.write()),
+            Sec::Cross(s) => out.extend(s.write()),
+            Sec::Ring(s) => out.extend(s.write()),
+            Sec::Box(s) => out.extend(s.write()),
+            Sec::Bead(s) => out.extend(s.write()),
+            Sec::Shelves(s) => out.extend(s.write()),
+        }
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for Sec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -31,6 +50,18 @@ pub struct RectangleSec {
     h: f32,
     ws: [u8; 3],
 }
+impl HasWrite for RectangleSec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.b.to_bits().to_le_bytes());
+        out.extend(&self.h.to_bits().to_le_bytes());
+        out.extend(&self.ws);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
+}
 impl fmt::Display for RectangleSec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "b: {}, h: {}", &self.b, &self.h)
@@ -40,6 +71,17 @@ impl fmt::Display for RectangleSec {
 pub struct CircleSec {
     d: f32,
     ws: [u8; 3],
+}
+impl HasWrite for CircleSec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.d.to_bits().to_le_bytes());
+        out.extend(&self.ws);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for CircleSec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -56,6 +98,22 @@ pub struct CrossSec {
     h3: f32,
     ws: [u8; 2],
 }
+impl HasWrite for CrossSec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.b1.to_bits().to_le_bytes());
+        out.extend(&self.b2.to_bits().to_le_bytes());
+        out.extend(&self.b3.to_bits().to_le_bytes());
+        out.extend(&self.h1.to_bits().to_le_bytes());
+        out.extend(&self.h2.to_bits().to_le_bytes());
+        out.extend(&self.h3.to_bits().to_le_bytes());
+        out.extend(&self.ws);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
+}
 impl fmt::Display for CrossSec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -71,6 +129,18 @@ pub struct RingSec {
     t: f32,
     ws: [u8; 2],
 }
+impl HasWrite for RingSec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.d.to_bits().to_le_bytes());
+        out.extend(&self.t.to_bits().to_le_bytes());
+        out.extend(&self.ws);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
+}
 impl fmt::Display for RingSec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "d: {}, t: {}", &self.d, &self.t)
@@ -83,6 +153,20 @@ pub struct BoxSec {
     h: f32,
     h1: f32,
     ws: [u8; 2],
+}
+impl HasWrite for BoxSec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.b.to_bits().to_le_bytes());
+        out.extend(&self.b1.to_bits().to_le_bytes());
+        out.extend(&self.h.to_bits().to_le_bytes());
+        out.extend(&self.h1.to_bits().to_le_bytes());
+        out.extend(&self.ws);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for BoxSec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -103,6 +187,22 @@ pub struct BeadSec {
     h2: f32,
     ws: [u8; 2],
 }
+impl HasWrite for BeadSec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.b.to_bits().to_le_bytes());
+        out.extend(&self.b1.to_bits().to_le_bytes());
+        out.extend(&self.b2.to_bits().to_le_bytes());
+        out.extend(&self.h.to_bits().to_le_bytes());
+        out.extend(&self.h1.to_bits().to_le_bytes());
+        out.extend(&self.h2.to_bits().to_le_bytes());
+        out.extend(&self.ws);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
+}
 impl fmt::Display for BeadSec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -121,6 +221,22 @@ pub struct ShelvesSec {
     b2: f32,
     h2: f32,
     ws: [u8; 2],
+}
+impl HasWrite for ShelvesSec {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        out.extend(&self.b.to_bits().to_le_bytes());
+        out.extend(&self.h.to_bits().to_le_bytes());
+        out.extend(&self.b1.to_bits().to_le_bytes());
+        out.extend(&self.h1.to_bits().to_le_bytes());
+        out.extend(&self.b2.to_bits().to_le_bytes());
+        out.extend(&self.h2.to_bits().to_le_bytes());
+        out.extend(&self.ws);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for ShelvesSec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

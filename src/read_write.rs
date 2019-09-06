@@ -85,7 +85,7 @@ pub fn write_recognize_sig() {
             let input = entry.path();
             let display = input.display();
             eprintln!("{:?}", input.file_name().expect("no file"));
-            let mut file_in = match File::open(&input) {
+            let _file_in = match File::open(&input) {
                 Err(why) => panic!("couldn't open {}: {}", display, why.description()),
                 Ok(file) => file,
             };

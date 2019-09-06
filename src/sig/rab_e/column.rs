@@ -80,7 +80,7 @@ impl HasWrite for Column {
         out.extend(&self.cons_2.to_le_bytes());
         out.extend(&self.flag_hinge.to_le_bytes());
         out.extend(&self.cons_3.to_le_bytes());
-
+        out.extend(&self.sec.write());
         out.extend(&self.ws[30..=60]);
         out
     }
