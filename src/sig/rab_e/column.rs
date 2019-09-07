@@ -14,7 +14,8 @@ pub struct Column {
     p: Point,         //Координаты, м
     flag_agt: u8,     //Генерировать АЖТ. 0=нет, 120=да
     flag_bearing: u8, //Опирание колонны. 0=обычное, 2=плита, 4=фундамент, 228=фундамент F, 230=плита и фундамент F
-    fi: f32,          //Угол повоорта колонны, радианы
+    //При создании фундамента и при расчете добавляется сигнатура 48b
+    fi: f32, //Угол повоорта колонны, радианы
     //8b WS
     r_ver_1: i32, //Зависит от расчета. 0=без,-1=расчет, МКЭ
     //2b WS
@@ -80,8 +81,8 @@ impl HasWrite for Column {
         out.extend(&self.cons_2.to_le_bytes());
         out.extend(&self.flag_hinge.to_le_bytes());
         out.extend(&self.cons_3.to_le_bytes());
+        out.extend(&self.ws[30..60]);
         out.extend(&self.sec.write());
-        out.extend(&self.ws[30..=60]);
         out
     }
     fn name(&self) -> &str {
@@ -171,4 +172,133 @@ pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
             ws,
         },
     ))
+}
+
+#[cfg(test)]
+fn test_column(s: &str) {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new(s);
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, column) = read_column(&original_in).expect("couldn't read_column");
+    assert_eq!(original_in, column.write());
+}
+#[test]
+fn column_box_test() {
+    test_column("test_sig/columns/column_box.test");
+}
+#[test]
+fn column_circle_test() {
+    test_column("test_sig/columns/column_circle.test");
+}
+#[test]
+fn column_circle_nf_test() {
+    test_column("test_sig/columns/column_circle_nF.test");
+}
+#[test]
+fn column_cross_test() {
+    test_column("test_sig/columns/column_cross.test");
+}
+#[test]
+fn column_rectangle_test() {
+    test_column("test_sig/columns/column_rectangle.test");
+}
+#[test]
+fn column_shelves_test() {
+    test_column("test_sig/columns/column_shelves.test");
+}
+#[test]
+fn column_r_agt_test() {
+    test_column("test_sig/columns/column_r_agt.test");
+}
+#[test]
+fn column_r_bhnf_test() {
+    test_column("test_sig/columns/column_r_bhnF.test");
+}
+#[test]
+fn column_r_bnf_test() {
+    test_column("test_sig/columns/column_r_bnF.test");
+}
+#[test]
+fn column_r_down_test() {
+    test_column("test_sig/columns/column_r_down.test");
+}
+#[test]
+fn column_r_found_test() {
+    test_column("test_sig/columns/column_r_found.test");
+}
+#[test]
+fn column_r_found_f_test() {
+    test_column("test_sig/columns/column_r_found_F.test");
+}
+#[test]
+fn column_r_found_f_slab_test() {
+    test_column("test_sig/columns/column_r_found_F_slab.test");
+}
+#[test]
+fn column_r_found_slab_test() {
+    test_column("test_sig/columns/column_r_found_slab.test");
+}
+#[test]
+fn column_r_hnf_test() {
+    test_column("test_sig/columns/column_r_hnF.test");
+}
+#[test]
+fn column_r_slab_test() {
+    test_column("test_sig/columns/column_r_slab.test");
+}
+#[test]
+fn column_r_up_test() {
+    test_column("test_sig/columns/column_r_up.test");
+}
+#[test]
+fn column_r_up_down_test() {
+    test_column("test_sig/columns/column_r_up_down.test");
+}
+#[test]
+fn p_column_box_test() {
+    test_column("test_sig/columns/P_column_box.test");
+}
+#[test]
+fn p_column_circle_test() {
+    test_column("test_sig/columns/P_column_circle.test");
+}
+#[test]
+fn p_column_circle_nf_test() {
+    test_column("test_sig/columns/P_column_circle_nF.test");
+}
+#[test]
+fn p_column_cross_test() {
+    test_column("test_sig/columns/P_column_cross.test");
+}
+#[test]
+fn p_column_r_found_slab_test() {
+    test_column("test_sig/columns/P_column_r_found_slab.test");
+}
+#[test]
+fn p_column_rectangle_test() {
+    test_column("test_sig/columns/P_column_rectangle.test");
+}
+#[test]
+fn p_column_ring_test() {
+    test_column("test_sig/columns/P_column_ring.test");
+}
+#[test]
+fn p_column_shelves_test() {
+    test_column("test_sig/columns/P_column_shelves.test");
+}
+#[test]
+fn s_column_rectangle_test() {
+    test_column("test_sig/columns/s_column_rectangle.test");
 }
