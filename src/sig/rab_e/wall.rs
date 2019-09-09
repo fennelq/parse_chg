@@ -261,8 +261,8 @@ fn test_wall(s: &str) {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why.description())
     };
-    let (_, column) = read_wall(&original_in).expect("couldn't read_column");
-    assert_eq!(original_in, column.write());
+    let (_, wall) = read_wall(&original_in).expect("couldn't read_column");
+    assert_eq!(original_in, wall.write());
 }
 #[test]
 fn wall_test() {
@@ -367,4 +367,70 @@ fn p_wall_opening_1_test() {
 #[test]
 fn s_wall_test() {
     test_wall("test_sig/walls/S_wall.test");
+}
+
+#[test]
+fn s_wall_full_value_test() {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new("test_sig/walls/S_wall.test");
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, wall) = read_wall(&original_in).expect("couldn't read_column");
+    let c_wall = Wall {
+        p1: Point {
+            x: 0.32f32,
+            y: 0.65f32,
+        },
+        p2: Point {
+            x: 8.36f32,
+            y: 4.19f32,
+        },
+        agt: 0u8,
+        flag: 8u8,
+        b: 51f32,
+        r_ver_1: -1i32,
+        r_ver_2: -1i32,
+        found_from: 0i16,
+        found_to: 1i16,
+        op_num: 1u16,
+        wtf1: 26.354_48,
+        wtf2: 0.001,
+        r_ver_3: 0u16,
+        r_ver_4: 0u32,
+        r_ver_5: 0u16,
+        r_ver_6: 0u16,
+        cons_1: 1u32,
+        cons_2: 1u16,
+        r_ver_7: 10u16,
+        r_ver_8: 10u16,
+        r_ver_9: 0u16,
+        r_ver_10: 0u16,
+        r_ver_11: 0u32,
+        k: 1f32,
+        cons_3: 1u32,
+        wtf3: 116.539_53,
+        wtf4: 182.62,
+        r_ver_12: 0u16,
+        r_ver_13: 0u16,
+        flag_hinge: 0u8,
+        dz1: 0f32,
+        mat: 1u16,
+        ws: vec![
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21u8,
+        ],
+        op: vec![Opening {
+            num_points: 5,
+            x_vec: vec![1.12, 1.12, 4.73, 4.73, 1.12f32],
+            y_vec: vec![0.16, 1.73, 1.73, 0.16, 0.16f32],
+        }],
+    };
+    assert_eq!(wall.write(), c_wall.write())
 }
