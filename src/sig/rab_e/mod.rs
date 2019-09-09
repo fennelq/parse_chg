@@ -24,8 +24,8 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct Point {
-    x: f32,
-    y: f32,
+    x: f32, //Координата, м
+    y: f32, //Координата, м
 }
 impl HasWrite for Point {
     fn write(&self) -> Vec<u8> {
@@ -43,16 +43,6 @@ impl fmt::Display for Point {
         write!(f, "x: {:.3}, y: {:.3}", &self.x, &self.y)
     }
 }
-
-/*named!(read_point<&[u8], Point>,
-    do_parse!(
-        x: le_f32                           >>
-        y: le_f32                           >>
-        (Point {
-            x, y
-        })
-    )
-);*/
 
 pub fn read_point(i: &[u8]) -> IResult<&[u8], Point> {
     let (i, x) = le_f32(i)?;
