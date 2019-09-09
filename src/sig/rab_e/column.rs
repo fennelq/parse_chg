@@ -42,10 +42,10 @@ pub struct Column {
     type_sec: u8,   //Тип поперечного сечения
     cons_2: u8,     //Всегда 1
     flag_hinge: u8, //Шарнир с плитами. 0=нет, 1=низ, 2=верх, 3=низ и верх
-    cons_3: u8,     //Всегда 1
-    //30b WS
+    mat: u16,       //Номер материала стены
+    //29b WS
     sec: Sec,    //Тип сечения
-    ws: Vec<u8>, //60b
+    ws: Vec<u8>, //59b
 }
 impl HasWrite for Column {
     fn write(&self) -> Vec<u8> {
@@ -80,8 +80,8 @@ impl HasWrite for Column {
         out.extend(&self.type_sec.to_le_bytes());
         out.extend(&self.cons_2.to_le_bytes());
         out.extend(&self.flag_hinge.to_le_bytes());
-        out.extend(&self.cons_3.to_le_bytes());
-        out.extend(&self.ws[30..60]);
+        out.extend(&self.mat.to_le_bytes());
+        out.extend(&self.ws[30..59]);
         out.extend(&self.sec.write());
         out
     }
@@ -130,8 +130,8 @@ pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
     let (i, type_sec) = le_u8(i)?;
     let (i, cons_2) = le_u8(i)?;
     let (i, flag_hinge) = le_u8(i)?;
-    let (i, cons_3) = le_u8(i)?;
-    let (i, ws7) = take(30u8)(i)?; //30b WS
+    let (i, mat) = le_u16(i)?;
+    let (i, ws7) = take(29u8)(i)?; //29b WS
     let (i, sec) = read_sec(i, type_sec)?;
     let mut ws = ws1.to_vec();
     ws.extend_from_slice(ws2);
@@ -167,7 +167,7 @@ pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
             type_sec,
             cons_2,
             flag_hinge,
-            cons_3,
+            mat,
             sec,
             ws,
         },
