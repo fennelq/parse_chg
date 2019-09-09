@@ -243,3 +243,128 @@ fn read_wall_op(i: &[u8]) -> IResult<&[u8], Opening> {
         },
     ))
 }
+
+#[cfg(test)]
+fn test_wall(s: &str) {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new(s);
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, column) = read_wall(&original_in).expect("couldn't read_column");
+    assert_eq!(original_in, column.write());
+}
+#[test]
+fn wall_test() {
+    test_wall("test_sig/walls/wall.test");
+}
+#[test]
+fn wall_2mat_test() {
+    test_wall("test_sig/walls/wall_2mat.test");
+}
+#[test]
+fn wall_agt_test() {
+    test_wall("test_sig/walls/wall_agt.test");
+}
+#[test]
+fn wall_down_test() {
+    test_wall("test_sig/walls/wall_down.test");
+}
+#[test]
+fn wall_dz_test() {
+    test_wall("test_sig/walls/wall_dz.test");
+}
+#[test]
+fn wall_found_test() {
+    test_wall("test_sig/walls/wall_found.test");
+}
+#[test]
+fn wall_found_f_test() {
+    test_wall("test_sig/walls/wall_found_f.test");
+}
+#[test]
+fn wall_found_f_slab_test() {
+    test_wall("test_sig/walls/wall_found_f_slab.test");
+}
+#[test]
+fn wall_found_slab_test() {
+    test_wall("test_sig/walls/wall_found_slab.test");
+}
+#[test]
+fn wall_k_test() {
+    test_wall("test_sig/walls/wall_k.test");
+}
+#[test]
+fn wall_nf_test() {
+    test_wall("test_sig/walls/wall_nf.test");
+}
+#[test]
+fn wall_nf_found_f_test() {
+    test_wall("test_sig/walls/wall_nf_found_f.test");
+}
+#[test]
+fn wall_nf_found_f_slab_test() {
+    test_wall("test_sig/walls/wall_nf_found_f_slab.test");
+}
+#[test]
+fn wall_nf_slab_test() {
+    test_wall("test_sig/walls/wall_nf_slab.test");
+}
+#[test]
+fn wall_opening_1_test() {
+    test_wall("test_sig/walls/wall_opening_1.test");
+}
+#[test]
+fn wall_opening_2_test() {
+    test_wall("test_sig/walls/wall_opening_2.test");
+}
+#[test]
+fn wall_opening_3_test() {
+    test_wall("test_sig/walls/wall_opening_3.test");
+}
+#[test]
+fn wall_opening_4_test() {
+    test_wall("test_sig/walls/wall_opening_4.test");
+}
+#[test]
+fn wall_slab_test() {
+    test_wall("test_sig/walls/wall_slab.test");
+}
+#[test]
+fn wall_up_test() {
+    test_wall("test_sig/walls/wall_up.test");
+}
+#[test]
+fn wall_up_down_test() {
+    test_wall("test_sig/walls/wall_up_down.test");
+}
+#[test]
+fn p_wall_test() {
+    test_wall("test_sig/walls/P_wall.test");
+}
+#[test]
+fn r_wall_found_f_test() {
+    test_wall("test_sig/walls/R_wall_found_f.test");
+}
+#[test]
+fn p_wall_nf_test() {
+    test_wall("test_sig/walls/P_wall_nf.test");
+}
+#[test]
+fn p_wall_opening_1_test() {
+    test_wall("test_sig/walls/P_wall_opening_1.test");
+}
+#[test]
+fn s_wall_test() {
+    test_wall("test_sig/walls/S_wall.test");
+}
