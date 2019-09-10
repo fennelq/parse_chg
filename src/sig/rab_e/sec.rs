@@ -1,6 +1,10 @@
 //! Типы сечений колонн, балок, фундаментных балок
 use crate::sig::HasWrite;
-use nom::{bytes::complete::take, number::complete::le_f32, IResult};
+use nom::{
+    bytes::complete::take,
+    number::complete::{le_f32, le_u8},
+    IResult,
+};
 use std::fmt;
 
 #[derive(Debug)]
@@ -48,13 +52,15 @@ impl fmt::Display for Sec {
 pub struct RectangleSec {
     b: f32,
     h: f32,
-    ws: [u8; 3],
+    flag_f: u8,  //Флаг подбора сечения. 0=нет, 1=подбор h, 2=подбор b, 3=подбор h и b
+    ws: Vec<u8>, //2b
 }
 impl HasWrite for RectangleSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
         out.extend(&self.b.to_bits().to_le_bytes());
         out.extend(&self.h.to_bits().to_le_bytes());
+        out.extend(&self.flag_f.to_le_bytes());
         out.extend(&self.ws);
         out
     }
@@ -70,12 +76,14 @@ impl fmt::Display for RectangleSec {
 #[derive(Debug)]
 pub struct CircleSec {
     d: f32,
-    ws: [u8; 3],
+    flag_f: u8,  //Флаг подбора сечения. 0=нет, 1=подбор
+    ws: Vec<u8>, //2b
 }
 impl HasWrite for CircleSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
         out.extend(&self.d.to_bits().to_le_bytes());
+        out.extend(&self.flag_f.to_le_bytes());
         out.extend(&self.ws);
         out
     }
@@ -96,7 +104,7 @@ pub struct CrossSec {
     h1: f32,
     h2: f32,
     h3: f32,
-    ws: [u8; 2],
+    ws: Vec<u8>, //2b
 }
 impl HasWrite for CrossSec {
     fn write(&self) -> Vec<u8> {
@@ -127,7 +135,7 @@ impl fmt::Display for CrossSec {
 pub struct RingSec {
     d: f32,
     t: f32,
-    ws: [u8; 2],
+    ws: Vec<u8>, //2b
 }
 impl HasWrite for RingSec {
     fn write(&self) -> Vec<u8> {
@@ -152,7 +160,7 @@ pub struct BoxSec {
     b1: f32,
     h: f32,
     h1: f32,
-    ws: [u8; 2],
+    ws: Vec<u8>, //2b
 }
 impl HasWrite for BoxSec {
     fn write(&self) -> Vec<u8> {
@@ -185,7 +193,7 @@ pub struct BeadSec {
     h: f32,
     h1: f32,
     h2: f32,
-    ws: [u8; 2],
+    ws: Vec<u8>, //2b
 }
 impl HasWrite for BeadSec {
     fn write(&self) -> Vec<u8> {
@@ -220,7 +228,7 @@ pub struct ShelvesSec {
     h1: f32,
     b2: f32,
     h2: f32,
-    ws: [u8; 2],
+    ws: Vec<u8>, //2b
 }
 impl HasWrite for ShelvesSec {
     fn write(&self) -> Vec<u8> {
@@ -262,13 +270,15 @@ impl fmt::Display for ShelvesSec {
 pub fn read_rectangle_sec(i: &[u8]) -> IResult<&[u8], RectangleSec> {
     let (i, b) = le_f32(i)?;
     let (i, h) = le_f32(i)?;
-    let (i, ws) = take(3u8)(i)?;
+    let (i, flag_f) = le_u8(i)?;
+    let (i, ws) = take(2u8)(i)?;
     Ok((
         i,
         RectangleSec {
             b,
             h,
-            ws: *array_ref!(ws, 0, 3),
+            flag_f,
+            ws: ws.to_vec(),
         },
     ))
 }
@@ -285,12 +295,14 @@ pub fn read_rectangle_sec(i: &[u8]) -> IResult<&[u8], RectangleSec> {
 );*/
 pub fn read_circle_sec(i: &[u8]) -> IResult<&[u8], CircleSec> {
     let (i, d) = le_f32(i)?;
-    let (i, ws) = take(3u8)(i)?;
+    let (i, flag_f) = le_u8(i)?;
+    let (i, ws) = take(2u8)(i)?;
     Ok((
         i,
         CircleSec {
             d,
-            ws: *array_ref!(ws, 0, 3),
+            flag_f,
+            ws: ws.to_vec(),
         },
     ))
 }
@@ -327,7 +339,7 @@ pub fn read_cross_sec(i: &[u8]) -> IResult<&[u8], CrossSec> {
             h1,
             h2,
             h3,
-            ws: *array_ref!(ws, 0, 2),
+            ws: ws.to_vec(),
         },
     ))
 }
@@ -352,7 +364,7 @@ pub fn read_ring_sec(i: &[u8]) -> IResult<&[u8], RingSec> {
         RingSec {
             d,
             t,
-            ws: *array_ref!(ws, 0, 2),
+            ws: ws.to_vec(),
         },
     ))
 }
@@ -383,7 +395,7 @@ pub fn read_box_sec(i: &[u8]) -> IResult<&[u8], BoxSec> {
             b1,
             h,
             h1,
-            ws: *array_ref!(ws, 0, 2),
+            ws: ws.to_vec(),
         },
     ))
 }
@@ -420,7 +432,7 @@ pub fn read_bead_sec(i: &[u8]) -> IResult<&[u8], BeadSec> {
             h,
             h1,
             h2,
-            ws: *array_ref!(ws, 0, 2),
+            ws: ws.to_vec(),
         },
     ))
 }
@@ -457,7 +469,7 @@ pub fn read_shelves_sec(i: &[u8]) -> IResult<&[u8], ShelvesSec> {
             h1,
             b2,
             h2,
-            ws: *array_ref!(ws, 0, 2),
+            ws: ws.to_vec(),
         },
     ))
 }
