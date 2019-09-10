@@ -11,9 +11,9 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct Column {
-    p: Point,         //Координаты, м
-    flag_agt: u8,     //Генерировать АЖТ. 0=нет, 120=да
-    flag_bearing: u8, //Опирание колонны. 0=обычное, 2=плита, 4=фундамент, 228=фундамент F, 230=плита и фундамент F
+    p: Point,    //Координаты, м
+    agt: u8,     //Генерировать АЖТ. 0=нет, 120=да
+    bearing: u8, //Опирание колонны. 0=обычное, 2=плита, 4=фундамент, 228=фундамент F, 230=плита и фундамент F
     //При создании фундамента и при расчете добавляется сигнатура 48b
     fi: f32, //Угол повоорта колонны, радианы
     //8b WS
@@ -51,8 +51,8 @@ impl HasWrite for Column {
     fn write(&self) -> Vec<u8> {
         let mut out: Vec<u8> = vec![];
         out.extend(&self.p.write());
-        out.extend(&self.flag_agt.to_le_bytes());
-        out.extend(&self.flag_bearing.to_le_bytes());
+        out.extend(&self.agt.to_le_bytes());
+        out.extend(&self.bearing.to_le_bytes());
         out.extend(&self.fi.to_bits().to_le_bytes());
         out.extend(&self.ws[0..8]);
         out.extend(&self.r_ver_1.to_le_bytes());
@@ -101,8 +101,8 @@ impl fmt::Display for Column {
 
 pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
     let (i, p) = read_point(i)?;
-    let (i, flag_agt) = le_u8(i)?;
-    let (i, flag_bearing) = le_u8(i)?;
+    let (i, agt) = le_u8(i)?;
+    let (i, bearing) = le_u8(i)?;
     let (i, fi) = le_f32(i)?;
     let (i, ws1) = take(8u8)(i)?; //8b WS
     let (i, r_ver_1) = le_i32(i)?;
@@ -144,8 +144,8 @@ pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
         i,
         Column {
             p,
-            flag_agt,
-            flag_bearing,
+            agt,
+            bearing,
             fi,
             r_ver_1,
             r_ver_2,
@@ -301,4 +301,60 @@ fn p_column_shelves_test() {
 #[test]
 fn s_column_rectangle_test() {
     test_column("test_sig/columns/s_column_rectangle.test");
+}
+
+#[test]
+fn s_column_full_value_test() {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new("test_sig/columns/s_column_rectangle.test");
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, column) = read_column(&original_in).expect("couldn't read_column");
+    let sec_vec = vec![1, 0, 216, 67, 0, 0, 90, 67, 3, 0, 0u8];
+    let (_, sec) = read_sec(&sec_vec, 1).expect("error sec_vec");
+    let mut ws = vec![];
+    for i in 1..=59 {
+        ws.push(i);
+    }
+    let c_column = Column {
+        p: Point {
+            x: 2.45f32,
+            y: 3.21f32,
+        },
+        agt: 0u8,
+        bearing: 0u8,
+        fi: std::f32::consts::FRAC_PI_4,
+        r_ver_1: -1i32,
+        r_ver_2: -1i32,
+        found_from: 0i16,
+        found_to: 1i16,
+        mu: 0.005f32,
+        wtf1: 1_152.949_2,
+        wtf2: 351.84,
+        r_ver_3: 0u16,
+        r_ver_4: 0u32,
+        r_ver_5: 0u16,
+        r_ver_6: 0u16,
+        cons_1: 1u16,
+        r_ver_7: 0u16,
+        r_ver_8: 0u16,
+        r_ver_9: 0u16,
+        r_ver_10: 0u16,
+        r_ver_11: 0u16,
+        type_sec: 1u8,
+        cons_2: 1u8,
+        flag_hinge: 0u8,
+        mat: 1u16,
+        sec,
+        ws,
+    };
+    assert_eq!(column.write(), c_column.write())
 }

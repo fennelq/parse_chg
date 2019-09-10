@@ -255,18 +255,6 @@ impl fmt::Display for ShelvesSec {
         )
     }
 }
-
-/*named!(read_rectangle_sec<&[u8], RectangleSec>,
-    do_parse!(
-        b: le_f32                           >>
-        h: le_f32                           >>
-        ws: take!(3)                        >>
-        (RectangleSec {
-            b, h,
-            ws: *array_ref!(ws, 0 ,3),
-        })
-    )
-);*/
 pub fn read_rectangle_sec(i: &[u8]) -> IResult<&[u8], RectangleSec> {
     let (i, b) = le_f32(i)?;
     let (i, h) = le_f32(i)?;
@@ -282,17 +270,6 @@ pub fn read_rectangle_sec(i: &[u8]) -> IResult<&[u8], RectangleSec> {
         },
     ))
 }
-
-/*named!(read_circle_sec<&[u8], CircleSec>,
-    do_parse!(
-        d: le_f32                           >>
-        ws: take!(3)                        >>
-        (CircleSec {
-            d,
-            ws: *array_ref!(ws, 0 ,3),
-        })
-    )
-);*/
 pub fn read_circle_sec(i: &[u8]) -> IResult<&[u8], CircleSec> {
     let (i, d) = le_f32(i)?;
     let (i, flag_f) = le_u8(i)?;
@@ -306,22 +283,6 @@ pub fn read_circle_sec(i: &[u8]) -> IResult<&[u8], CircleSec> {
         },
     ))
 }
-
-/*named!(read_cross_sec<&[u8], CrossSec>,
-    do_parse!(
-        b1: le_f32                          >>
-        b2: le_f32                          >>
-        b3: le_f32                          >>
-        h1: le_f32                          >>
-        h2: le_f32                          >>
-        h3: le_f32                          >>
-        ws: take!(2)                        >>
-        (CrossSec {
-            b1, b2, b3, h1, h2, h3,
-            ws: *array_ref!(ws, 0 ,2),
-        })
-    )
-);*/
 pub fn read_cross_sec(i: &[u8]) -> IResult<&[u8], CrossSec> {
     let (i, b1) = le_f32(i)?;
     let (i, b2) = le_f32(i)?;
@@ -343,18 +304,6 @@ pub fn read_cross_sec(i: &[u8]) -> IResult<&[u8], CrossSec> {
         },
     ))
 }
-
-/*named!(read_ring_sec<&[u8], RingSec>,
-    do_parse!(
-        d: le_f32                           >>
-        t: le_f32                           >>
-        ws: take!(2)                        >>
-        (RingSec {
-            d, t,
-            ws: *array_ref!(ws, 0 ,2),
-        })
-    )
-);*/
 pub fn read_ring_sec(i: &[u8]) -> IResult<&[u8], RingSec> {
     let (i, d) = le_f32(i)?;
     let (i, t) = le_f32(i)?;
@@ -368,20 +317,6 @@ pub fn read_ring_sec(i: &[u8]) -> IResult<&[u8], RingSec> {
         },
     ))
 }
-
-/*named!(read_box_sec<&[u8], BoxSec>,
-    do_parse!(
-        b: le_f32                           >>
-        b1: le_f32                          >>
-        h: le_f32                           >>
-        h1: le_f32                          >>
-        ws: take!(2)                        >>
-        (BoxSec {
-            b, b1, h, h1,
-            ws: *array_ref!(ws, 0 ,2),
-        })
-    )
-);*/
 pub fn read_box_sec(i: &[u8]) -> IResult<&[u8], BoxSec> {
     let (i, b) = le_f32(i)?;
     let (i, b1) = le_f32(i)?;
@@ -399,22 +334,6 @@ pub fn read_box_sec(i: &[u8]) -> IResult<&[u8], BoxSec> {
         },
     ))
 }
-
-/*named!(read_bead_sec<&[u8], BeadSec>,
-    do_parse!(
-        b: le_f32                           >>
-        b1: le_f32                          >>
-        b2: le_f32                          >>
-        h: le_f32                           >>
-        h1: le_f32                          >>
-        h2: le_f32                          >>
-        ws: take!(2)                        >>
-        (BeadSec {
-            b, b1, b2, h, h1, h2,
-            ws: *array_ref!(ws, 0 ,2),
-        })
-    )
-);*/
 pub fn read_bead_sec(i: &[u8]) -> IResult<&[u8], BeadSec> {
     let (i, b) = le_f32(i)?;
     let (i, b1) = le_f32(i)?;
@@ -436,22 +355,6 @@ pub fn read_bead_sec(i: &[u8]) -> IResult<&[u8], BeadSec> {
         },
     ))
 }
-
-/*named!(read_shelves_sec<&[u8], ShelvesSec>,
-    do_parse!(
-        b: le_f32                           >>
-        h: le_f32                           >>
-        b1: le_f32                          >>
-        h1: le_f32                          >>
-        b2: le_f32                          >>
-        h2: le_f32                          >>
-        ws: take!(2)                        >>
-        (ShelvesSec {
-            b, h, b1, h1, b2, h2,
-            ws: *array_ref!(ws, 0 ,2),
-        })
-    )
-);*/
 pub fn read_shelves_sec(i: &[u8]) -> IResult<&[u8], ShelvesSec> {
     let (i, b) = le_f32(i)?;
     let (i, h) = le_f32(i)?;
@@ -473,37 +376,6 @@ pub fn read_shelves_sec(i: &[u8]) -> IResult<&[u8], ShelvesSec> {
         },
     ))
 }
-
-/*
-named_args!(pub read_sec(type_sec: u8)<&[u8], Sec>,
-    do_parse!(
-        rectangle: cond!(type_sec == 1,
-            read_rectangle_sec)             >>
-        circle: cond!(type_sec    == 2,
-            read_circle_sec)                >>
-        cross: cond!(type_sec     == 3,
-            read_cross_sec)                 >>
-        ring: cond!(type_sec      == 4,
-            read_ring_sec)                  >>
-        _box: cond!(type_sec      == 5,
-            read_box_sec)                   >>
-        bead: cond!(type_sec      == 6,
-            read_bead_sec)                  >>
-        shelves: cond!(type_sec   == 7,
-            read_shelves_sec)               >>
-        (match type_sec {
-                1 => Sec::Rectangle(rectangle.unwrap()),
-                2 => Sec::Circle(circle.unwrap()),
-                3 => Sec::Cross(cross.unwrap()),
-                4 => Sec::Ring(ring.unwrap()),
-                5 => Sec::Box(_box.unwrap()),
-                6 => Sec::Bead(bead.unwrap()),
-                7 => Sec::Shelves(shelves.unwrap()),
-                _ => panic!("type_sec error"),
-            }
-        )
-    )
-);*/
 pub fn read_sec(i: &[u8], type_sec: u8) -> IResult<&[u8], Sec> {
     match type_sec {
         1 => {
