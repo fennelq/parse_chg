@@ -216,7 +216,7 @@ fn column_rectangle_test() {
 }
 #[test]
 fn column_shelves_test() {
-    test_column("test_sig/columns/column_shelves.test");
+    test_column("test_sig/columns/column_isec.test");
 }
 #[test]
 fn column_r_agt_test() {
@@ -296,7 +296,7 @@ fn p_column_ring_test() {
 }
 #[test]
 fn p_column_shelves_test() {
-    test_column("test_sig/columns/P_column_shelves.test");
+    test_column("test_sig/columns/P_column_isec.test");
 }
 #[test]
 fn s_column_rectangle_test() {

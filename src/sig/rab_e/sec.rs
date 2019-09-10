@@ -14,7 +14,7 @@ pub enum Sec {
     Cross(CrossSec),
     Ring(RingSec),
     Box(BoxSec),
-    Bead(BeadSec),
+    ISec(ISec),
     Shelves(ShelvesSec),
 }
 impl HasWrite for Sec {
@@ -26,7 +26,7 @@ impl HasWrite for Sec {
             Sec::Cross(s) => out.extend(s.write()),
             Sec::Ring(s) => out.extend(s.write()),
             Sec::Box(s) => out.extend(s.write()),
-            Sec::Bead(s) => out.extend(s.write()),
+            Sec::ISec(s) => out.extend(s.write()),
             Sec::Shelves(s) => out.extend(s.write()),
         }
         out
@@ -43,7 +43,7 @@ impl fmt::Display for Sec {
             Sec::Cross(r) => write!(f, "Sec: cross |{}|", r),
             Sec::Ring(r) => write!(f, "Sec: ring |{}|", r),
             Sec::Box(r) => write!(f, "Sec: box |{}|", r),
-            Sec::Bead(r) => write!(f, "Sec: bead |{}|", r),
+            Sec::ISec(r) => write!(f, "Sec: bead |{}|", r),
             Sec::Shelves(r) => write!(f, "Sec: shelves |{}|", r),
         }
     }
@@ -186,7 +186,7 @@ impl fmt::Display for BoxSec {
     }
 }
 #[derive(Debug)]
-pub struct BeadSec {
+pub struct ISec {
     b: f32,
     b1: f32,
     b2: f32,
@@ -195,7 +195,7 @@ pub struct BeadSec {
     h2: f32,
     ws: Vec<u8>, //2b
 }
-impl HasWrite for BeadSec {
+impl HasWrite for ISec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
         out.extend(&self.b.to_bits().to_le_bytes());
@@ -211,7 +211,7 @@ impl HasWrite for BeadSec {
         ""
     }
 }
-impl fmt::Display for BeadSec {
+impl fmt::Display for ISec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -334,7 +334,7 @@ pub fn read_box_sec(i: &[u8]) -> IResult<&[u8], BoxSec> {
         },
     ))
 }
-pub fn read_bead_sec(i: &[u8]) -> IResult<&[u8], BeadSec> {
+pub fn read_bead_sec(i: &[u8]) -> IResult<&[u8], ISec> {
     let (i, b) = le_f32(i)?;
     let (i, b1) = le_f32(i)?;
     let (i, b2) = le_f32(i)?;
@@ -344,7 +344,7 @@ pub fn read_bead_sec(i: &[u8]) -> IResult<&[u8], BeadSec> {
     let (i, ws) = take(2u8)(i)?;
     Ok((
         i,
-        BeadSec {
+        ISec {
             b,
             b1,
             b2,
@@ -399,8 +399,8 @@ pub fn read_sec(i: &[u8], type_sec: u8) -> IResult<&[u8], Sec> {
             Ok((i, Sec::Box(_box)))
         }
         6 => {
-            let (i, bead) = read_bead_sec(i)?;
-            Ok((i, Sec::Bead(bead)))
+            let (i, isec) = read_bead_sec(i)?;
+            Ok((i, Sec::ISec(isec)))
         }
         7 => {
             let (i, shelves) = read_shelves_sec(i)?;
