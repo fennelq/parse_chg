@@ -197,3 +197,53 @@ fn beam_shelves_down_test() {
 fn beam_shelves_up_test() {
     test_beam("test_sig/beams/beam_shelves_up.test");
 }
+#[test]
+fn s_beam_rectangle() {
+    test_beam("test_sig/beams/s_beam_rectangle.test");
+}
+
+#[test]
+fn s_beam_full_value_test() {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new("test_sig/beams/s_beam_rectangle.test");
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, beam) = read_beam(&original_in).expect("couldn't read_column");
+    let sec_vec = vec![0, 0, 76, 66, 1, 0, 170, 66, 3, 0, 0u8];
+    let (_, sec) = read_sec(&sec_vec, 1).expect("error sec_vec");
+    let mut ws = vec![];
+    for i in 1..=59 {
+        ws.push(i);
+    }
+    let c_beam = Beam {
+        p1: Point {
+            x: 1.35f32,
+            y: 0.46f32,
+        },
+        p2: Point {
+            x: 7.35f32,
+            y: 2.1f32,
+        },
+        border: 0u8,
+        cons_1: 1u16,
+        cons_2: 1u16,
+        hinge1_flag: 0u8,
+        m_flag: 0u8,
+        type_sec: 1u8,
+        hinge1: 0f32,
+        hinge2: 0f32,
+        cons_3: 1u8,
+        mat: 1u16,
+        sec,
+        ws,
+    };
+    assert_eq!(beam.write(), c_beam.write())
+}
