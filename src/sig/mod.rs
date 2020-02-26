@@ -56,8 +56,8 @@ pub trait HasWrite {
 }
 
 /// Смещение, до конца данных в сигнатуре в байты
-fn offset(len: &usize) -> [u8; 8] {
-    let offset = *len as u64;
+fn offset(len: usize) -> [u8; 8] {
+    let offset = len as u64;
     let mut buff8 = [0u8; 8];
     buff8
         .as_mut()

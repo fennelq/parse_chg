@@ -14,7 +14,7 @@ impl HasWrite for LoadcombCds {
     fn write(&self) -> Vec<u8> {
         let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
-        out.extend(offset(&self.source.len()).iter());
+        out.extend(offset(self.source.len()).iter());
         out.extend(&self.source);
         out
     }

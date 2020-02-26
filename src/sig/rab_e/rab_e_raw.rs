@@ -25,7 +25,7 @@ impl HasWrite for RabERaw {
             out.push(0u8);
         };
         out.extend(&self.flag_line);
-        out.extend(offset(&self.source.len()).iter());
+        out.extend(offset(self.source.len()).iter());
         out.extend(&self.source);
         out
     }

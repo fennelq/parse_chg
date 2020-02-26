@@ -16,7 +16,7 @@ impl HasWrite for NdunionsFe {
         let mut out = (&self.name().as_bytes()).to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
-        out.extend(offset(&self.source.len()).iter());
+        out.extend(offset(self.source.len()).iter());
         out.extend(&self.source);
         out
     }

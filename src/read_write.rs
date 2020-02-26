@@ -24,7 +24,7 @@ pub fn read_file(path: &Path) -> building::Building {
         panic!("couldn't read {}: {}", display, why.description())
     };
     let building = match building::read_original(&original_in) {
-        Err(_) => panic!("parse error"),
+        Err(why) => panic!("parse error: {:?}", why),
         Ok(building) => building,
     };
 
@@ -47,7 +47,7 @@ pub fn read_file_raw(path: &Path) -> building_raw::Building {
         panic!("couldn't read {}: {}", display, why.description())
     };
     let building = match building_raw::read_original(&original_in) {
-        Err(_) => panic!("parse error"),
+        Err(why) => panic!("parse error: {:?}", why),
         Ok(building) => building,
     };
 
@@ -112,12 +112,8 @@ pub fn write_recognize_sig() {
 /// Имя файла = название сигнатуры. BUILDING.chg = все здание = исходный файл.
 pub fn write_by_file_raw(building: &building_raw::Building) {
     let out = Path::new("out");
-    if let Err(_) = remove_dir_all(out) {
-        ()
-    };
-    if let Err(_) = create_dir(out) {
-        ()
-    };
+    remove_dir_all(out).expect("remove dir error");
+    create_dir(out).expect("create dir error");
     write_sig(building.barpbres_fe.as_ref());
     write_sig(building.bkngwl_bnw.as_ref());
     write_sig(building.boknagr_bkn.as_ref());
