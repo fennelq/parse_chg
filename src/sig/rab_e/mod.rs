@@ -8,6 +8,7 @@ mod f_slab;
 mod f_wall;
 mod load;
 mod node;
+mod openings;
 mod part;
 mod pile;
 mod poly;

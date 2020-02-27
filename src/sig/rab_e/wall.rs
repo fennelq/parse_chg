@@ -1,4 +1,5 @@
 //! Стены
+use crate::sig::rab_e::openings::*;
 use crate::sig::rab_e::*;
 use crate::sig::HasWrite;
 use nom::{
@@ -116,33 +117,6 @@ impl fmt::Display for Wall {
         write!(f, "")
     }
 }
-#[derive(Debug)]
-pub struct Opening {
-    num_points: u16, //Количество точек отверстия
-    x_vec: Vec<f32>, //Последовательность х координат всех точек
-    y_vec: Vec<f32>, //Последовательность у координат всех точек
-}
-impl HasWrite for Opening {
-    fn write(&self) -> Vec<u8> {
-        let mut out: Vec<u8> = vec![];
-        out.extend(&self.num_points.to_le_bytes());
-        for i in &self.x_vec {
-            out.extend(&i.to_bits().to_le_bytes());
-        }
-        for i in &self.y_vec {
-            out.extend(&i.to_bits().to_le_bytes());
-        }
-        out
-    }
-    fn name(&self) -> &str {
-        ""
-    }
-}
-impl fmt::Display for Opening {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "|{}|", &self.num_points)
-    }
-}
 
 pub fn read_wall(i: &[u8]) -> IResult<&[u8], Wall> {
     let (i, p1) = read_point(i)?;
@@ -183,7 +157,7 @@ pub fn read_wall(i: &[u8]) -> IResult<&[u8], Wall> {
     let (i, dz1) = le_f32(i)?;
     let (i, mat) = le_u16(i)?;
     let (i, ws6) = take(9u8)(i)?; //9b WS
-    let (i, op) = count(read_wall_op, op_num as usize)(i)?;
+    let (i, op) = count(read_op, op_num as usize)(i)?;
     let mut ws = ws1.to_vec();
     ws.extend_from_slice(ws2);
     ws.extend_from_slice(ws3);
@@ -227,19 +201,6 @@ pub fn read_wall(i: &[u8]) -> IResult<&[u8], Wall> {
             mat,
             op,
             ws,
-        },
-    ))
-}
-fn read_wall_op(i: &[u8]) -> IResult<&[u8], Opening> {
-    let (i, num_points) = le_u16(i)?;
-    let (i, x_vec) = count(le_f32, num_points as usize)(i)?;
-    let (i, y_vec) = count(le_f32, num_points as usize)(i)?;
-    Ok((
-        i,
-        Opening {
-            num_points,
-            x_vec,
-            y_vec,
         },
     ))
 }
