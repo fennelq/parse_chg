@@ -68,7 +68,7 @@ impl fmt::Display for PileSize {
 pub struct Pile {
     ws1: [u8; 2],
     p: Point,
-    type_pile: u8,
+    pile_type: u8,
     ws2: [u8; 15],
     base: PileType,
 }
@@ -77,7 +77,7 @@ impl fmt::Display for Pile {
         write!(
             f,
             "p |{}|, type №{}, {}",
-            &self.p, &self.type_pile, &self.base
+            &self.p, &self.pile_type, &self.base
         )
     }
 }
@@ -180,19 +180,19 @@ pub fn read_pile_size(i: &[u8]) -> IResult<&[u8], PileSize> {
     ))
 }
 
-/*named_args!(read_pile_type(type_pile: u8)<&[u8], PileType>,
+/*named_args!(read_pile_type(pile_type: u8)<&[u8], PileType>,
     do_parse!(
-        pile_ef: cond!(type_pile   == 1,
+        pile_ef: cond!(pile_type   == 1,
             read_pile_ef)                   >>
-        pile_f_l: cond!(type_pile  == 2,
+        pile_f_l: cond!(pile_type  == 2,
             read_pile_f_l)                  >>
-        pile_size: cond!(type_pile == 3,
+        pile_size: cond!(pile_type == 3,
             read_pile_size)              >>
-        (match type_pile {
+        (match pile_type {
                 1 => PileType::PileEF(pile_ef.unwrap()),
                 2 => PileType::PileFL(pile_f_l.unwrap()),
                 3 => PileType::PileSize(pile_size.unwrap()),
-                _ => panic!("type_pile error"),
+                _ => panic!("pile_type error"),
             }
         )
     )
@@ -211,7 +211,7 @@ fn read_pile_type(i: &[u8], type_sec: u8) -> IResult<&[u8], PileType> {
             let (i, pile_size) = read_pile_size(i)?;
             Ok((i, PileType::Size(pile_size)))
         }
-        _ => panic!("type_pile error"),
+        _ => panic!("pile_type error"),
     }
 }
 
@@ -219,13 +219,13 @@ fn read_pile_type(i: &[u8], type_sec: u8) -> IResult<&[u8], PileType> {
     do_parse!(
         ws1: take!(2)                       >>
         p: read_point                       >>
-        type_pile: le_u8                    >>
+        pile_type: le_u8                    >>
         ws2: take!(15)                      >>
-        base: apply!(read_pile_type, type_pile) >>
+        base: apply!(read_pile_type, pile_type) >>
         (Pile {
             ws1: *array_ref!(ws1, 0 ,2),
             p,
-            type_pile,
+            pile_type,
             ws2: *array_ref!(ws2, 0 ,15),
             base
         })
@@ -234,15 +234,15 @@ fn read_pile_type(i: &[u8], type_sec: u8) -> IResult<&[u8], PileType> {
 pub fn read_pile(i: &[u8]) -> IResult<&[u8], Pile> {
     let (i, ws1) = take(2u8)(i)?;
     let (i, p) = read_point(i)?;
-    let (i, type_pile) = le_u8(i)?;
+    let (i, pile_type) = le_u8(i)?;
     let (i, ws2) = take(15u8)(i)?;
-    let (i, base) = read_pile_type(i, type_pile)?;
+    let (i, base) = read_pile_type(i, pile_type)?;
     Ok((
         i,
         Pile {
             ws1: *array_ref!(ws1, 0, 2),
             p,
-            type_pile,
+            pile_type,
             ws2: *array_ref!(ws2, 0, 15),
             base,
         },
