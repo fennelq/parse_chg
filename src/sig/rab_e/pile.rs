@@ -1,5 +1,6 @@
 //! Сваи
 use crate::sig::rab_e::*;
+use crate::sig::HasWrite;
 use nom::{
     bytes::complete::take,
     number::complete::{le_f32, le_u8},
@@ -13,6 +14,20 @@ enum PileType {
     FL(PileFL),
     Size(PileSize),
 }
+impl HasWrite for PileType {
+    fn write(&self) -> Vec<u8> {
+        let mut out = vec![];
+        match &self {
+            PileType::EF(r) => out.extend(r.write()),
+            PileType::FL(r) => out.extend(r.write()),
+            PileType::Size(r) => out.extend(r.write()),
+        }
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
+}
 impl fmt::Display for PileType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
@@ -24,8 +39,20 @@ impl fmt::Display for PileType {
 }
 #[derive(Debug)]
 pub struct PileEF {
-    ef: f32,
-    ws1: [u8; 2],
+    ef: f32, //Жесткость сваи, тс
+    //2b
+    ws: Vec<u8>, //2b
+}
+impl HasWrite for PileEF {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.ef.to_bits().to_le_bytes());
+        out.extend(&self.ws[0..2]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for PileEF {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -34,9 +61,22 @@ impl fmt::Display for PileEF {
 }
 #[derive(Debug)]
 pub struct PileFL {
-    f: f32,
-    delta_l: f32,
-    ws1: [u8; 2],
+    f: f32,       //Нагрузка на сваю, тс
+    delta_l: f32, //Перемещение при нагрузке, м
+    //2b
+    ws: Vec<u8>, //2b
+}
+impl HasWrite for PileFL {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.f.to_bits().to_le_bytes());
+        out.extend(&self.delta_l.to_bits().to_le_bytes());
+        out.extend(&self.ws[0..2]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for PileFL {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -45,32 +85,66 @@ impl fmt::Display for PileFL {
 }
 #[derive(Debug)]
 pub struct PileSize {
-    xz1: u8,
-    l: f32,
-    xz2: u8,
-    broaden: f32,
-    k: f32,
-    ws1: [u8; 9],
-    b: f32,
-    h: f32,
-    ws2: [u8; 2],
+    sec: u8,      //Сечение. 0=прямоугольник, 3=круг
+    l: f32,       //Длина сваи, см
+    br_flag: u8,  //Уширение сваи. 0=нет, 1=есть
+    broaden: f32, //Размер уширения, см
+    k_stiff: f32, //Коэффициент увеличения жесткости сваи
+    //9b
+    b_d: f32, //Ширина/диаметр, см
+    h_t: f32, //Высота/толщина, см
+    //2b
+    ws: Vec<u8>, //11b
+}
+impl HasWrite for PileSize {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.sec.to_le_bytes());
+        out.extend(&self.l.to_bits().to_le_bytes());
+        out.extend(&self.br_flag.to_le_bytes());
+        out.extend(&self.broaden.to_bits().to_le_bytes());
+        out.extend(&self.k_stiff.to_bits().to_le_bytes());
+        out.extend(&self.ws[0..9]);
+        out.extend(&self.b_d.to_bits().to_le_bytes());
+        out.extend(&self.h_t.to_bits().to_le_bytes());
+        out.extend(&self.ws[9..11]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for PileSize {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "xz1: {}, l: {}, xz2: {}, broaden: {}, k: {}, b: {}, h: {}",
-            &self.xz1, &self.l, &self.xz2, &self.broaden, &self.k, &self.b, &self.h
+            "sec: {}, l: {}, br_flag: {}, broaden: {}, k: {}, b/d: {}, h/t: {}",
+            &self.sec, &self.l, &self.br_flag, &self.broaden, &self.k_stiff, &self.b_d, &self.h_t
         )
     }
 }
 #[derive(Debug)]
 pub struct Pile {
-    ws1: [u8; 2],
-    p: Point,
-    pile_type: u8,
-    ws2: [u8; 15],
-    base: PileType,
+    //2b
+    p: Point,      //Точка сваи
+    pile_type: u8, //Тип сваи: жесткость/несущая способность/габариты
+    //15b
+    base: PileType, //Перечисление типов
+    ws: Vec<u8>,    //17b
+}
+impl HasWrite for Pile {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.ws[0..2]);
+        out.extend(&self.p.write());
+        out.extend(&self.pile_type.to_le_bytes());
+        out.extend(&self.ws[2..17]);
+        out.extend(&self.base.write());
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for Pile {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -82,121 +156,45 @@ impl fmt::Display for Pile {
     }
 }
 
-/*named!(read_pile_ef<&[u8], PileEF>,
-    do_parse!(
-        ef: le_f32                          >>
-        ws1: take!(2)                       >>
-        (PileEF {
-            ef,
-            ws1: *array_ref!(ws1, 0 ,2)
-        })
-    )
-);*/
 pub fn read_pile_ef(i: &[u8]) -> IResult<&[u8], PileEF> {
     let (i, ef) = le_f32(i)?;
     let (i, ws1) = take(2u8)(i)?;
-    Ok((
-        i,
-        PileEF {
-            ef,
-            ws1: *array_ref!(ws1, 0, 2),
-        },
-    ))
+    let ws = ws1.to_vec();
+    Ok((i, PileEF { ef, ws }))
 }
-
-/*named!(read_pile_f_l<&[u8], PileFL>,
-    do_parse!(
-        f: le_f32                           >>
-        delta_l: le_f32                     >>
-        ws1: take!(2)                       >>
-        (PileFL {
-            f,
-            delta_l,
-            ws1: *array_ref!(ws1, 0 ,2)
-        })
-    )
-);*/
 pub fn read_pile_f_l(i: &[u8]) -> IResult<&[u8], PileFL> {
     let (i, f) = le_f32(i)?;
     let (i, delta_l) = le_f32(i)?;
     let (i, ws1) = take(2u8)(i)?;
-    Ok((
-        i,
-        PileFL {
-            f,
-            delta_l,
-            ws1: *array_ref!(ws1, 0, 2),
-        },
-    ))
+    let ws = ws1.to_vec();
+    Ok((i, PileFL { f, delta_l, ws }))
 }
-
-/*named!(read_pile_size<&[u8], PileSize>,
-    do_parse!(
-        xz1: le_u8                          >>
-        l: le_f32                           >>
-        xz2: le_u8                          >>
-        broaden: le_f32                     >>
-        k: le_f32                           >>
-        ws1: take!(9)                       >>
-        b: le_f32                           >>
-        h: le_f32                           >>
-        ws2: take!(2)                       >>
-        (PileSize {
-            xz1,
-            l,
-            xz2,
-            broaden,
-            k,
-            ws1: *array_ref!(ws1, 0 ,9),
-            b,
-            h,
-            ws2: *array_ref!(ws2, 0 ,2)
-        })
-    )
-);*/
 pub fn read_pile_size(i: &[u8]) -> IResult<&[u8], PileSize> {
-    let (i, xz1) = le_u8(i)?;
+    let (i, sec) = le_u8(i)?;
     let (i, l) = le_f32(i)?;
-    let (i, xz2) = le_u8(i)?;
+    let (i, br_flag) = le_u8(i)?;
     let (i, broaden) = le_f32(i)?;
-    let (i, k) = le_f32(i)?;
+    let (i, k_stiff) = le_f32(i)?;
     let (i, ws1) = take(9u8)(i)?;
-    let (i, b) = le_f32(i)?;
-    let (i, h) = le_f32(i)?;
+    let (i, b_d) = le_f32(i)?;
+    let (i, h_t) = le_f32(i)?;
     let (i, ws2) = take(2u8)(i)?;
+    let mut ws = ws1.to_vec();
+    ws.extend(ws2);
     Ok((
         i,
         PileSize {
-            xz1,
+            sec,
             l,
-            xz2,
+            br_flag,
             broaden,
-            k,
-            ws1: *array_ref!(ws1, 0, 9),
-            b,
-            h,
-            ws2: *array_ref!(ws2, 0, 2),
+            k_stiff,
+            b_d,
+            h_t,
+            ws,
         },
     ))
 }
-
-/*named_args!(read_pile_type(pile_type: u8)<&[u8], PileType>,
-    do_parse!(
-        pile_ef: cond!(pile_type   == 1,
-            read_pile_ef)                   >>
-        pile_f_l: cond!(pile_type  == 2,
-            read_pile_f_l)                  >>
-        pile_size: cond!(pile_type == 3,
-            read_pile_size)              >>
-        (match pile_type {
-                1 => PileType::PileEF(pile_ef.unwrap()),
-                2 => PileType::PileFL(pile_f_l.unwrap()),
-                3 => PileType::PileSize(pile_size.unwrap()),
-                _ => panic!("pile_type error"),
-            }
-        )
-    )
-);*/
 fn read_pile_type(i: &[u8], type_sec: u8) -> IResult<&[u8], PileType> {
     match type_sec {
         1 => {
@@ -214,37 +212,103 @@ fn read_pile_type(i: &[u8], type_sec: u8) -> IResult<&[u8], PileType> {
         _ => panic!("pile_type error"),
     }
 }
-
-/*named!(pub read_pile<&[u8], Pile>,
-    do_parse!(
-        ws1: take!(2)                       >>
-        p: read_point                       >>
-        pile_type: le_u8                    >>
-        ws2: take!(15)                      >>
-        base: apply!(read_pile_type, pile_type) >>
-        (Pile {
-            ws1: *array_ref!(ws1, 0 ,2),
-            p,
-            pile_type,
-            ws2: *array_ref!(ws2, 0 ,15),
-            base
-        })
-    )
-);*/
 pub fn read_pile(i: &[u8]) -> IResult<&[u8], Pile> {
     let (i, ws1) = take(2u8)(i)?;
     let (i, p) = read_point(i)?;
     let (i, pile_type) = le_u8(i)?;
     let (i, ws2) = take(15u8)(i)?;
     let (i, base) = read_pile_type(i, pile_type)?;
+    let mut ws = ws1.to_vec();
+    ws.extend(ws2);
     Ok((
         i,
         Pile {
-            ws1: *array_ref!(ws1, 0, 2),
             p,
             pile_type,
-            ws2: *array_ref!(ws2, 0, 15),
             base,
+            ws,
         },
     ))
+}
+
+#[cfg(test)]
+fn test_pile(s: &str) {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new(s);
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, pile) = read_pile(&original_in).expect("couldn't read_column");
+    assert_eq!(original_in, pile.write());
+}
+#[test]
+fn pile_ef_test() {
+    test_pile("test_sig/piles/piles_ef.test");
+}
+#[test]
+fn pile_fl_test() {
+    test_pile("test_sig/piles/piles_fl.test");
+}
+#[test]
+fn pile_circ_test() {
+    test_pile("test_sig/piles/piles_size_circ.test");
+}
+#[test]
+fn pile_circ_up_test() {
+    test_pile("test_sig/piles/piles_size_circ_up.test");
+}
+#[test]
+fn pile_rec_test() {
+    test_pile("test_sig/piles/piles_size_rec.test");
+}
+#[test]
+fn pile_rec_up_test() {
+    test_pile("test_sig/piles/piles_size_rec_up.test");
+}
+#[test]
+fn s_pile_test() {
+    test_pile("test_sig/piles/s_piles.test");
+}
+#[test]
+fn s_piles_full_value_test() {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new("test_sig/piles/s_piles.test");
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, pile) = read_pile(&original_in).expect("couldn't read_column");
+    let mut ws = vec![];
+    for i in 1..=17 {
+        ws.push(i);
+    }
+    let c_pile = Pile {
+        p: Point {
+            x: 1.23f32,
+            y: 4.56f32,
+        },
+        pile_type: 1u8,
+        base: PileType::EF(PileEF {
+            ef: 5000f32,
+            ws: vec![18, 19u8],
+        }),
+        ws,
+    };
+    assert_eq!(pile.write(), c_pile.write())
 }
