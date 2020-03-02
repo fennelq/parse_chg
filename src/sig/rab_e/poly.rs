@@ -149,7 +149,7 @@ fn s_poly_slab_test() {
     test_poly("test_sig/polys/s_poly_slab.test");
 }
 #[test]
-fn s_slab_full_value_test() {
+fn s_poly_full_value_test() {
     use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new("test_sig/polys/s_poly_slab.test");
