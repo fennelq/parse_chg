@@ -91,7 +91,7 @@ pub fn write_recognize_sig() {
             };
             let building: &building_raw::Building = &read_file_raw(&input);
             let rab_e = building.rab_e[0].write();
-            let (_, sig) = rab_e.split_at(315 + 0);
+            let (_, sig) = rab_e.split_at(315 + 111);
             let path_buf = path_out
                 .join(&input.file_stem().expect("write_error"))
                 .with_extension("test");

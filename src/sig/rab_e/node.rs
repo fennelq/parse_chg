@@ -6,9 +6,9 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct Node {
-    p: Point,
-    node_prev: i16,
-    node_next: i16,
+    p: Point,       //Координаты узла
+    node_prev: i16, //номер предыдущего узла в полилинии. -1=этот узел первый
+    node_next: i16, //номер следующего узла в полилинии. -1=этот узел последний
     //10b
     ws: Vec<u8>, //10b
 }
