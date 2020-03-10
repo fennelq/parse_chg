@@ -13,7 +13,7 @@ use crate::sig::rab_e::beam::read_beam;
 use crate::sig::rab_e::column::read_column;
 use crate::sig::rab_e::f_beam::read_fbeam;
 use crate::sig::rab_e::f_slab::read_fslab;
-use crate::sig::rab_e::f_wall::read_fwall;
+use crate::sig::rab_e::found::read_found;
 use crate::sig::rab_e::load::read_load;
 use crate::sig::rab_e::node::read_node;
 use crate::sig::rab_e::part::read_part;
@@ -34,7 +34,7 @@ pub struct RabE {
     pub load: Vec<rab_e::load::Load>,
     pub poly: Vec<rab_e::poly::Poly>,
     pub node: Vec<rab_e::node::Node>,
-    pub f_wall: Vec<rab_e::f_wall::FWall>,
+    pub f_wall: Vec<rab_e::found::Found>,
     pub part: Vec<rab_e::part::Partition>,
     pub f_slab: Vec<rab_e::f_slab::FSlab>,
     pub pile: Vec<rab_e::pile::Pile>,
@@ -238,7 +238,7 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
     let (i, load) = count(read_load, head.loads_num as usize)(i)?;
     let (i, poly) = count(read_poly, head.poly_num as usize)(i)?;
     let (i, node) = count(read_node, head.nodes_num as usize)(i)?;
-    let (i, f_wall) = count(read_fwall, head.fwalls_num as usize)(i)?;
+    let (i, f_wall) = count(read_found, (head.fwalls_num / 2) as usize)(i)?;
     let (i, part) = count(read_part, head.parts_num as usize)(i)?;
     let (i, f_slab) = count(read_fslab, head.fslabs_num as usize)(i)?;
     let (i, pile) = count(read_pile, head.piles_num as usize)(i)?;
