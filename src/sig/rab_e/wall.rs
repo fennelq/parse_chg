@@ -344,7 +344,7 @@ fn s_wall_full_value_test() {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why.description())
     };
-    let (_, wall) = read_wall(&original_in).expect("couldn't read_column");
+    let (_, wall) = read_wall(&original_in).expect("couldn't read_wall");
     let c_wall = Wall {
         p1: Point {
             x: 0.32f32,

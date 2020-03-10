@@ -123,7 +123,7 @@ fn test_slab(s: &str) {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why.description())
     };
-    let (_, slab) = read_slab(&original_in).expect("couldn't read_column");
+    let (_, slab) = read_slab(&original_in).expect("couldn't read_slab");
     assert_eq!(original_in, slab.write());
 }
 #[test]

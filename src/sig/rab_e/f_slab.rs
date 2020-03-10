@@ -1,7 +1,8 @@
 //! Фундаментные плиты
+use crate::sig::HasWrite;
 use nom::{
     bytes::complete::take,
-    number::complete::{le_f32, le_u8},
+    number::complete::{le_f32, le_u16, le_u8},
     IResult,
 };
 use std::fmt;
@@ -12,6 +13,21 @@ enum FSlabType {
     NaturalComp(NaturalComp),
     PilingField(PilingField),
     PilingAsNatural(PilingAsNatural),
+}
+impl HasWrite for FSlabType {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        match &self {
+            FSlabType::NaturalPreset(r) => out.extend(r.write()),
+            FSlabType::NaturalComp(r) => out.extend(r.write()),
+            FSlabType::PilingField(r) => out.extend(r.write()),
+            FSlabType::PilingAsNatural(r) => out.extend(r.write()),
+        }
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for FSlabType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -25,9 +41,22 @@ impl fmt::Display for FSlabType {
 }
 #[derive(Debug)]
 pub struct NaturalPreset {
-    c1: f32,
-    c2: f32,
-    ws1: [u8; 8],
+    c1: f32, //Жесткость С1
+    c2: f32, //Жесткость С2
+    //8b
+    ws: Vec<u8>, //8b
+}
+impl HasWrite for NaturalPreset {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.c1.to_le_bytes());
+        out.extend(&self.c2.to_le_bytes());
+        out.extend(&self.ws[0..8]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for NaturalPreset {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -36,7 +65,18 @@ impl fmt::Display for NaturalPreset {
 }
 #[derive(Debug)]
 pub struct NaturalComp {
-    ws1: [u8; 20],
+    //20b
+    ws: Vec<u8>, //20b
+}
+impl HasWrite for NaturalComp {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.ws[0..20]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for NaturalComp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -45,7 +85,18 @@ impl fmt::Display for NaturalComp {
 }
 #[derive(Debug)]
 pub struct PilingField {
-    ws1: [u8; 8],
+    //8b
+    ws: Vec<u8>, //8b
+}
+impl HasWrite for PilingField {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.ws[0..8]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for PilingField {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -54,11 +105,26 @@ impl fmt::Display for PilingField {
 }
 #[derive(Debug)]
 pub struct PilingAsNatural {
-    step_x: f32,
-    step_y: f32,
-    f: f32,
-    delta_l: f32,
-    ws1: [u8; 8],
+    step_x: f32,  //Шаг по оси X, м
+    step_y: f32,  //Шаг по оси Y, м
+    f: f32,       //Несущая способность сваи, тс
+    delta_l: f32, //Перемещение при действии силы f, м
+    //8b
+    ws: Vec<u8>, //8b
+}
+impl HasWrite for PilingAsNatural {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.step_x.to_le_bytes());
+        out.extend(&self.step_y.to_le_bytes());
+        out.extend(&self.f.to_le_bytes());
+        out.extend(&self.delta_l.to_le_bytes());
+        out.extend(&self.ws[0..8]);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for PilingAsNatural {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -71,233 +137,194 @@ impl fmt::Display for PilingAsNatural {
 }
 #[derive(Debug)]
 pub struct FSlab {
-    ws1: [u8; 8],
-    b: f32,
-    ws2: [u8; 4],
-    xz1: f32,
-    ws3: [u8; 3],
-    xz2: f32,
-    xz3: f32,
-    ws4: [u8; 4],
-    xz4: f32,
-    xz5: f32,
-    type_base: u8,
-    ws5: [u8; 8],
-    f_c: f32,
-    f_l: f32,
-    f_s: f32,
-    ws6: Vec<u8>, //32b
-    xz6: f32,
-    xz7: f32,
-    xz8: f32,
-    ws7: Vec<u8>, //37
-    base: FSlabType,
+    //1b
+    bf: u8,         //bF 0=нет, 8=есть
+    poly_num: u16,  //Количество полилиний в фундаменте
+    poly_from: u16, //Начиная с полилинии N
+    poly_to: u16,   //Заканчивая полилинией N
+    b: f32,         //Толщина фундаментной плиты, см
+    //4b
+    area: f32, //Площадь плиты. Появляется после расчета
+    //3b
+    wtf1: f32,   //Уточнить
+    cons_1: f32, //Всегда -10
+    //4b
+    cg_x: f32,     //Координата X центра тяжести фундамента, Появляется после расчета
+    cg_y: f32,     //Координата Y центра тяжести фундамента, Появляется после расчета
+    type_base: u8, //Тип основания. 10=Естественное заданное (NaturalPreset)
+    //                              11=Естественное вычисляемая жесткость (NaturalComp)
+    //                              12=Свайное поле (PilingField)
+    //                              13=Свайное поле как естественное (PilingAsNatural)
+    cons_2: u8,   //Всегда 1
+    mat: u16,     //Номер материала фундаментной плиты
+    emerge: u8,   //Нагрузка появляется после. 0=всего здания, 1=этажа N, 2=своего этажа
+    em_etazh: u8, //Нагрузка появляется после N этажа
+    //3b
+    c_load: f32, //Постоянная нагрузка на фундаментную плиту
+    l_load: f32, //Длительная нагрузка на фундаментную плиту
+    s_load: f32, //Кратковременная нагрузка на фундаментную плиту
+    //8b
+    cons_3: u8, //Всегда 1
+    //72b
+    base: FSlabType, //Тип основания фундаментной плиты. Зависит от type_base
+    ws: Vec<u8>,     //95b
+}
+impl HasWrite for FSlab {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.ws[0..1]);
+        out.extend(&self.bf.to_le_bytes());
+        out.extend(&self.poly_num.to_le_bytes());
+        out.extend(&self.poly_from.to_le_bytes());
+        out.extend(&self.poly_to.to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
+        out.extend(&self.ws[1..5]);
+        out.extend(&self.area.to_le_bytes());
+        out.extend(&self.ws[5..8]);
+        out.extend(&self.wtf1.to_le_bytes());
+        out.extend(&self.cons_1.to_le_bytes());
+        out.extend(&self.ws[8..12]);
+        out.extend(&self.cg_x.to_le_bytes());
+        out.extend(&self.cg_y.to_le_bytes());
+        out.extend(&self.type_base.to_le_bytes());
+        out.extend(&self.cons_2.to_le_bytes());
+        out.extend(&self.mat.to_le_bytes());
+        out.extend(&self.emerge.to_le_bytes());
+        out.extend(&self.em_etazh.to_le_bytes());
+        out.extend(&self.ws[12..15]);
+        out.extend(&self.c_load.to_le_bytes());
+        out.extend(&self.l_load.to_le_bytes());
+        out.extend(&self.s_load.to_le_bytes());
+        out.extend(&self.ws[15..23]);
+        out.extend(&self.cons_3.to_le_bytes());
+        out.extend(&self.ws[23..95]);
+        out.extend(&self.base.write());
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
 }
 impl fmt::Display for FSlab {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(
             f,
-            "b: {}, xz1: {}, xz2: {}, xz3: {}, xz4: {}, xz5: {}, xz6: {}, xz7: {}, xz8: {}",
+            "wtf1: {}, b: {}, bF: {}, poly: {} |{} -> {}|, mat: {}, area: {}, cgX: {}, cgY: {}",
+            &self.wtf1,
             &self.b,
-            &self.xz1,
-            &self.xz2,
-            &self.xz3,
-            &self.xz4,
-            &self.xz5,
-            &self.xz6,
-            &self.xz7,
-            &self.xz8
+            &self.bf,
+            &self.poly_num,
+            &self.poly_from,
+            &self.poly_to,
+            &self.mat,
+            &self.area,
+            &self.cg_x,
+            &self.cg_y
         )?;
         write!(
             f,
-            "          f_c: {}, f_l: {}, f_s: {}, type №{}, {}",
-            &self.f_c, &self.f_l, &self.f_s, &self.type_base, &self.base
+            "          emerge: {}/{}, c_load: {}, l_load: {}, s_load: {}, type №{}, {}",
+            &self.emerge,
+            &self.em_etazh,
+            &self.c_load,
+            &self.l_load,
+            &self.s_load,
+            &self.type_base,
+            &self.base
         )
     }
 }
 
-/*named!(pub read_fslab<&[u8], FSlab>,
-    do_parse!(
-        ws1: take!(8)                       >>
-        b: le_f32                           >>
-        ws2: take!(4)                       >>
-        xz1: le_f32                         >>
-        ws3: take!(3)                       >>
-        xz2: le_f32                         >>
-        xz3: le_f32                         >>
-        ws4: take!(4)                       >>
-        xz4: le_f32                         >>
-        xz5: le_f32                         >>
-        type_base: le_u8                    >>
-        ws5: take!(8)                       >>
-        f_c: le_f32                         >>
-        f_l: le_f32                         >>
-        f_s: le_f32                         >>
-        ws6: take!(32)                      >>
-        xz6: le_f32                         >>
-        xz7: le_f32                         >>
-        xz8: le_f32                         >>
-        ws7: take!(37)                      >>
-        base: apply!(read_fslab_type, type_base) >>
-        (FSlab {
-            ws1: *array_ref!(ws1, 0 ,8),
-            b,
-            ws2: *array_ref!(ws2, 0 ,4),
-            xz1,
-            ws3: *array_ref!(ws3, 0 ,3),
-            xz2,
-            xz3,
-            ws4: *array_ref!(ws4, 0 ,4),
-            xz4,
-            xz5,
-            type_base,
-            ws5: *array_ref!(ws5, 0 ,8),
-            f_c,
-            f_l,
-            f_s,
-            ws6: ws6.to_vec(),
-            xz6,
-            xz7,
-            xz8,
-            ws7: ws7.to_vec(),
-            base
-        })
-    )
-);*/
 pub fn read_fslab(i: &[u8]) -> IResult<&[u8], FSlab> {
-    let (i, ws1) = take(8u8)(i)?;
+    let (i, ws1) = take(1u8)(i)?;
+    let (i, bf) = le_u8(i)?;
+    let (i, poly_num) = le_u16(i)?;
+    let (i, poly_from) = le_u16(i)?;
+    let (i, poly_to) = le_u16(i)?;
     let (i, b) = le_f32(i)?;
     let (i, ws2) = take(4u8)(i)?;
-    let (i, xz1) = le_f32(i)?;
+    let (i, area) = le_f32(i)?;
     let (i, ws3) = take(3u8)(i)?;
-    let (i, xz2) = le_f32(i)?;
-    let (i, xz3) = le_f32(i)?;
+    let (i, wtf1) = le_f32(i)?;
+    let (i, cons_1) = le_f32(i)?;
     let (i, ws4) = take(4u8)(i)?;
-    let (i, xz4) = le_f32(i)?;
-    let (i, xz5) = le_f32(i)?;
+    let (i, cg_x) = le_f32(i)?;
+    let (i, cg_y) = le_f32(i)?;
     let (i, type_base) = le_u8(i)?;
-    let (i, ws5) = take(5u8)(i)?;
-    let (i, f_c) = le_f32(i)?;
-    let (i, f_l) = le_f32(i)?;
-    let (i, f_s) = le_f32(i)?;
-    let (i, ws6) = take(32u8)(i)?;
-    let (i, xz6) = le_f32(i)?;
-    let (i, xz7) = le_f32(i)?;
-    let (i, xz8) = le_f32(i)?;
-    let (i, ws7) = take(37u8)(i)?;
+    let (i, cons_2) = le_u8(i)?;
+    let (i, mat) = le_u16(i)?;
+    let (i, emerge) = le_u8(i)?;
+    let (i, em_etazh) = le_u8(i)?;
+    let (i, ws5) = take(3u8)(i)?;
+    let (i, c_load) = le_f32(i)?;
+    let (i, l_load) = le_f32(i)?;
+    let (i, s_load) = le_f32(i)?;
+    let (i, ws6) = take(8u8)(i)?;
+    let (i, cons_3) = le_u8(i)?;
+    let (i, ws7) = take(72u8)(i)?;
     let (i, base) = read_fslab_type(i, type_base)?;
+    let mut ws = ws1.to_vec();
+    ws.extend_from_slice(ws2);
+    ws.extend_from_slice(ws3);
+    ws.extend_from_slice(ws4);
+    ws.extend_from_slice(ws5);
+    ws.extend_from_slice(ws6);
+    ws.extend_from_slice(ws7);
     Ok((
         i,
         FSlab {
-            ws1: *array_ref!(ws1, 0, 8),
+            bf,
+            poly_num,
+            poly_from,
+            poly_to,
             b,
-            ws2: *array_ref!(ws2, 0, 4),
-            xz1,
-            ws3: *array_ref!(ws3, 0, 3),
-            xz2,
-            xz3,
-            ws4: *array_ref!(ws4, 0, 4),
-            xz4,
-            xz5,
+            area,
+            wtf1,
+            cons_1,
+            cg_x,
+            cg_y,
             type_base,
-            ws5: *array_ref!(ws5, 0, 8),
-            f_c,
-            f_l,
-            f_s,
-            ws6: ws6.to_vec(),
-            xz6,
-            xz7,
-            xz8,
-            ws7: ws7.to_vec(),
+            cons_2,
+            mat,
+            emerge,
+            em_etazh,
+            c_load,
+            l_load,
+            s_load,
+            cons_3,
             base,
+            ws,
         },
     ))
 }
 
-/*named!(read_natural_preset<&[u8], NaturalPreset>,
-    do_parse!(
-        c1: le_f32                          >>
-        c2: le_f32                          >>
-        ws1: take!(8)                       >>
-        (NaturalPreset {
-            c1,
-            c2,
-            ws1: *array_ref!(ws1, 0 ,8)
-        })
-    )
-);*/
 fn read_natural_preset(i: &[u8]) -> IResult<&[u8], NaturalPreset> {
     let (i, c1) = le_f32(i)?;
     let (i, c2) = le_f32(i)?;
     let (i, ws1) = take(8u8)(i)?;
-    Ok((
-        i,
-        NaturalPreset {
-            c1,
-            c2,
-            ws1: *array_ref!(ws1, 0, 8),
-        },
-    ))
+    let ws = ws1.to_vec();
+    Ok((i, NaturalPreset { c1, c2, ws }))
 }
 
-/*named!(read_natural_comp<&[u8], NaturalComp>,
-    do_parse!(
-        ws1: take!(20)                      >>
-        (NaturalComp {
-            ws1: *array_ref!(ws1, 0 ,20)
-        })
-    )
-);*/
 fn read_natural_comp(i: &[u8]) -> IResult<&[u8], NaturalComp> {
     let (i, ws1) = take(20u8)(i)?;
-    Ok((
-        i,
-        NaturalComp {
-            ws1: *array_ref!(ws1, 0, 20),
-        },
-    ))
+    let ws = ws1.to_vec();
+    Ok((i, NaturalComp { ws }))
 }
 
-/*named!(read_piling_field<&[u8], PilingField>,
-    do_parse!(
-        ws1: take!(8)                       >>
-        (PilingField {
-            ws1: *array_ref!(ws1, 0 ,8)
-        })
-    )
-);*/
 fn read_piling_field(i: &[u8]) -> IResult<&[u8], PilingField> {
     let (i, ws1) = take(8u8)(i)?;
-    Ok((
-        i,
-        PilingField {
-            ws1: *array_ref!(ws1, 0, 8),
-        },
-    ))
+    let ws = ws1.to_vec();
+    Ok((i, PilingField { ws }))
 }
 
-/*named!(read_piling_as_natural<&[u8], PilingAsNatural>,
-    do_parse!(
-        step_x: le_f32                      >>
-        step_y: le_f32                      >>
-        f: le_f32                           >>
-        delta_l: le_f32                     >>
-        ws1: take!(8)                       >>
-        (PilingAsNatural {
-            step_x,
-            step_y,
-            f,
-            delta_l,
-            ws1: *array_ref!(ws1, 0 ,8)
-        })
-    )
-);*/
 fn read_piling_as_natural(i: &[u8]) -> IResult<&[u8], PilingAsNatural> {
     let (i, step_x) = le_f32(i)?;
     let (i, step_y) = le_f32(i)?;
     let (i, f) = le_f32(i)?;
     let (i, delta_l) = le_f32(i)?;
     let (i, ws1) = take(8u8)(i)?;
+    let ws = ws1.to_vec();
     Ok((
         i,
         PilingAsNatural {
@@ -305,33 +332,13 @@ fn read_piling_as_natural(i: &[u8]) -> IResult<&[u8], PilingAsNatural> {
             step_y,
             f,
             delta_l,
-            ws1: *array_ref!(ws1, 0, 8),
+            ws,
         },
     ))
 }
 
-/*named_args!(read_fslab_type(type_base: u8)<&[u8], FSlabType>,
-    do_parse!(
-        natural_preset: cond!(type_base    == 10,
-            read_natural_preset)            >>
-        natural_comp: cond!(type_base      == 11,
-            read_natural_comp)              >>
-        piling_field: cond!(type_base      == 12,
-            read_piling_field)              >>
-        piling_as_natural: cond!(type_base == 13,
-            read_piling_as_natural)         >>
-        (match type_base {
-                10 => FSlabType::NaturalPreset(natural_preset.unwrap()),
-                11 => FSlabType::NaturalComp(natural_comp.unwrap()),
-                12 => FSlabType::PilingField(piling_field.unwrap()),
-                13 => FSlabType::PilingAsNatural(piling_as_natural.unwrap()),
-                _ => panic!("type_base error"),
-            }
-        )
-    )
-);*/
-fn read_fslab_type(i: &[u8], type_sec: u8) -> IResult<&[u8], FSlabType> {
-    match type_sec {
+fn read_fslab_type(i: &[u8], type_base: u8) -> IResult<&[u8], FSlabType> {
+    match type_base {
         10 => {
             let (i, natural_preset) = read_natural_preset(i)?;
             Ok((i, FSlabType::NaturalPreset(natural_preset)))
@@ -350,4 +357,125 @@ fn read_fslab_type(i: &[u8], type_sec: u8) -> IResult<&[u8], FSlabType> {
         }
         _ => panic!("type_base error"),
     }
+}
+
+#[cfg(test)]
+fn test_fslab(s: &str) {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new(s);
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, fslab) = read_fslab(&original_in).expect("couldn't read_fslab");
+    assert_eq!(original_in, fslab.write());
+}
+#[test]
+fn fslab_dabble_1_test() {
+    test_fslab("test_sig/f_slabs/f_slab_dabble_1.test");
+}
+#[test]
+fn fslab_dabble_2_test() {
+    test_fslab("test_sig/f_slabs/f_slab_dabble_2.test");
+}
+#[test]
+fn fslab_nc_test() {
+    test_fslab("test_sig/f_slabs/f_slab_f_all_NC.test");
+}
+#[test]
+fn fslab_np_test() {
+    test_fslab("test_sig/f_slabs/f_slab_f_all_NP.test");
+}
+#[test]
+fn fslab_pan_test() {
+    test_fslab("test_sig/f_slabs/f_slab_f_all_PAN.test");
+}
+#[test]
+fn fslab_pf_test() {
+    test_fslab("test_sig/f_slabs/f_slab_f_all_PF.test");
+}
+#[test]
+fn fslab_etazh4_test() {
+    test_fslab("test_sig/f_slabs/f_slab_f_etazh4_NP.test");
+}
+#[test]
+fn fslab_etazh_self_test() {
+    test_fslab("test_sig/f_slabs/f_slab_f_etazh_self_NP.test");
+}
+#[test]
+fn fslab_mat_test() {
+    test_fslab("test_sig/f_slabs/f_slab_mat_NP.test");
+}
+#[test]
+fn fslab_nf_test() {
+    test_fslab("test_sig/f_slabs/f_slab_nf_all_NP.test");
+}
+#[test]
+fn fslab_opening_test() {
+    test_fslab("test_sig/f_slabs/f_slab_opening_PF.test");
+}
+#[test]
+fn fslab_opening_pile_test() {
+    test_fslab("test_sig/f_slabs/f_slab_opening_PF_pile.test");
+}
+#[test]
+fn s_f_slab_test() {
+    test_fslab("test_sig/f_slabs/s_f_slab_f_all_NC.test");
+}
+#[test]
+fn s_fslab_full_value_test() {
+    use std::error::Error;
+    use std::io::Read;
+    let path = std::path::Path::new("test_sig/f_slabs/s_f_slab_f_all_NC.test");
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut original_in: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut original_in) {
+        panic!("couldn't read {}: {}", display, why.description())
+    };
+    let (_, fslab) = read_fslab(&original_in).expect("couldn't read_fslab");
+    let mut ws = vec![];
+    for i in 1..=95 {
+        ws.push(i);
+    }
+    let mut ws_base = vec![];
+    for i in 1..=20 {
+        ws_base.push(i);
+    }
+    let c_fslab = FSlab {
+        bf: 8u8,
+        poly_num: 1u16,
+        poly_from: 0u16,
+        poly_to: 0u16,
+        b: 51f32,
+        area: 0f32,
+        wtf1: 0f32,
+        cons_1: -10f32,
+        cg_x: 0f32,
+        cg_y: 0f32,
+        type_base: 11u8,
+        cons_2: 1u8,
+        mat: 1u16,
+        emerge: 0u8,
+        em_etazh: 0u8,
+        c_load: 0.11f32,
+        l_load: 0.12f32,
+        s_load: 0.13f32,
+        cons_3: 1u8,
+        base: FSlabType::NaturalComp(NaturalComp { ws: ws_base }),
+        ws,
+    };
+    assert_eq!(fslab.write(), c_fslab.write())
 }

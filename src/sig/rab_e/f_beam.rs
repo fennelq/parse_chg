@@ -135,7 +135,7 @@ fn s_fbeam_full_value_test() {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why.description())
     };
-    let (_, fbeam) = read_fbeam(&original_in).expect("couldn't read_column");
+    let (_, fbeam) = read_fbeam(&original_in).expect("couldn't read_fbeam");
     let sec_vec = vec![0, 0, 76, 66, 0, 0, 24, 66, 3, 0, 0u8];
     let (_, sec) = read_sec(&sec_vec, 1).expect("error sec_vec");
     let mut ws = vec![];

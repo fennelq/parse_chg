@@ -162,7 +162,7 @@ fn s_poly_full_value_test() {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why.description())
     };
-    let (_, poly) = read_poly(&original_in).expect("couldn't read_column");
+    let (_, poly) = read_poly(&original_in).expect("couldn't read_poly");
     let mut ws = vec![];
     for i in 1..=6 {
         ws.push(i);

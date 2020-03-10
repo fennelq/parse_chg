@@ -167,7 +167,7 @@ fn s_part_full_value_test() {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why.description())
     };
-    let (_, part) = read_part(&original_in).expect("couldn't read_column");
+    let (_, part) = read_part(&original_in).expect("couldn't read_partition");
     let mut ws = vec![];
     for i in 1..=26 {
         ws.push(i);

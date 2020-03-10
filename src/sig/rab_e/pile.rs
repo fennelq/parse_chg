@@ -293,7 +293,7 @@ fn s_piles_full_value_test() {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why.description())
     };
-    let (_, pile) = read_pile(&original_in).expect("couldn't read_column");
+    let (_, pile) = read_pile(&original_in).expect("couldn't read_pile");
     let mut ws = vec![];
     for i in 1..=17 {
         ws.push(i);
