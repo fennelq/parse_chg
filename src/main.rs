@@ -30,7 +30,7 @@ mod tests;
 use crate::read_write::{read_file, read_file_raw, write_by_file_raw, write_recognize_sig};
 
 fn main() {
-    let input = Path::new("wall_found_slab.chg");
+    let input = Path::new("load_area_dabble.chg");
     let building_s = read_file_raw(input);
     let building = read_file(input);
     write_by_file_raw(&building_s);
