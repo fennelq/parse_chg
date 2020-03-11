@@ -33,14 +33,14 @@ impl HasWrite for Slab {
         let mut out: Vec<u8> = vec![];
         out.extend(&self.ws[0..1]);
         out.extend(&self.bf.to_le_bytes());
-        out.extend(&self.b.to_bits().to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
         out.extend(&self.ws[1..9]);
         out.extend(&self.poly_from.to_le_bytes());
         out.extend(&self.poly_to.to_le_bytes());
         out.extend(&self.poly_num.to_le_bytes());
-        out.extend(&self.c_load.to_bits().to_le_bytes());
-        out.extend(&self.l_load.to_bits().to_le_bytes());
-        out.extend(&self.s_load.to_bits().to_le_bytes());
+        out.extend(&self.c_load.to_le_bytes());
+        out.extend(&self.l_load.to_le_bytes());
+        out.extend(&self.s_load.to_le_bytes());
         out.extend(&self.ws[9..41]);
         out.extend(&self.cons_1.to_le_bytes());
         out.extend(&self.mat.to_le_bytes());

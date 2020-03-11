@@ -47,8 +47,8 @@ impl HasWrite for Beam {
         out.extend(&self.m_flag.to_le_bytes());
         out.extend(&self.ws[28..29]);
         out.extend(&self.type_sec.to_le_bytes());
-        out.extend(&self.hinge1.to_bits().to_le_bytes());
-        out.extend(&self.hinge2.to_bits().to_le_bytes());
+        out.extend(&self.hinge1.to_le_bytes());
+        out.extend(&self.hinge2.to_le_bytes());
         out.extend(&self.cons_3.to_le_bytes());
         out.extend(&self.mat.to_le_bytes());
         out.extend(&self.ws[29..59]);

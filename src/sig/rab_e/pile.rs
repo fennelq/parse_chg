@@ -46,7 +46,7 @@ pub struct PileEF {
 impl HasWrite for PileEF {
     fn write(&self) -> Vec<u8> {
         let mut out: Vec<u8> = vec![];
-        out.extend(&self.ef.to_bits().to_le_bytes());
+        out.extend(&self.ef.to_le_bytes());
         out.extend(&self.ws[0..2]);
         out
     }
@@ -69,8 +69,8 @@ pub struct PileFL {
 impl HasWrite for PileFL {
     fn write(&self) -> Vec<u8> {
         let mut out: Vec<u8> = vec![];
-        out.extend(&self.f.to_bits().to_le_bytes());
-        out.extend(&self.delta_l.to_bits().to_le_bytes());
+        out.extend(&self.f.to_le_bytes());
+        out.extend(&self.delta_l.to_le_bytes());
         out.extend(&self.ws[0..2]);
         out
     }
@@ -100,13 +100,13 @@ impl HasWrite for PileSize {
     fn write(&self) -> Vec<u8> {
         let mut out: Vec<u8> = vec![];
         out.extend(&self.sec.to_le_bytes());
-        out.extend(&self.l.to_bits().to_le_bytes());
+        out.extend(&self.l.to_le_bytes());
         out.extend(&self.br_flag.to_le_bytes());
-        out.extend(&self.broaden.to_bits().to_le_bytes());
-        out.extend(&self.k_stiff.to_bits().to_le_bytes());
+        out.extend(&self.broaden.to_le_bytes());
+        out.extend(&self.k_stiff.to_le_bytes());
         out.extend(&self.ws[0..9]);
-        out.extend(&self.b_d.to_bits().to_le_bytes());
-        out.extend(&self.h_t.to_bits().to_le_bytes());
+        out.extend(&self.b_d.to_le_bytes());
+        out.extend(&self.h_t.to_le_bytes());
         out.extend(&self.ws[9..11]);
         out
     }

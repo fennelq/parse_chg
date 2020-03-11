@@ -33,8 +33,8 @@ impl HasWrite for Partition {
         out.extend(&self.p1.write());
         out.extend(&self.p2.write());
         out.extend(&self.ws[0..2]);
-        out.extend(&self.b.to_bits().to_le_bytes());
-        out.extend(&self.h.to_bits().to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
+        out.extend(&self.h.to_le_bytes());
         out.extend(&self.ws[2..4]);
         out.extend(&self.op_num.to_le_bytes());
         out.extend(&self.ws[4..9]);

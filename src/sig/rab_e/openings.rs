@@ -18,10 +18,10 @@ impl HasWrite for Opening {
         let mut out: Vec<u8> = vec![];
         out.extend(&self.num_points.to_le_bytes());
         for i in &self.x_vec {
-            out.extend(&i.to_bits().to_le_bytes());
+            out.extend(&i.to_le_bytes());
         }
         for i in &self.y_vec {
-            out.extend(&i.to_bits().to_le_bytes());
+            out.extend(&i.to_le_bytes());
         }
         out
     }

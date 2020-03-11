@@ -31,8 +31,8 @@ pub struct Point {
 impl HasWrite for Point {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.x.to_bits().to_le_bytes());
-        out.extend(&self.y.to_bits().to_le_bytes());
+        out.extend(&self.x.to_le_bytes());
+        out.extend(&self.y.to_le_bytes());
         out
     }
     fn name(&self) -> &str {

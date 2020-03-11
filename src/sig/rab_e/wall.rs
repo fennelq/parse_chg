@@ -60,7 +60,7 @@ impl HasWrite for Wall {
         out.extend(&self.p2.write());
         out.extend(&self.agt.to_le_bytes());
         out.extend(&self.flag.to_le_bytes());
-        out.extend(&self.b.to_bits().to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
         out.extend(&self.r_ver_1.to_le_bytes());
         out.extend(&self.ws[0..2]);
         out.extend(&self.r_ver_2.to_le_bytes());
@@ -68,8 +68,8 @@ impl HasWrite for Wall {
         out.extend(&self.found_from.to_le_bytes());
         out.extend(&self.found_to.to_le_bytes());
         out.extend(&self.op_num.to_le_bytes());
-        out.extend(&self.wtf1.to_bits().to_le_bytes());
-        out.extend(&self.wtf2.to_bits().to_le_bytes());
+        out.extend(&self.wtf1.to_le_bytes());
+        out.extend(&self.wtf2.to_le_bytes());
         out.extend(&self.ws[8..10]);
         out.extend(&self.r_ver_3.to_le_bytes());
         out.extend(&self.r_ver_4.to_le_bytes());
@@ -82,16 +82,16 @@ impl HasWrite for Wall {
         out.extend(&self.r_ver_9.to_le_bytes());
         out.extend(&self.r_ver_10.to_le_bytes());
         out.extend(&self.r_ver_11.to_le_bytes());
-        out.extend(&self.k.to_bits().to_le_bytes());
+        out.extend(&self.k.to_le_bytes());
         out.extend(&self.cons_3.to_le_bytes());
         out.extend(&self.ws[10..11]);
-        out.extend(&self.wtf3.to_bits().to_le_bytes());
-        out.extend(&self.wtf4.to_bits().to_le_bytes());
+        out.extend(&self.wtf3.to_le_bytes());
+        out.extend(&self.wtf4.to_le_bytes());
         out.extend(&self.ws[11..12]);
         out.extend(&self.r_ver_12.to_le_bytes());
         out.extend(&self.r_ver_13.to_le_bytes());
         out.extend(&self.flag_hinge.to_le_bytes());
-        out.extend(&self.dz1.to_bits().to_le_bytes());
+        out.extend(&self.dz1.to_le_bytes());
         out.extend(&self.mat.to_le_bytes());
         out.extend(&self.ws[12..21]);
         for i in &self.op {

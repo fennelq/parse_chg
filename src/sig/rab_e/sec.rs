@@ -58,8 +58,8 @@ pub struct RectangleSec {
 impl HasWrite for RectangleSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.b.to_bits().to_le_bytes());
-        out.extend(&self.h.to_bits().to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
+        out.extend(&self.h.to_le_bytes());
         out.extend(&self.flag_f.to_le_bytes());
         out.extend(&self.ws);
         out
@@ -82,7 +82,7 @@ pub struct CircleSec {
 impl HasWrite for CircleSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.d.to_bits().to_le_bytes());
+        out.extend(&self.d.to_le_bytes());
         out.extend(&self.flag_f.to_le_bytes());
         out.extend(&self.ws);
         out
@@ -109,12 +109,12 @@ pub struct CrossSec {
 impl HasWrite for CrossSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.b1.to_bits().to_le_bytes());
-        out.extend(&self.b2.to_bits().to_le_bytes());
-        out.extend(&self.b3.to_bits().to_le_bytes());
-        out.extend(&self.h1.to_bits().to_le_bytes());
-        out.extend(&self.h2.to_bits().to_le_bytes());
-        out.extend(&self.h3.to_bits().to_le_bytes());
+        out.extend(&self.b1.to_le_bytes());
+        out.extend(&self.b2.to_le_bytes());
+        out.extend(&self.b3.to_le_bytes());
+        out.extend(&self.h1.to_le_bytes());
+        out.extend(&self.h2.to_le_bytes());
+        out.extend(&self.h3.to_le_bytes());
         out.extend(&self.ws);
         out
     }
@@ -140,8 +140,8 @@ pub struct RingSec {
 impl HasWrite for RingSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.d.to_bits().to_le_bytes());
-        out.extend(&self.t.to_bits().to_le_bytes());
+        out.extend(&self.d.to_le_bytes());
+        out.extend(&self.t.to_le_bytes());
         out.extend(&self.ws);
         out
     }
@@ -165,10 +165,10 @@ pub struct BoxSec {
 impl HasWrite for BoxSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.b.to_bits().to_le_bytes());
-        out.extend(&self.b1.to_bits().to_le_bytes());
-        out.extend(&self.h.to_bits().to_le_bytes());
-        out.extend(&self.h1.to_bits().to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
+        out.extend(&self.b1.to_le_bytes());
+        out.extend(&self.h.to_le_bytes());
+        out.extend(&self.h1.to_le_bytes());
         out.extend(&self.ws);
         out
     }
@@ -198,12 +198,12 @@ pub struct ISec {
 impl HasWrite for ISec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.b.to_bits().to_le_bytes());
-        out.extend(&self.b1.to_bits().to_le_bytes());
-        out.extend(&self.b2.to_bits().to_le_bytes());
-        out.extend(&self.h.to_bits().to_le_bytes());
-        out.extend(&self.h1.to_bits().to_le_bytes());
-        out.extend(&self.h2.to_bits().to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
+        out.extend(&self.b1.to_le_bytes());
+        out.extend(&self.b2.to_le_bytes());
+        out.extend(&self.h.to_le_bytes());
+        out.extend(&self.h1.to_le_bytes());
+        out.extend(&self.h2.to_le_bytes());
         out.extend(&self.ws);
         out
     }
@@ -233,12 +233,12 @@ pub struct ShelvesSec {
 impl HasWrite for ShelvesSec {
     fn write(&self) -> Vec<u8> {
         let mut out = vec![];
-        out.extend(&self.b.to_bits().to_le_bytes());
-        out.extend(&self.h.to_bits().to_le_bytes());
-        out.extend(&self.b1.to_bits().to_le_bytes());
-        out.extend(&self.h1.to_bits().to_le_bytes());
-        out.extend(&self.b2.to_bits().to_le_bytes());
-        out.extend(&self.h2.to_bits().to_le_bytes());
+        out.extend(&self.b.to_le_bytes());
+        out.extend(&self.h.to_le_bytes());
+        out.extend(&self.b1.to_le_bytes());
+        out.extend(&self.h1.to_le_bytes());
+        out.extend(&self.b2.to_le_bytes());
+        out.extend(&self.h2.to_le_bytes());
         out.extend(&self.ws);
         out
     }

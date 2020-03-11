@@ -53,7 +53,7 @@ impl HasWrite for Column {
         out.extend(&self.p.write());
         out.extend(&self.agt.to_le_bytes());
         out.extend(&self.bearing.to_le_bytes());
-        out.extend(&self.fi.to_bits().to_le_bytes());
+        out.extend(&self.fi.to_le_bytes());
         out.extend(&self.ws[0..8]);
         out.extend(&self.r_ver_1.to_le_bytes());
         out.extend(&self.ws[8..10]);
@@ -62,9 +62,9 @@ impl HasWrite for Column {
         out.extend(&self.found_from.to_le_bytes());
         out.extend(&self.found_to.to_le_bytes());
         out.push(self.ws[20]);
-        out.extend(&self.mu.to_bits().to_le_bytes());
-        out.extend(&self.wtf1.to_bits().to_le_bytes());
-        out.extend(&self.wtf2.to_bits().to_le_bytes());
+        out.extend(&self.mu.to_le_bytes());
+        out.extend(&self.wtf1.to_le_bytes());
+        out.extend(&self.wtf2.to_le_bytes());
         out.extend(&self.r_ver_3.to_le_bytes());
         out.extend(&self.r_ver_4.to_le_bytes());
         out.extend(&self.r_ver_5.to_le_bytes());
