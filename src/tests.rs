@@ -6,7 +6,6 @@ mod complex_tests {
 
     use crate::read_write::*;
     use crate::sig::*;
-    use std::error::Error;
     use std::fs::File;
     use std::io::prelude::*;
     use std::path::Path;
@@ -23,12 +22,12 @@ mod complex_tests {
                 let display = input.display();
                 eprintln!("{:?}", input.file_name().expect("no file"));
                 let mut file = match File::open(&input) {
-                    Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+                    Err(why) => panic!("couldn't open {}: {}", display, why),
                     Ok(file) => file,
                 };
                 let mut original_in: Vec<u8> = vec![];
                 if let Err(why) = file.read_to_end(&mut original_in) {
-                    panic!("couldn't read {}: {}", display, why.description())
+                    panic!("couldn't read {}: {}", display, why)
                 };
                 assert_eq!(original_in, write_test(&read_file_raw(&input)));
             }

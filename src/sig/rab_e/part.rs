@@ -103,20 +103,16 @@ pub fn read_part(i: &[u8]) -> IResult<&[u8], Partition> {
 
 #[cfg(test)]
 fn test_part(s: &str) {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new(s);
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
-    };
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, part) = read_part(&original_in).expect("couldn't read_column");
     assert_eq!(original_in, part.write());
@@ -155,17 +151,16 @@ fn part_s_test() {
 }
 #[test]
 fn s_part_full_value_test() {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new("test_sig/partition/s_partition.test");
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, part) = read_part(&original_in).expect("couldn't read_partition");
     let mut ws = vec![];

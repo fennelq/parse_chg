@@ -42,7 +42,7 @@ pub struct RabE {
 }
 impl HasWrite for RabE {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         if self.name[6] == 0 {
             out.push(0u8);
         };
@@ -114,6 +114,7 @@ impl fmt::Display for RabE {
         write!(f, "")
     }
 }
+
 #[derive(Debug)]
 pub struct HeadEtazh {
     etazh_num: u16,

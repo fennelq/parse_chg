@@ -12,7 +12,6 @@ extern crate nom;
 #[macro_use]
 extern crate arrayref;
 extern crate byteorder;
-
 use std::path::Path;
 /*use std::io::prelude::*;
 use std::fs::File;

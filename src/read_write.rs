@@ -1,6 +1,6 @@
 //! Чтение/запись файлов
 
-use std::error::Error;
+//use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
@@ -16,15 +16,15 @@ use crate::sig::*;
 pub fn read_file(path: &Path) -> building::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let building = match building::read_original(&original_in) {
-        Err(why) => panic!("parse error: {:?}", why),
+        Err(why) => panic!("parse error: {:?}", why.to_string()),
         Ok(building) => building,
     };
 
@@ -39,15 +39,15 @@ pub fn read_file(path: &Path) -> building::Building {
 pub fn read_file_raw(path: &Path) -> building_raw::Building {
     let display = path.display();
     let mut file = match File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let building = match building_raw::read_original(&original_in) {
-        Err(why) => panic!("parse error: {:?}", why),
+        Err(why) => panic!("parse error: {:?}", why.to_string()),
         Ok(building) => building,
     };
 
@@ -67,11 +67,11 @@ pub fn write_sig<T: HasWrite>(sig: Option<&T>) {
             let path_buf = Path::new("out").join(s.name());
             let display = path_buf.as_path().display();
             let mut file = match File::create(path_buf.as_path()) {
-                Err(why) => panic!("couldn't create {}: {}", display, why.description()),
+                Err(why) => panic!("couldn't create {}: {}", display, why),
                 Ok(file) => file,
             };
             match file.write_all(&s.write()) {
-                Err(why) => panic!("couldn't write {}: {}", display, why.description()),
+                Err(why) => panic!("couldn't write {}: {}", display, why),
                 Ok(file) => file,
             };
         }
@@ -80,31 +80,34 @@ pub fn write_sig<T: HasWrite>(sig: Option<&T>) {
 pub fn write_recognize_sig() {
     let path_in = Path::new("recognize/in");
     let path_out = Path::new("recognize/out");
-    for entry in path_in.read_dir().expect("read_dir call failed") {
-        if let Ok(entry) = entry {
-            let input = entry.path();
-            let display = input.display();
-            eprintln!("{:?}", input.file_name().expect("no file"));
-            let _file_in = match File::open(&input) {
-                Err(why) => panic!("couldn't open {}: {}", display, why.description()),
-                Ok(file) => file,
-            };
-            let building: &building_raw::Building = &read_file_raw(&input);
-            let rab_e = building.rab_e[0].write();
-            let (_, sig) = rab_e.split_at(315 + 0);
-            let path_buf = path_out
-                .join(&input.file_stem().expect("write_error"))
-                .with_extension("test");
-            let display_out = path_buf.as_path().display();
-            let mut file_out = match File::create(path_buf.as_path()) {
-                Err(why) => panic!("couldn't create {}: {}", display_out, why.description()),
-                Ok(file) => file,
-            };
-            match file_out.write_all(&sig) {
-                Err(why) => panic!("couldn't write {}: {}", display, why.description()),
-                Ok(file) => file,
-            };
-        }
+    for entry in path_in
+        .read_dir()
+        .expect("read_dir call failed")
+        .into_iter()
+        .flatten()
+    {
+        let input = entry.path();
+        let display = input.display();
+        eprintln!("{:?}", input.file_name().expect("no file"));
+        let _file_in = match File::open(&input) {
+            Err(why) => panic!("couldn't open {}: {}", display, why),
+            Ok(file) => file,
+        };
+        let building: &building_raw::Building = &read_file_raw(&input);
+        let rab_e = building.rab_e[0].write();
+        let (_, sig) = rab_e.split_at(315 + 0);
+        let path_buf = path_out
+            .join(&input.file_stem().expect("write_error"))
+            .with_extension("test");
+        let display_out = path_buf.as_path().display();
+        let mut file_out = match File::create(path_buf.as_path()) {
+            Err(why) => panic!("couldn't create {}: {}", display_out, why),
+            Ok(file) => file,
+        };
+        match file_out.write_all(&sig) {
+            Err(why) => panic!("couldn't write {}: {}", display, why),
+            Ok(file) => file,
+        };
     }
 }
 /// Запись здания как группу файлов посигнатурно

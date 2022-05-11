@@ -68,20 +68,16 @@ pub fn read_found(i: &[u8]) -> IResult<&[u8], Found> {
 }
 #[cfg(test)]
 fn test_node(s: &str) {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new(s);
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
-    };
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, found) = read_found(&original_in).expect("couldn't read_found");
     assert_eq!(original_in, found.write());
@@ -104,17 +100,16 @@ fn s_found_wall_test() {
 }
 #[test]
 fn s_node_full_value_test() {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new("test_sig/founds/s_wall_found.test");
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, found) = read_found(&original_in).expect("couldn't read_found");
     let mut ws = vec![];

@@ -108,20 +108,16 @@ pub fn read_slab(i: &[u8]) -> IResult<&[u8], Slab> {
 
 #[cfg(test)]
 fn test_slab(s: &str) {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new(s);
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
-    };
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, slab) = read_slab(&original_in).expect("couldn't read_slab");
     assert_eq!(original_in, slab.write());
@@ -180,17 +176,16 @@ fn part_test() {
 }
 #[test]
 fn s_slab_full_value_test() {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new("test_sig/slabs/s_slab.test");
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, slab) = read_slab(&original_in).expect("couldn't read_column");
     let mut ws = vec![];

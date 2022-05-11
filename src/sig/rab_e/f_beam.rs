@@ -70,20 +70,16 @@ pub fn read_fbeam(i: &[u8]) -> IResult<&[u8], FBeam> {
 
 #[cfg(test)]
 fn test_fbeam(s: &str) {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new(s);
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
-    };
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, fbeam) = read_fbeam(&original_in).expect("couldn't read_column");
     assert_eq!(original_in, fbeam.write());
@@ -123,17 +119,16 @@ fn s_fbeam_test() {
 
 #[test]
 fn s_fbeam_full_value_test() {
-    use std::error::Error;
     use std::io::Read;
     let path = std::path::Path::new("test_sig/f_beams/s_f_beam.test");
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why.description()),
+        Err(why) => panic!("couldn't open {}: {}", display, why),
         Ok(file) => file,
     };
     let mut original_in: Vec<u8> = vec![];
     if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why.description())
+        panic!("couldn't read {}: {}", display, why)
     };
     let (_, fbeam) = read_fbeam(&original_in).expect("couldn't read_fbeam");
     let sec_vec = vec![0, 0, 76, 66, 0, 0, 24, 66, 3, 0, 0u8];
