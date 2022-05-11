@@ -13,7 +13,7 @@ pub struct RabO0 {
 }
 impl HasWrite for RabO0 {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for RabO0 {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_rab_o0<&[u8], RabO0>,
-    complete!(do_parse!(
-        tag!("rab.o0")                      >>
-        take!(1)                            >>
-        flag_line: take!(6)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (RabO0 {
-            flag_line: *array_ref!(flag_line, 0 ,6),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_rab_o0(i: &[u8]) -> IResult<&[u8], RabO0> {
     let (i, _) = tag("rab.o0")(i)?;
     let (i, _) = take(1u8)(i)?;

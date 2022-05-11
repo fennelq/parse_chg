@@ -11,7 +11,7 @@ pub struct BarpbresFe {
 }
 impl HasWrite for BarpbresFe {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(&self.source);
         out
     }
@@ -24,17 +24,6 @@ impl fmt::Display for BarpbresFe {
         write!(f, "{} source.len: {}", &self.name(), &self.source.len())
     }
 }
-
-/*
-named!(pub read_barpbres_fe<&[u8], BarpbresFe>,
-    complete!(do_parse!(
-        tag!("barpbres.fe")                 >>
-        source: take!(10)                   >>
-        (BarpbresFe {
-            source: source.to_vec()
-        })
-    ))
-);*/
 
 pub fn read_barpbres_fe(i: &[u8]) -> IResult<&[u8], BarpbresFe> {
     let (i, _) = tag("barpbres.fe")(i)?;

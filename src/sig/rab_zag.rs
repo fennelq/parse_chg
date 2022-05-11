@@ -13,7 +13,7 @@ pub struct RabZag {
 }
 impl HasWrite for RabZag {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for RabZag {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_rab_zag<&[u8], RabZag>,
-    complete!(do_parse!(
-        tag!("rab.zag")                     >>
-        take!(1)                            >>
-        flag_line: take!(5)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (RabZag {
-            flag_line: *array_ref!(flag_line, 0 ,5),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_rab_zag(i: &[u8]) -> IResult<&[u8], RabZag> {
     let (i, _) = tag("rab.zag")(i)?;
     let (i, _) = take(1u8)(i)?;

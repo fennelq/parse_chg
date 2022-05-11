@@ -196,67 +196,6 @@ fn trans_writeln<T: fmt::Display>(f: &mut fmt::Formatter, option: &Option<T>) ->
         Some(value) => writeln!(f, "{}", *value),
     }
 }
-/*
-named!(pub read_original<&[u8], Building>,
-    do_parse!(
-        file_type: read_file_type           >>
-        barpbres_fe: opt!(read_barpbres_fe) >>
-        bkngwl_bnw: opt!(read_bkngwl_bnw)   >>
-        boknagr_bkn: opt!(read_boknagr_bkn) >>
-        clmn_uni: opt!(read_clmn_uni)       >>
-        coeffs_rsu: opt!(read_coeffs_rsu)   >>
-        elems_fe: opt!(read_elems_fe)       >>
-        elemsres_fe: opt!(read_elemsres_fe) >>
-        elsss_fe: opt!(read_elsss_fe)       >>
-        etnames_et: opt!(read_etnames_et)   >>
-        expert: opt!(read_expert)           >>
-        head_fe: opt!(read_head_fe)         >>
-        isoar_fe: opt!(read_isoar_fe)       >>
-        loadcomb_cds: opt!(read_loadcomb_cds) >>
-        material_mt: opt!(read_material_mt) >>
-        ndunions_fe: opt!(read_ndunions_fe) >>
-        nodes_fe: opt!(read_nodes_fe)       >>
-        nodesres_fe: opt!(read_nodesres_fe) >>
-        object_nam: opt!(read_object_nam)   >>
-        pop_cut: opt!(read_pop_cut)         >>
-        procalc_set: opt!(read_procalc_set) >>
-        prores_use: opt!(read_prores_use)   >>
-        rab_a0: opt!(read_rab_a0)           >>
-        rab_e: opt!(read_rab_e_raw)      >>
-        rab_o0: opt!(read_rab_o0)           >>
-        rab_sdr: opt!(read_rab_sdr)         >>
-        rab_zag: opt!(read_rab_zag)         >>
-        reper_pos: opt!(read_reper_pos)     >>
-        rigbodys_fe: opt!(read_rigbodys_fe) >>
-        rigids_fe: opt!(read_rigids_fe)     >>
-        rzagnums_fe: opt!(read_rzagnums_fe) >>
-        seism_rsp: opt!(read_seism_rsp)     >>
-        slits_slt: opt!(read_slits_slt)     >>
-        szinfo_szi: opt!(read_szinfo_szi)   >>
-        vnum_fe: opt!(read_vnum_fe)         >>
-        wallascn_uni: opt!(read_wallascn_uni) >>
-        wind_rsp: opt!(read_wind_rsp)       >>
-        zagrcmbs_zc: opt!(read_zagrcmbs_zc) >>
-        zagrs_fe: opt!(read_zagrs_fe)       >>
-        (Building{
-            file_type,      barpbres_fe,    bkngwl_bnw,
-            boknagr_bkn,    clmn_uni,       coeffs_rsu,
-            elems_fe,       elemsres_fe,    elsss_fe,
-            etnames_et,     expert,         head_fe,
-            isoar_fe,       loadcomb_cds,   material_mt,
-            ndunions_fe,    nodes_fe,       nodesres_fe,
-            object_nam,     pop_cut,        procalc_set,
-            prores_use,     rab_a0,
-            rab_e: rab_e.unwrap_or(vec![]),             //Vec rab.e
-            rab_o0,         rab_sdr,        rab_zag,
-            reper_pos,      rigbodys_fe,    rigids_fe,
-            rzagnums_fe,    seism_rsp,      slits_slt,
-            szinfo_szi,     vnum_fe,        wallascn_uni,
-            wind_rsp,       zagrcmbs_zc,    zagrs_fe
-        })
-    )
-);
-*/
 
 pub fn read_original(i: &[u8]) -> IResult<&[u8], Building> {
     let (i, file_type) = read_file_type(i)?;

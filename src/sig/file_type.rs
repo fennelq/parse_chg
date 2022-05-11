@@ -16,17 +16,6 @@ impl fmt::Display for FileType {
         }
     }
 }
-
-/*named!(pub read_file_type<&[u8], FileType>,
-    alt!(
-        map!(tag!("BUILDER011"),
-                 |_| FileType::BUILDER011)  |
-        map!(tag!("CHARGE 3.7"),
-                 |_| FileType::CHARGE37)    |
-        map!(tag!(""), |_| FileType::ERROR)
-    )
-);*/
-
 pub fn read_file_type(i: &[u8]) -> IResult<&[u8], FileType> {
     let mut part = vec![];
     part.extend_from_slice(&i[0..10]);

@@ -13,7 +13,7 @@ pub struct VnumFe {
 }
 impl HasWrite for VnumFe {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for VnumFe {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_vnum_fe<&[u8], VnumFe>,
-    complete!(do_parse!(
-        tag!("vnum.fe")                     >>
-        take!(1)                            >>
-        flag_line: take!(5)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (VnumFe {
-            flag_line: *array_ref!(flag_line, 0 ,5),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_vnum_fe(i: &[u8]) -> IResult<&[u8], VnumFe> {
     let (i, _) = tag("vnum.fe")(i)?;
     let (i, _) = take(1u8)(i)?;

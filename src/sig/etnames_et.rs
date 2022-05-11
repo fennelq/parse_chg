@@ -13,7 +13,7 @@ pub struct EtnamesEt {
 }
 impl HasWrite for EtnamesEt {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for EtnamesEt {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_etnames_et<&[u8], EtnamesEt>,
-    complete!(do_parse!(
-        tag!("etnames.et")                  >>
-        take!(1)                            >>
-        flag_line: take!(2)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (EtnamesEt {
-            flag_line: *array_ref!(flag_line, 0 ,2),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_etnames_et(i: &[u8]) -> IResult<&[u8], EtnamesEt> {
     let (i, _) = tag("etnames.et")(i)?;
     let (i, _) = take(1u8)(i)?;

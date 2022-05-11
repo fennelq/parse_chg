@@ -13,7 +13,7 @@ pub struct Expert {
 }
 impl HasWrite for Expert {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for Expert {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_expert<&[u8], Expert>,
-    complete!(do_parse!(
-        tag!("expert")                      >>
-        take!(1)                            >>
-        flag_line: take!(6)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (Expert {
-            flag_line: *array_ref!(flag_line, 0 ,6),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_expert(i: &[u8]) -> IResult<&[u8], Expert> {
     let (i, _) = tag("expert")(i)?;
     let (i, _) = take(1u8)(i)?;

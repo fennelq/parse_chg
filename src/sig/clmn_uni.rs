@@ -13,7 +13,7 @@ pub struct ClmnUni {
 }
 impl HasWrite for ClmnUni {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for ClmnUni {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_clmn_uni<&[u8], ClmnUni>,
-    complete!(do_parse!(
-        tag!("clmn.uni")                    >>
-        take!(1)                            >>
-        flag_line: take!(4)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (ClmnUni {
-            flag_line: *array_ref!(flag_line, 0 ,4),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_clmn_uni(i: &[u8]) -> IResult<&[u8], ClmnUni> {
     let (i, _) = tag("clmn.uni")(i)?;
     let (i, _) = take(1u8)(i)?;

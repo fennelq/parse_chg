@@ -177,50 +177,6 @@ impl fmt::Display for HeadEtazh {
         )
     }
 }
-
-/*named!(pub read_rab_e<&[u8], Vec<RabE> >,
-    complete!(
-        many1!(
-            do_parse!(
-                tag!("rab.e")               >>
-                num1: le_u8                 >>
-                num2: le_u8                 >>
-                flag_line: take!(6)         >>
-                *//*offset: *//*le_u64              >>
-                head: read_head             >>
-                column: count!(read_column, head.columns_num as usize) >>
-                wall: count!(read_wall, head.walls_num as usize) >>
-                beam: count!(read_beam, head.beams_num as usize) >>
-                slab: count!(read_slab, head.slabs_num as usize) >>
-                load: count!(read_load, head.loads_num as usize) >>
-                poly: count!(read_poly, head.poly_num as usize) >>
-                node: count!(read_node, head.nodes_num as usize) >>
-                f_wall: count!(read_fwall, (head.fwalls_num/2) as usize) >>
-                part: count!(read_part, head.parts_num as usize) >>
-                f_slab: count!(read_fslab, head.fslabs_num as usize) >>
-                pile: count!(read_pile, head.piles_num as usize) >>
-                f_beam: count!(read_fbeam, head.fbeams_num as usize) >>
-                (RabE {
-                    name: [114,97,98,46,101,num1,num2],
-                    flag_line: *array_ref!(flag_line, 0 ,6),
-                    head,
-                    column,
-                    wall,
-                    beam,
-                    slab,
-                    load,
-                    poly,
-                    node,
-                    f_wall,
-                    part,
-                    f_slab,
-                    pile,
-                    f_beam
-                })
-            )
-        )
-    )
-);*/
 pub fn read_rab_e(i: &[u8]) -> IResult<&[u8], Vec<RabE>> {
     let (i, rab_e_etazh) = many1(read_rab_e_etazh)(i)?;
     Ok((i, rab_e_etazh))
@@ -265,71 +221,6 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
         },
     ))
 }
-
-/*named!(pub read_head<&[u8], HeadEtazh>,
-    do_parse!(
-        etazh_num: le_u16                   >>
-        etazh_h: le_f32                     >>
-        num1: le_u16                        >>
-        num2: le_u16                        >>
-        ws1_1: take!(17)                    >>
-        xm1: le_f32                         >>
-        ym1: le_f32                         >>
-        xm2: le_f32                         >>
-        ym2: le_f32                         >>
-        c_sum: take!(4)                     >>
-        ws1_2: take!(15)                    >>
-        columns_num: le_u16                 >>
-        walls_num: le_u16                   >>
-        beams_num: le_u16                   >>
-        slabs_num: le_u16                   >>
-        loads_num: le_u16                   >>
-        poly_num: le_u16                    >>
-        nodes_num: le_u16                   >>
-        wtf: le_u16                   >>
-        ws2: take!(10)                      >>
-        fwalls_num: le_u16                  >>
-        parts_num: le_u16                   >>
-        ws3: take!(8)                       >>
-        fslabs_num: le_u16                  >>
-        ws4: take!(4)                       >>
-        piles_num: le_u16                   >>
-        ws5: take!(4)                       >>
-        fbeams_num: le_u16                  >>
-        ws6: take!(180)                     >>
-        (HeadEtazh {
-            etazh_num,
-            etazh_h,
-            num1,
-            num2,
-            ws1_1: *array_ref!(ws1_1, 0, 17),
-            xm1,
-            ym1,
-            xm2,
-            ym2,
-            c_sum: *array_ref!(c_sum, 0, 4),
-            ws1_2: *array_ref!(ws1_2, 0, 15),
-            columns_num,
-            walls_num,
-            beams_num,
-            slabs_num,
-            loads_num,
-            poly_num,
-            nodes_num,
-            wtf,
-            ws2: *array_ref!(ws2, 0, 10),
-            fwalls_num,
-            parts_num,
-            ws3: *array_ref!(ws3, 0, 8),
-            fslabs_num,
-            ws4: *array_ref!(ws4, 0, 4),
-            piles_num,
-            ws5: *array_ref!(ws5, 0 ,4),
-            fbeams_num,
-            ws6: ws6.to_vec()
-        })
-    )
-);*/
 fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
     let (i, etazh_num) = le_u16(i)?;
     let (i, etazh_h) = le_f32(i)?;

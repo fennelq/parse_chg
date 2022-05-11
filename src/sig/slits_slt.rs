@@ -13,7 +13,7 @@ pub struct SlitsSlt {
 }
 impl HasWrite for SlitsSlt {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for SlitsSlt {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_slits_slt<&[u8], SlitsSlt>,
-    complete!(do_parse!(
-        tag!("slits.slt")                   >>
-        take!(1)                            >>
-        flag_line: take!(3)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (SlitsSlt {
-            flag_line: *array_ref!(flag_line, 0 ,3),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_slits_slt(i: &[u8]) -> IResult<&[u8], SlitsSlt> {
     let (i, _) = tag("slits.slt")(i)?;
     let (i, _) = take(1u8)(i)?;

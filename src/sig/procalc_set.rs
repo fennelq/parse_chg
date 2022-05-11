@@ -13,7 +13,7 @@ pub struct ProcalcSet {
 }
 impl HasWrite for ProcalcSet {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(&self.flag_line);
         out.extend(offset(self.source.len()).iter());
@@ -38,21 +38,6 @@ impl fmt::Display for ProcalcSet {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-
-/*named!(pub read_procalc_set<&[u8], ProcalcSet>,
-    complete!(do_parse!(
-        tag!("procalc.set")                 >>
-        take!(1)                            >>
-        flag_line: take!(1)                 >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (ProcalcSet {
-            flag_line: *array_ref!(flag_line, 0 ,1),
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_procalc_set(i: &[u8]) -> IResult<&[u8], ProcalcSet> {
     let (i, _) = tag("procalc.set")(i)?;
     let (i, _) = take(1u8)(i)?;

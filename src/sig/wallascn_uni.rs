@@ -12,7 +12,7 @@ pub struct WallascnUni {
 }
 impl HasWrite for WallascnUni {
     fn write(&self) -> Vec<u8> {
-        let mut out = (&self.name().as_bytes()).to_vec();
+        let mut out = self.name().as_bytes().to_vec();
         out.extend(vec![0u8]);
         out.extend(offset(self.source.len()).iter());
         out.extend(&self.source);
@@ -27,19 +27,6 @@ impl fmt::Display for WallascnUni {
         write!(f, "{} source.len: {}", &self.name(), &self.source.len())
     }
 }
-
-/*named!(pub read_wallascn_uni<&[u8], WallascnUni>,
-    complete!(do_parse!(
-        tag!("wallascn.uni")                >>
-        take!(1)                            >>
-        offset: le_u64                      >>
-        source: take!(offset)               >>
-        (WallascnUni {
-            source: source.to_vec()
-        })
-    ))
-);*/
-
 pub fn read_wallascn_uni(i: &[u8]) -> IResult<&[u8], WallascnUni> {
     let (i, _) = tag("wallascn.uni")(i)?;
     let (i, _) = take(1u8)(i)?;
