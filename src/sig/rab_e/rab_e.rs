@@ -11,6 +11,7 @@ use std::str;
 
 use crate::sig::rab_e::beam::read_beam;
 use crate::sig::rab_e::column::read_column;
+use crate::sig::rab_e::diagram::read_diagram;
 use crate::sig::rab_e::f_beam::read_fbeam;
 use crate::sig::rab_e::f_slab::read_fslab;
 use crate::sig::rab_e::found::read_found;
@@ -34,9 +35,12 @@ pub struct RabE {
     pub load: Vec<rab_e::load::Load>,
     pub poly: Vec<rab_e::poly::Poly>,
     pub node: Vec<rab_e::node::Node>,
+    pub diagram_force: Vec<rab_e::diagram::Diagram>,
+    pub diagram: Vec<rab_e::diagram::Diagram>,
     pub f_wall: Vec<rab_e::found::Found>,
     pub part: Vec<rab_e::part::Partition>,
     pub f_slab: Vec<rab_e::f_slab::FSlab>,
+    pub diagram_unc: Vec<rab_e::diagram::Diagram>,
     pub pile: Vec<rab_e::pile::Pile>,
     pub f_beam: Vec<rab_e::f_beam::FBeam>,
 }
@@ -47,6 +51,7 @@ impl HasWrite for RabE {
             out.push(0u8);
         };
         out.extend(&self.flag_line);
+        //add write source functions!
         //out.extend(offset(&self.source.len()).iter());
         //out.extend(&self.source);
         out
@@ -96,6 +101,12 @@ impl fmt::Display for RabE {
         for (count, v) in (&self.node).iter().enumerate() {
             write!(f, "\n   node   №{}: {}", count, v)?;
         }
+        for (count, v) in (&self.diagram_force).iter().enumerate() {
+            write!(f, "\n   diag f №{}: {}", count, v)?;
+        }
+        for (count, v) in (&self.diagram).iter().enumerate() {
+            write!(f, "\n   diag   №{}: {}", count, v)?;
+        }
         for (count, v) in (&self.f_wall).iter().enumerate() {
             write!(f, "\n   f wall №{}: {}", count, v)?;
         }
@@ -104,6 +115,9 @@ impl fmt::Display for RabE {
         }
         for (count, v) in (&self.f_slab).iter().enumerate() {
             write!(f, "\n   f slab №{}: {}", count, v)?;
+        }
+        for (count, v) in (&self.diagram_unc).iter().enumerate() {
+            write!(f, "\n   diag u №{}: {}", count, v)?;
         }
         for (count, v) in (&self.pile).iter().enumerate() {
             write!(f, "\n   pile   №{}: {}", count, v)?;
@@ -136,12 +150,15 @@ pub struct HeadEtazh {
     poly_num: u16,
     nodes_num: u16,
     wtf: u16,
-    ws2: [u8; 10],
+    ws2: [u8; 6], //10 -2 -2
+    diagrams_force_num: u16,
+    diagrams_num: u16,
     fwalls_num: u16,
     parts_num: u16,
     ws3: [u8; 8],
     fslabs_num: u16,
-    ws4: [u8; 4],
+    diagrams_unc_num: u16,
+    ws4: [u8; 2], //4 -2
     piles_num: u16,
     ws5: [u8; 4],
     fbeams_num: u16,
@@ -162,7 +179,7 @@ impl fmt::Display for HeadEtazh {
         )?;
         writeln!(
             f,
-            "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}   ",
+            "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}",
             &self.nodes_num,
             &self.fwalls_num,
             &self.parts_num,
@@ -172,7 +189,12 @@ impl fmt::Display for HeadEtazh {
         )?;
         write!(
             f,
-            "  num1: {}, num2: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
+            "  diagram forces: {}, diagrams: {}, nuc diagrams: {}, ",
+            &self.diagrams_force_num, &self.diagrams_num, &self.diagrams_unc_num,
+        )?;
+        write!(
+            f,
+            "num1: {}, num2: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
             &self.num1, &self.num2, &self.xm1, &self.xm2, &self.ym1, &self.ym2
         )
     }
@@ -195,9 +217,12 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
     let (i, load) = count(read_load, head.loads_num as usize)(i)?;
     let (i, poly) = count(read_poly, head.poly_num as usize)(i)?;
     let (i, node) = count(read_node, head.nodes_num as usize)(i)?;
+    let (i, diagram_force) = count(read_diagram, head.diagrams_force_num as usize)(i)?;
+    let (i, diagram) = count(read_diagram, head.diagrams_num as usize)(i)?;
     let (i, f_wall) = count(read_found, (head.fwalls_num / 2) as usize)(i)?;
     let (i, part) = count(read_part, head.parts_num as usize)(i)?;
     let (i, f_slab) = count(read_fslab, head.fslabs_num as usize)(i)?;
+    let (i, diagram_unc) = count(read_diagram, head.diagrams_unc_num as usize)(i)?;
     let (i, pile) = count(read_pile, head.piles_num as usize)(i)?;
     let (i, f_beam) = count(read_fbeam, head.fbeams_num as usize)(i)?;
     Ok((
@@ -213,6 +238,9 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
             load,
             poly,
             node,
+            diagram_force,
+            diagram,
+            diagram_unc,
             f_wall,
             part,
             f_slab,
@@ -241,12 +269,15 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
     let (i, poly_num) = le_u16(i)?;
     let (i, nodes_num) = le_u16(i)?;
     let (i, wtf) = le_u16(i)?;
-    let (i, ws2) = take(10u8)(i)?;
+    let (i, ws2) = take(6u8)(i)?; //10b -2 -2
+    let (i, diagrams_force_num) = le_u16(i)?;
+    let (i, diagrams_num) = le_u16(i)?;
     let (i, fwalls_num) = le_u16(i)?;
     let (i, parts_num) = le_u16(i)?;
     let (i, ws3) = take(8u8)(i)?;
     let (i, fslabs_num) = le_u16(i)?;
-    let (i, ws4) = take(4u8)(i)?;
+    let (i, diagrams_unc_num) = le_u16(i)?;
+    let (i, ws4) = take(2u8)(i)?; //4b -2
     let (i, piles_num) = le_u16(i)?;
     let (i, ws5) = take(4u8)(i)?;
     let (i, fbeams_num) = le_u16(i)?;
@@ -273,12 +304,15 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
             poly_num,
             nodes_num,
             wtf,
-            ws2: *array_ref!(ws2, 0, 10),
+            ws2: *array_ref!(ws2, 0, 6), //10 -2 -2
+            diagrams_force_num,
+            diagrams_num,
             fwalls_num,
             parts_num,
             ws3: *array_ref!(ws3, 0, 8),
             fslabs_num,
-            ws4: *array_ref!(ws4, 0, 4),
+            diagrams_unc_num,
+            ws4: *array_ref!(ws4, 0, 2), //4 -2
             piles_num,
             ws5: *array_ref!(ws5, 0, 4),
             fbeams_num,

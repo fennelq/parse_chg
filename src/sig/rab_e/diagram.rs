@@ -47,7 +47,7 @@ impl fmt::Display for Diagram {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "time {}, type {}, direction: {}, val: |{} - {}|, pos: |{} - {}|, {}<>{}",
+            "time {}, type {}, dir: {}, val: |{} - {}|, pos: |{} - {}|, |{} <-> {}|",
             &self.load_time,
             &self.force_type,
             &self.force_direction,
