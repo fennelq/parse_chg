@@ -3,6 +3,7 @@
 //! Каждый элемент массива - отдельный этаж, со всеми графическими элементами
 mod beam;
 mod column;
+mod diagram;
 mod f_beam;
 mod f_slab;
 mod found;
