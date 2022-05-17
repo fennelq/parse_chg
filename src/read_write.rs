@@ -95,7 +95,7 @@ pub fn write_recognize_sig() {
         };
         let building: &building_raw::Building = &read_file_raw(&input);
         let rab_e = building.rab_e[0].write();
-        let (_, sig) = rab_e.split_at(315 + 0);
+        let (_, sig) = rab_e.split_at(315 - 315);
         let path_buf = path_out
             .join(&input.file_stem().expect("write_error"))
             .with_extension("test");
@@ -115,7 +115,7 @@ pub fn write_recognize_sig() {
 /// Имя файла = название сигнатуры. BUILDING.chg = все здание = исходный файл.
 pub fn write_by_file_raw(building: &building_raw::Building) {
     let out = Path::new("out");
-    remove_dir_all(out).expect("remove dir error");
+    remove_dir_all(out).unwrap_or_default();
     create_dir(out).expect("create dir error");
     write_sig(building.barpbres_fe.as_ref());
     write_sig(building.bkngwl_bnw.as_ref());
