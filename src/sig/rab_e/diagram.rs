@@ -3,7 +3,7 @@
 use crate::sig::HasWrite;
 use nom::{
     bytes::complete::take,
-    number::complete::{le_f32, le_i16, le_u16, le_u32, le_u8},
+    number::complete::{le_f32, le_i16, le_u8},
     IResult,
 };
 use std::fmt;
