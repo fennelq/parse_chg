@@ -15,6 +15,7 @@ mod pile;
 mod poly;
 mod sec;
 mod slab;
+mod sigs_raw;
 mod wall;
 
 pub mod rab_e;

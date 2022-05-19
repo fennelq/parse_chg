@@ -20,6 +20,7 @@ use crate::sig::rab_e::node::read_node;
 use crate::sig::rab_e::part::read_part;
 use crate::sig::rab_e::pile::read_pile;
 use crate::sig::rab_e::poly::read_poly;
+use crate::sig::rab_e::sigs_raw::{read_sig1, read_sig2, read_sig3, read_sig4, read_sig5};
 use crate::sig::rab_e::slab::read_slab;
 use crate::sig::rab_e::wall::read_wall;
 
@@ -35,10 +36,15 @@ pub struct RabE {
     pub load: Vec<rab_e::load::Load>,
     pub poly: Vec<rab_e::poly::Poly>,
     pub node: Vec<rab_e::node::Node>,
+    pub sig_1: Vec<rab_e::sigs_raw::Sig1>,
+    pub sig_2: Vec<rab_e::sigs_raw::Sig2>,
+    pub sig_3: Vec<rab_e::sigs_raw::Sig3>,
+    pub sig_4: Vec<rab_e::sigs_raw::Sig4>,
     pub diagram_force: Vec<rab_e::diagram::Diagram>,
     pub diagram: Vec<rab_e::diagram::Diagram>,
     pub f_wall: Vec<rab_e::found::Found>,
     pub part: Vec<rab_e::part::Partition>,
+    pub sig_5: Vec<rab_e::sigs_raw::Sig5>,
     pub f_slab: Vec<rab_e::f_slab::FSlab>,
     pub diagram_unc: Vec<rab_e::diagram::Diagram>,
     pub pile: Vec<rab_e::pile::Pile>,
@@ -149,16 +155,19 @@ pub struct HeadEtazh {
     loads_num: u16,
     poly_num: u16,
     nodes_num: u16,
-    wtf: u16,
-    ws2: [u8; 6], //10 -2 -2
+    sig_1_num: u16,
+    sig_2_num: u16,
+    sig_3_num: u16,
+    sig_4_num: u16,
     diagrams_force_num: u16,
     diagrams_num: u16,
     fwalls_num: u16,
     parts_num: u16,
-    ws3: [u8; 8],
+    sig_5_num: u16,
+    ws3: [u8; 6],
     fslabs_num: u16,
     diagrams_unc_num: u16,
-    ws4: [u8; 2], //4 -2
+    ws4: [u8; 2],
     piles_num: u16,
     ws5: [u8; 4],
     fbeams_num: u16,
@@ -178,6 +187,16 @@ impl fmt::Display for HeadEtazh {
             &self.poly_num
         )?;
         writeln!(
+            f,
+            "nodes: {}, sig1: {}, sig2: {}, sig3: {}, sig4: {}, sig5: {}",
+            &self.nodes_num,
+            &self.sig_1_num,
+            &self.sig_2_num,
+            &self.sig_3_num,
+            &self.sig_4_num,
+            &self.sig_5_num
+        )?;
+        write!(
             f,
             "nodes: {}, fwalls: {}, parts: {}, fslabs: {}, piles: {}, fbeam: {}",
             &self.nodes_num,
@@ -217,10 +236,15 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
     let (i, load) = count(read_load, head.loads_num as usize)(i)?;
     let (i, poly) = count(read_poly, head.poly_num as usize)(i)?;
     let (i, node) = count(read_node, head.nodes_num as usize)(i)?;
+    let (i, sig_1) = count(read_sig1, head.sig_1_num as usize)(i)?;
+    let (i, sig_2) = count(read_sig2, head.sig_2_num as usize)(i)?;
+    let (i, sig_3) = count(read_sig3, head.sig_3_num as usize)(i)?;
+    let (i, sig_4) = count(read_sig4, head.sig_4_num as usize)(i)?;
     let (i, diagram_force) = count(read_diagram, head.diagrams_force_num as usize)(i)?;
     let (i, diagram) = count(read_diagram, head.diagrams_num as usize)(i)?;
     let (i, f_wall) = count(read_found, (head.fwalls_num / 2) as usize)(i)?;
     let (i, part) = count(read_part, head.parts_num as usize)(i)?;
+    let (i, sig_5) = count(read_sig5, head.sig_5_num as usize)(i)?;
     let (i, f_slab) = count(read_fslab, head.fslabs_num as usize)(i)?;
     let (i, diagram_unc) = count(read_diagram, head.diagrams_unc_num as usize)(i)?;
     let (i, pile) = count(read_pile, head.piles_num as usize)(i)?;
@@ -238,11 +262,16 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
             load,
             poly,
             node,
+            sig_1,
+            sig_2,
+            sig_3,
+            sig_4,
             diagram_force,
             diagram,
             diagram_unc,
             f_wall,
             part,
+            sig_5,
             f_slab,
             pile,
             f_beam,
@@ -268,16 +297,19 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
     let (i, loads_num) = le_u16(i)?;
     let (i, poly_num) = le_u16(i)?;
     let (i, nodes_num) = le_u16(i)?;
-    let (i, wtf) = le_u16(i)?;
-    let (i, ws2) = take(6u8)(i)?; //10b -2 -2
+    let (i, sig_1_num) = le_u16(i)?;
+    let (i, sig_2_num) = le_u16(i)?;
+    let (i, sig_3_num) = le_u16(i)?;
+    let (i, sig_4_num) = le_u16(i)?;
     let (i, diagrams_force_num) = le_u16(i)?;
     let (i, diagrams_num) = le_u16(i)?;
     let (i, fwalls_num) = le_u16(i)?;
     let (i, parts_num) = le_u16(i)?;
-    let (i, ws3) = take(8u8)(i)?;
+    let (i, sig_5_num) = le_u16(i)?;
+    let (i, ws3) = take(6u8)(i)?;
     let (i, fslabs_num) = le_u16(i)?;
     let (i, diagrams_unc_num) = le_u16(i)?;
-    let (i, ws4) = take(2u8)(i)?; //4b -2
+    let (i, ws4) = take(2u8)(i)?;
     let (i, piles_num) = le_u16(i)?;
     let (i, ws5) = take(4u8)(i)?;
     let (i, fbeams_num) = le_u16(i)?;
@@ -303,16 +335,19 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
             loads_num,
             poly_num,
             nodes_num,
-            wtf,
-            ws2: *array_ref!(ws2, 0, 6), //10 -2 -2
+            sig_1_num,
+            sig_2_num,
+            sig_3_num,
+            sig_4_num,
             diagrams_force_num,
             diagrams_num,
             fwalls_num,
             parts_num,
-            ws3: *array_ref!(ws3, 0, 8),
+            sig_5_num,
+            ws3: *array_ref!(ws3, 0, 6),
             fslabs_num,
             diagrams_unc_num,
-            ws4: *array_ref!(ws4, 0, 2), //4 -2
+            ws4: *array_ref!(ws4, 0, 2),
             piles_num,
             ws5: *array_ref!(ws5, 0, 4),
             fbeams_num,
