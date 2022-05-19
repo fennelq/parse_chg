@@ -31,7 +31,7 @@ pub struct Slab {
     emerge: u8,   //Появляется после. 0=всего здания, 1=этажа N, 2=своего этажа
     em_etazh: u8, //Появляется после этажа N
     //58b
-    ws: Vec<u8>,       //103b
+    ws: Vec<u8>,       //85b
     load_vec: Vec<u8>, //0b без расчета, 24b расчетб МКЭ
 }
 impl HasWrite for Slab {
@@ -59,6 +59,7 @@ impl HasWrite for Slab {
         out.extend(&self.emerge.to_le_bytes());
         out.extend(&self.em_etazh.to_le_bytes());
         out.extend(&self.ws[27..85]);
+        out.extend(&self.load_vec);
         out
     }
     fn name(&self) -> &str {
@@ -97,7 +98,11 @@ pub fn read_slab(i: &[u8]) -> IResult<&[u8], Slab> {
     let (i, emerge) = le_u8(i)?;
     let (i, em_etazh) = le_u8(i)?;
     let (i, ws5) = take(58u8)(i)?;
-    let (i, load_vec) = take(8 * unc_num)(i)?; //DANGER!
+    let mut last = 0u8;
+    if unc_num as usize == 3 {
+        last = 24u8
+    }
+    let (i, load_vec) = take(last)(i)?;
     let load_vec = load_vec.to_vec();
     let mut ws = ws1.to_vec();
     ws.extend_from_slice(ws2);
@@ -198,7 +203,7 @@ fn slab_dabble_2_test() {
 fn part_test() {
     test_slab("test_sig/slabs/s_slab.test");
 }
-/*#[test]
+#[test]
 fn s_slab_full_value_test() {
     use std::io::Read;
     let path = std::path::Path::new("test_sig/slabs/s_slab.test");
@@ -211,25 +216,38 @@ fn s_slab_full_value_test() {
     if let Err(why) = file.read_to_end(&mut original_in) {
         panic!("couldn't read {}: {}", display, why)
     };
-    let (_, slab) = read_slab(&original_in).expect("couldn't read_column");
+    let (_, slab) = read_slab(&original_in).expect("couldn't read_slab");
     let mut ws = vec![];
-    for i in 1..=103 {
+    for i in 1..=85 {
         ws.push(i);
     }
+    let mut load_vec: Vec<u8> = vec![];
+    load_vec.extend(1.1f32.to_le_bytes());
+    load_vec.extend(2.2f32.to_le_bytes());
+    load_vec.extend(3.3f32.to_le_bytes());
+    load_vec.extend(1.1f32.to_le_bytes());
+    load_vec.extend(2.2f32.to_le_bytes());
+    load_vec.extend(3.3f32.to_le_bytes());
     let c_slab = Slab {
         bf: 8u8,
-        b: 22f32,
+        b: 60.000_004f32,
+        area: 3.999_998_3f32,
+        wtf1: 2f32,
         poly_from: 0u16,
         poly_to: 0u16,
         poly_num: 1u16,
-        c_load: 0.12f32,
-        l_load: 0.13f32,
-        s_load: 0.14f32,
-        cons_1: 1u16,
+        c_load: 1.1f32,
+        l_load: 2.2f32,
+        s_load: 3.3f32,
+        wtf2: 0.005f32,
+        unc_num: 3u16,
+        cons_1: 769u16, // !
         mat: 1u16,
+        wtf3: 95.659_966f32,
         emerge: 0u8,
         em_etazh: 0u8,
         ws,
+        load_vec,
     };
     assert_eq!(slab.write(), c_slab.write())
-}*/
+}
