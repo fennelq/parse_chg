@@ -175,18 +175,9 @@ pub fn read_column(i: &[u8]) -> IResult<&[u8], Column> {
 }
 
 #[cfg(test)]
-fn test_column(s: &str) {
-    use std::io::Read;
-    let path = std::path::Path::new(s);
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+fn test_column(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
     let (_, column) = read_column(&original_in).expect("couldn't read_column");
     assert_eq!(original_in, column.write());
 }
@@ -298,20 +289,10 @@ fn p_column_shelves_test() {
 fn s_column_rectangle_test() {
     test_column("test_sig/columns/s_column_rectangle.test");
 }
-
 #[test]
 fn s_column_full_value_test() {
-    use std::io::Read;
-    let path = std::path::Path::new("test_sig/columns/s_column_rectangle.test");
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/columns/s_column_rectangle.test");
     let (_, column) = read_column(&original_in).expect("couldn't read_column");
     let sec_vec = vec![1, 0, 216, 67, 0, 0, 90, 67, 3, 0, 0u8];
     let (_, sec) = read_sec(&sec_vec, 1).expect("error sec_vec");

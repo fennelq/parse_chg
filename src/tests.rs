@@ -36,4 +36,19 @@ mod complex_tests {
 }
 
 #[cfg(test)]
-mod rab_e_sig_test {}
+pub mod rab_e_sig_test {
+    pub fn read_test_sig(path_str: &str) -> Vec<u8> {
+        use std::io::Read;
+        let path = std::path::Path::new(path_str);
+        let display = path.display();
+        let mut file = match std::fs::File::open(&path) {
+            Err(why) => panic!("couldn't open {}: {}", display, why),
+            Ok(file) => file,
+        };
+        let mut original_in: Vec<u8> = vec![];
+        if let Err(why) = file.read_to_end(&mut original_in) {
+            panic!("couldn't read {}: {}", display, why)
+        };
+        original_in
+    }
+}

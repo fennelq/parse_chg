@@ -59,26 +59,6 @@ impl fmt::Display for RabERaw {
         write!(f, "source.len: {}", &self.source.len())
     }
 }
-/*named!(pub read_rab_e_raw<&[u8], Vec<RabERaw> >,
-    complete!(
-        many1!(
-            do_parse!(
-                tag!("rab.e")               >>
-                num1: le_u8                 >>
-                num2: le_u8                 >>
-                flag_line: take!(6)         >>
-                offset: le_u64              >>
-                source: take!(offset)       >>
-                (RabERaw {
-                    flag_line: *array_ref!(flag_line, 0 ,6),
-                    source: source.to_vec(),
-                    name: [114,97,98,46,101,num1,num2]
-                })
-            )
-        )
-    )
-);*/
-
 pub fn read_rab_e_raw(i: &[u8]) -> IResult<&[u8], Vec<RabERaw>> {
     let (i, etazh) = many1(read_etazh)(i)?;
     Ok((i, etazh))

@@ -360,18 +360,9 @@ fn read_fslab_type(i: &[u8], type_base: u8) -> IResult<&[u8], FSlabType> {
 }
 
 #[cfg(test)]
-fn test_fslab(s: &str) {
-    use std::io::Read;
-    let path = std::path::Path::new(s);
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+fn test_fslab(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
     let (_, fslab) = read_fslab(&original_in).expect("couldn't read_fslab");
     assert_eq!(original_in, fslab.write());
 }
@@ -429,17 +420,8 @@ fn s_f_slab_test() {
 }
 #[test]
 fn s_fslab_full_value_test() {
-    use std::io::Read;
-    let path = std::path::Path::new("test_sig/f_slabs/s_f_slab_f_all_NC.test");
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/f_slabs/s_f_slab_f_all_NC.test");
     let (_, fslab) = read_fslab(&original_in).expect("couldn't read_fslab");
     let mut ws = vec![];
     for i in 1..=95 {

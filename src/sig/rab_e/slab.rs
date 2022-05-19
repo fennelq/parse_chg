@@ -1,10 +1,12 @@
 //! Плиты перекрытия
+use crate::sig::rab_e::sec::BoxSec;
 use crate::sig::HasWrite;
 use nom::{
     bytes::complete::take,
     number::complete::{le_f32, le_u16, le_u8},
     IResult,
 };
+use std::borrow::Borrow;
 use std::fmt;
 
 #[derive(Debug)]
@@ -136,18 +138,9 @@ pub fn read_slab(i: &[u8]) -> IResult<&[u8], Slab> {
 }
 
 #[cfg(test)]
-fn test_slab(s: &str) {
-    use std::io::Read;
-    let path = std::path::Path::new(s);
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+fn test_slab(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
     let (_, slab) = read_slab(&original_in).expect("couldn't read_slab");
     assert_eq!(original_in, slab.write());
 }
@@ -205,17 +198,8 @@ fn part_test() {
 }
 #[test]
 fn s_slab_full_value_test() {
-    use std::io::Read;
-    let path = std::path::Path::new("test_sig/slabs/s_slab.test");
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/slabs/s_slab.test");
     let (_, slab) = read_slab(&original_in).expect("couldn't read_slab");
     let mut ws = vec![];
     for i in 1..=85 {

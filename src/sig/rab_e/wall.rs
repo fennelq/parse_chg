@@ -222,18 +222,9 @@ pub fn read_wall(i: &[u8]) -> IResult<&[u8], Wall> {
 }
 
 #[cfg(test)]
-fn test_wall(s: &str) {
-    use std::io::Read;
-    let path = std::path::Path::new(s);
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+fn test_wall(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
     let (_, wall) = read_wall(&original_in).expect("couldn't read_wall");
     assert_eq!(original_in, wall.write());
 }
@@ -341,20 +332,10 @@ fn p_wall_opening_1_test() {
 fn s_wall_test() {
     test_wall("test_sig/walls/S_wall.test");
 }
-
 #[test]
 fn s_wall_full_value_test() {
-    use std::io::Read;
-    let path = std::path::Path::new("test_sig/walls/S_wall.test");
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/walls/S_wall.test");
     let (_, wall) = read_wall(&original_in).expect("couldn't read_wall");
     let c_wall = Wall {
         p1: Point {

@@ -90,18 +90,9 @@ pub fn read_load(i: &[u8]) -> IResult<&[u8], Load> {
     ))
 }
 #[cfg(test)]
-fn test_load(s: &str) {
-    use std::io::Read;
-    let path = std::path::Path::new(s);
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+fn test_load(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
     let (_, load) = read_load(&original_in).expect("couldn't read_load");
     assert_eq!(original_in, load.write());
 }
@@ -175,17 +166,8 @@ fn s_load_point_hor_test() {
 }
 #[test]
 fn s_node_full_value_test() {
-    use std::io::Read;
-    let path = std::path::Path::new("test_sig/loads/s_load_point_hor.test");
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/loads/s_load_point_hor.test");
     let (_, load) = read_load(&original_in).expect("couldn't read_node");
     let mut ws = vec![];
     for i in 1..=9 {

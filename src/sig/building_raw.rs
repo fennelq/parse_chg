@@ -263,7 +263,7 @@ pub fn read_original(i: &[u8]) -> IResult<&[u8], Building> {
             procalc_set,
             prores_use,
             rab_a0,
-            rab_e: rab_e.unwrap_or_else(|| vec![]), //Vec rab.e
+            rab_e: rab_e.unwrap_or_default(), //Vec rab.e
             rab_o0,
             rab_sdr,
             rab_zag,

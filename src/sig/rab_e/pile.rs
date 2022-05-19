@@ -232,19 +232,10 @@ pub fn read_pile(i: &[u8]) -> IResult<&[u8], Pile> {
 }
 
 #[cfg(test)]
-fn test_pile(s: &str) {
-    use std::io::Read;
-    let path = std::path::Path::new(s);
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
-    let (_, pile) = read_pile(&original_in).expect("couldn't read_column");
+fn test_pile(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
+    let (_, pile) = read_pile(&original_in).expect("couldn't read_pile");
     assert_eq!(original_in, pile.write());
 }
 #[test]
@@ -277,17 +268,8 @@ fn s_pile_test() {
 }
 #[test]
 fn s_piles_full_value_test() {
-    use std::io::Read;
-    let path = std::path::Path::new("test_sig/piles/s_piles.test");
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/piles/s_piles.test");
     let (_, pile) = read_pile(&original_in).expect("couldn't read_pile");
     let mut ws = vec![];
     for i in 1..=17 {

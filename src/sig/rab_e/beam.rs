@@ -114,19 +114,10 @@ pub fn read_beam(i: &[u8]) -> IResult<&[u8], Beam> {
 }
 
 #[cfg(test)]
-fn test_beam(s: &str) {
-    use std::io::Read;
-    let path = std::path::Path::new(s);
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
-    let (_, beam) = read_beam(&original_in).expect("couldn't read_column");
+fn test_beam(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
+    let (_, beam) = read_beam(&original_in).expect("couldn't read_beam");
     assert_eq!(original_in, beam.write());
 }
 #[test]
@@ -197,20 +188,10 @@ fn beam_shelves_up_test() {
 fn s_beam_rectangle() {
     test_beam("test_sig/beams/s_beam_rectangle.test");
 }
-
 #[test]
 fn s_beam_full_value_test() {
-    use std::io::Read;
-    let path = std::path::Path::new("test_sig/beams/s_beam_rectangle.test");
-    let display = path.display();
-    let mut file = match std::fs::File::open(&path) {
-        Err(why) => panic!("couldn't open {}: {}", display, why),
-        Ok(file) => file,
-    };
-    let mut original_in: Vec<u8> = vec![];
-    if let Err(why) = file.read_to_end(&mut original_in) {
-        panic!("couldn't read {}: {}", display, why)
-    };
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/beams/s_beam_rectangle.test");
     let (_, beam) = read_beam(&original_in).expect("couldn't read_beam");
     let sec_vec = vec![0, 0, 76, 66, 1, 0, 170, 66, 3, 0, 0u8];
     let (_, sec) = read_sec(&sec_vec, 1).expect("error sec_vec");
