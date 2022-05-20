@@ -242,7 +242,7 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
     let (i, sig_4) = count(read_sig4, head.sig_4_num as usize)(i)?;
     let (i, diagram_force) = count(read_diagram, head.diagrams_force_num as usize)(i)?;
     let (i, diagram) = count(read_diagram, head.diagrams_num as usize)(i)?;
-    let (i, f_wall) = count(read_found, (head.fwalls_num / 2) as usize)(i)?;
+    let (i, f_wall) = count(read_found, (head.fwalls_num) as usize)(i)?;
     let (i, part) = count(read_part, head.parts_num as usize)(i)?;
     let (i, sig_5) = count(read_sig5, head.sig_5_num as usize)(i)?;
     let (i, f_slab) = count(read_fslab, head.fslabs_num as usize)(i)?;
