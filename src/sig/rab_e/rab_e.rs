@@ -195,7 +195,7 @@ impl fmt::Display for HeadEtazh {
         )?;
         write!(
             f,
-            "nodes: {}, sig1: {}, sig2: {}, sig3: {}, sig4: {}, sig5: {}",
+            "nodes: {}, sig1: {}, sig2: {}, sig3: {}, sig4: {}, sig5: {}, ",
             &self.nodes_num,
             &self.sig_1_num,
             &self.sig_2_num,
@@ -218,8 +218,8 @@ impl fmt::Display for HeadEtazh {
         )?;
         write!(
             f,
-            "num1: {}, num2: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
-            &self.num1, &self.num2, &self.xm1, &self.xm2, &self.ym1, &self.ym2
+            "num1: {}, num2: {}, num3: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
+            &self.num1, &self.num2, &self.num3, &self.xm1, &self.xm2, &self.ym1, &self.ym2
         )
     }
 }
@@ -255,6 +255,7 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
     let (i, diagram_unc) = count(read_diagram, head.diagrams_unc_num as usize)(i)?;
     let (i, pile) = count(read_pile, head.piles_num as usize)(i)?;
     let (i, f_beam) = count(read_fbeam, head.fbeams_num as usize)(i)?;
+    //let (i, _) = take(58u8)(i)?; Add signature
     Ok((
         i,
         RabE {

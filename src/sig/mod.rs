@@ -35,6 +35,7 @@ mod rigids_fe;
 mod rzagnums_fe;
 mod seism_rsp;
 mod slits_slt;
+mod sltwlexp_grp;
 mod szinfo_szi;
 mod vnum_fe;
 mod wallascn_uni;

@@ -31,6 +31,7 @@ use crate::sig::rigids_fe::read_rigids_fe;
 use crate::sig::rzagnums_fe::read_rzagnums_fe;
 use crate::sig::seism_rsp::read_seism_rsp;
 use crate::sig::slits_slt::read_slits_slt;
+use crate::sig::sltwlexp_grp::read_sltwlexp_grp;
 use crate::sig::szinfo_szi::read_szinfo_szi;
 use crate::sig::vnum_fe::read_vnum_fe;
 use crate::sig::wallascn_uni::read_wallascn_uni;
@@ -76,6 +77,7 @@ pub struct Building {
     pub rzagnums_fe: Option<rzagnums_fe::RzagnumsFe>,
     pub seism_rsp: Option<seism_rsp::SeismRsp>,
     pub slits_slt: Option<slits_slt::SlitsSlt>,
+    pub sltwlexp_grp: Option<sltwlexp_grp::SltwlexpGrp>,
     pub szinfo_szi: Option<szinfo_szi::SzinfoSzi>,
     pub vnum_fe: Option<vnum_fe::VnumFe>,
     pub wallascn_uni: Option<wallascn_uni::WallascnUni>,
@@ -125,6 +127,7 @@ impl HasWrite for Building {
         out.extend(trans_to_vec(&self.rzagnums_fe));
         out.extend(trans_to_vec(&self.seism_rsp));
         out.extend(trans_to_vec(&self.slits_slt));
+        out.extend(trans_to_vec(&self.sltwlexp_grp));
         out.extend(trans_to_vec(&self.szinfo_szi));
         out.extend(trans_to_vec(&self.vnum_fe));
         out.extend(trans_to_vec(&self.wallascn_uni));
@@ -175,6 +178,7 @@ impl fmt::Display for Building {
         trans_writeln(f, &self.rzagnums_fe)?;
         trans_writeln(f, &self.seism_rsp)?;
         trans_writeln(f, &self.slits_slt)?;
+        trans_writeln(f, &self.sltwlexp_grp)?;
         trans_writeln(f, &self.szinfo_szi)?;
         trans_writeln(f, &self.vnum_fe)?;
         trans_writeln(f, &self.wallascn_uni)?;
@@ -231,6 +235,7 @@ pub fn read_original(i: &[u8]) -> IResult<&[u8], Building> {
     let (i, rzagnums_fe) = opt(read_rzagnums_fe)(i)?;
     let (i, seism_rsp) = opt(read_seism_rsp)(i)?;
     let (i, slits_slt) = opt(read_slits_slt)(i)?;
+    let (i, sltwlexp_grp) = opt(read_sltwlexp_grp)(i)?;
     let (i, szinfo_szi) = opt(read_szinfo_szi)(i)?;
     let (i, vnum_fe) = opt(read_vnum_fe)(i)?;
     let (i, wallascn_uni) = opt(read_wallascn_uni)(i)?;
@@ -273,6 +278,7 @@ pub fn read_original(i: &[u8]) -> IResult<&[u8], Building> {
             rzagnums_fe,
             seism_rsp,
             slits_slt,
+            sltwlexp_grp,
             szinfo_szi,
             vnum_fe,
             wallascn_uni,

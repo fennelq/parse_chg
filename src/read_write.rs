@@ -95,7 +95,7 @@ pub fn write_recognize_sig() {
         };
         let building: &building_raw::Building = &read_file_raw(&input);
         let rab_e = building.rab_e[0].write();
-        let (_, sig) = rab_e.split_at(315 - 315);
+        let (_, sig) = rab_e.split_at(6199);
         let path_buf = path_out
             .join(&input.file_stem().expect("write_error"))
             .with_extension("test");
@@ -151,6 +151,7 @@ pub fn write_by_file_raw(building: &building_raw::Building) {
     write_sig(building.rzagnums_fe.as_ref());
     write_sig(building.seism_rsp.as_ref());
     write_sig(building.slits_slt.as_ref());
+    write_sig(building.sltwlexp_grp.as_ref());
     write_sig(building.szinfo_szi.as_ref());
     write_sig(building.vnum_fe.as_ref());
     write_sig(building.wallascn_uni.as_ref());
