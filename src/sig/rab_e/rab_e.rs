@@ -22,6 +22,9 @@ use crate::sig::rab_e::pile::read_pile;
 use crate::sig::rab_e::poly::read_poly;
 use crate::sig::rab_e::sigs_raw::{read_sig1, read_sig2, read_sig3, read_sig4, read_sig5};
 use crate::sig::rab_e::slab::read_slab;
+use crate::sig::rab_e::unification_found::read_unification_found;
+use crate::sig::rab_e::unification_slab::read_unification_slab;
+use crate::sig::rab_e::unification_wall_slit::read_unification_wall_slit;
 use crate::sig::rab_e::wall::read_wall;
 
 #[derive(Debug)]
@@ -46,9 +49,13 @@ pub struct RabE {
     pub part: Vec<rab_e::part::Partition>,
     pub sig_5: Vec<rab_e::sigs_raw::Sig5>,
     pub diagram_wind_force: Vec<rab_e::diagram::Diagram>,
+    pub unification_slab: Vec<rab_e::unification_slab::UnificationSlab>,
     pub f_slab: Vec<rab_e::f_slab::FSlab>,
     pub diagram_unc: Vec<rab_e::diagram::Diagram>,
+    pub unification_found: Vec<rab_e::unification_found::UnificationFound>,
     pub pile: Vec<rab_e::pile::Pile>,
+    pub unification_wall_slits: Vec<rab_e::unification_wall_slit::UnificationWallSlit>,
+    pub unification_fslab: Vec<rab_e::unification_slab::UnificationSlab>,
     pub f_beam: Vec<rab_e::f_beam::FBeam>,
 }
 impl HasWrite for RabE {
@@ -126,11 +133,23 @@ impl fmt::Display for RabE {
         for (count, v) in (&self.diagram_wind_force).iter().enumerate() {
             write!(f, "\n   diag w №{}: {}", count, v)?;
         }
+        for (count, v) in (&self.unification_slab).iter().enumerate() {
+            write!(f, "\n   uni s  №{}: {}", count, v)?;
+        }
         for (count, v) in (&self.diagram_unc).iter().enumerate() {
             write!(f, "\n   diag u №{}: {}", count, v)?;
         }
+        for (count, v) in (&self.unification_found).iter().enumerate() {
+            write!(f, "\n   uni f  №{}: {}", count, v)?;
+        }
         for (count, v) in (&self.pile).iter().enumerate() {
             write!(f, "\n   pile   №{}: {}", count, v)?;
+        }
+        for (count, v) in (&self.unification_wall_slits).iter().enumerate() {
+            write!(f, "\n   uni ws №{}: {}", count, v)?;
+        }
+        for (count, v) in (&self.unification_fslab).iter().enumerate() {
+            write!(f, "\n   uni fs №{}: {}", count, v)?;
         }
         for (count, v) in (&self.f_beam).iter().enumerate() {
             write!(f, "\n   f beam №{}: {}", count, v)?;
@@ -151,7 +170,7 @@ pub struct HeadEtazh {
     xm2: f32,
     ym2: f32,
     c_sum: [u8; 4], //контрольная сумма?
-    num3: u16,
+    slab_alignment: u16,
     ws1_2: [u8; 13],
     columns_num: u16,
     walls_num: u16,
@@ -171,12 +190,13 @@ pub struct HeadEtazh {
     sig_5_num: u16,
     ws3: [u8; 2],
     diagrams_wind_force_num: u16,
-    ws3_2: [u8; 2],
+    unification_slabs_num: u16,
     fslabs_num: u16,
     diagrams_unc_num: u16,
-    ws4: [u8; 2],
+    unification_founds_num: u16,
     piles_num: u16,
-    ws5: [u8; 4],
+    unification_wall_slits_num: u16,
+    unification_fslabs_num: u16,
     fbeams_num: u16,
     ws6: Vec<u8>, //180
 }
@@ -216,10 +236,24 @@ impl fmt::Display for HeadEtazh {
             &self.diagrams_wind_force_num,
             &self.diagrams_unc_num,
         )?;
+        writeln!(
+            f,
+            "num1: {}, num2: {}, align: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
+            &self.num1,
+            &self.num2,
+            &self.slab_alignment,
+            &self.xm1,
+            &self.xm2,
+            &self.ym1,
+            &self.ym2
+        )?;
         write!(
             f,
-            "num1: {}, num2: {}, num3: {}, xm1:{}, xm2:{}, ym1:{}, ym2:{}",
-            &self.num1, &self.num2, &self.num3, &self.xm1, &self.xm2, &self.ym1, &self.ym2
+            "  uni slabs: {}, uni founds: {}, uni wall as slits: {}, uni fslabs: {}, ",
+            &self.unification_slabs_num,
+            &self.unification_founds_num,
+            &self.unification_wall_slits_num,
+            &self.unification_fslabs_num,
         )
     }
 }
@@ -251,11 +285,20 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
     let (i, part) = count(read_part, head.parts_num as usize)(i)?;
     let (i, sig_5) = count(read_sig5, head.sig_5_num as usize)(i)?;
     let (i, diagram_wind_force) = count(read_diagram, head.diagrams_wind_force_num as usize)(i)?;
+    let (i, unification_slab) =
+        count(read_unification_slab, head.unification_slabs_num as usize)(i)?;
     let (i, f_slab) = count(read_fslab, head.fslabs_num as usize)(i)?;
     let (i, diagram_unc) = count(read_diagram, head.diagrams_unc_num as usize)(i)?;
+    let (i, unification_found) =
+        count(read_unification_found, head.unification_founds_num as usize)(i)?;
     let (i, pile) = count(read_pile, head.piles_num as usize)(i)?;
+    let (i, unification_wall_slits) = count(
+        read_unification_wall_slit,
+        head.unification_wall_slits_num as usize,
+    )(i)?;
+    let (i, unification_fslab) =
+        count(read_unification_slab, head.unification_fslabs_num as usize)(i)?;
     let (i, f_beam) = count(read_fbeam, head.fbeams_num as usize)(i)?;
-    //let (i, _) = take(58u8)(i)?; Add signature
     Ok((
         i,
         RabE {
@@ -275,13 +318,17 @@ fn read_rab_e_etazh(i: &[u8]) -> IResult<&[u8], RabE> {
             sig_4,
             diagram_force,
             diagram,
-            diagram_unc,
             f_wall,
             part,
             sig_5,
             diagram_wind_force,
+            unification_slab,
             f_slab,
+            diagram_unc,
+            unification_found,
             pile,
+            unification_wall_slits,
+            unification_fslab,
             f_beam,
         },
     ))
@@ -297,7 +344,7 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
     let (i, xm2) = le_f32(i)?;
     let (i, ym2) = le_f32(i)?;
     let (i, c_sum) = take(4u8)(i)?;
-    let (i, num3) = le_u16(i)?;
+    let (i, slab_alignment) = le_u16(i)?;
     let (i, ws1_2) = take(13u8)(i)?;
     let (i, columns_num) = le_u16(i)?;
     let (i, walls_num) = le_u16(i)?;
@@ -317,12 +364,13 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
     let (i, sig_5_num) = le_u16(i)?;
     let (i, ws3) = take(2u8)(i)?;
     let (i, diagrams_wind_force_num) = le_u16(i)?;
-    let (i, ws3_2) = take(2u8)(i)?;
+    let (i, unification_slabs_num) = le_u16(i)?;
     let (i, fslabs_num) = le_u16(i)?;
     let (i, diagrams_unc_num) = le_u16(i)?;
-    let (i, ws4) = take(2u8)(i)?;
+    let (i, unification_founds_num) = le_u16(i)?;
     let (i, piles_num) = le_u16(i)?;
-    let (i, ws5) = take(4u8)(i)?;
+    let (i, unification_wall_slits_num) = le_u16(i)?;
+    let (i, unification_fslabs_num) = le_u16(i)?;
     let (i, fbeams_num) = le_u16(i)?;
     let (i, ws6) = take(180u8)(i)?;
     Ok((
@@ -338,7 +386,7 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
             xm2,
             ym2,
             c_sum: *array_ref!(c_sum, 0, 4),
-            num3,
+            slab_alignment,
             ws1_2: *array_ref!(ws1_2, 0, 13),
             columns_num,
             walls_num,
@@ -358,12 +406,13 @@ fn read_head(i: &[u8]) -> IResult<&[u8], HeadEtazh> {
             sig_5_num,
             ws3: *array_ref!(ws3, 0, 2),
             diagrams_wind_force_num,
-            ws3_2: *array_ref!(ws3_2, 0, 2),
+            unification_slabs_num,
             fslabs_num,
             diagrams_unc_num,
-            ws4: *array_ref!(ws4, 0, 2),
+            unification_founds_num,
             piles_num,
-            ws5: *array_ref!(ws5, 0, 4),
+            unification_wall_slits_num,
+            unification_fslabs_num,
             fbeams_num,
             ws6: ws6.to_vec(),
         },
