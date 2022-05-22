@@ -9,8 +9,8 @@ pub struct UnificationSlab {
     unification_group: u16, //Номер группы унификаций
     amount: u16,            //Количество элементов в группе унификаций
     //40b WS
-    element_num: Vec<u16>, //Вектор номеров элементов в группе
-    ws: Vec<u8>,           //40b
+    elements: Vec<u16>, //Вектор номеров элементов в группе
+    ws: Vec<u8>,        //40b
 }
 impl HasWrite for UnificationSlab {
     fn write(&self) -> Vec<u8> {
@@ -18,7 +18,7 @@ impl HasWrite for UnificationSlab {
         out.extend(&self.unification_group.to_le_bytes());
         out.extend(&self.amount.to_le_bytes());
         out.extend(&self.ws[0..40]);
-        for i in &self.element_num {
+        for i in &self.elements {
             out.extend(&i.to_le_bytes());
         }
         out
@@ -41,14 +41,14 @@ pub fn read_unification_slab(i: &[u8]) -> IResult<&[u8], UnificationSlab> {
     let (i, unification_group) = le_u16(i)?;
     let (i, amount) = le_u16(i)?;
     let (i, ws) = take(40u8)(i)?; //40b WS
-    let (i, element_num) = count(le_u16, amount as usize)(i)?;
+    let (i, elements) = count(le_u16, amount as usize)(i)?;
     let ws = ws.to_vec();
     Ok((
         i,
         UnificationSlab {
             unification_group,
             amount,
-            element_num,
+            elements,
             ws,
         },
     ))
@@ -83,7 +83,7 @@ fn s_unification_slab_full_value_test() {
     let c_unification = UnificationSlab {
         unification_group: 1u16,
         amount: 2u16,
-        element_num: vec![0u16, 1u16],
+        elements: vec![0u16, 1u16],
         ws,
     };
     assert_eq!(unification.write(), c_unification.write())
