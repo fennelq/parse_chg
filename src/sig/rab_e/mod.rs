@@ -18,6 +18,7 @@ mod sigs_raw;
 mod slab;
 mod unification_found;
 mod unification_slab;
+mod unification_wall_slit;
 mod wall;
 
 pub mod rab_e;
