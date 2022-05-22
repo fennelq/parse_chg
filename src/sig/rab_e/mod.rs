@@ -7,6 +7,7 @@ mod diagram;
 mod f_beam;
 mod f_slab;
 mod found;
+mod lean_on_slab;
 mod load;
 mod node;
 mod openings;
