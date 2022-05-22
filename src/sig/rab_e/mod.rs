@@ -16,6 +16,7 @@ mod poly;
 mod sec;
 mod sigs_raw;
 mod slab;
+mod unification_found;
 mod unification_slab;
 mod wall;
 
