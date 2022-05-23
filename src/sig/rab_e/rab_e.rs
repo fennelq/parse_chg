@@ -67,9 +67,88 @@ impl HasWrite for RabE {
             out.push(0u8);
         };
         out.extend(&self.flag_line);
-        //add write source functions!
-        //out.extend(offset(&self).iter());
-        //out.extend(&self.source);
+        let mut source: Vec<u8> = vec![];
+        source.extend(&self.head.write());
+        for i in self.column.iter() {
+            source.extend(i.write());
+        }
+        for i in self.wall.iter() {
+            source.extend(i.write());
+        }
+        for i in self.beam.iter() {
+            source.extend(i.write());
+        }
+        for i in self.slab.iter() {
+            source.extend(i.write());
+        }
+        for i in self.load.iter() {
+            source.extend(i.write());
+        }
+        for i in self.poly.iter() {
+            source.extend(i.write());
+        }
+        for i in self.node.iter() {
+            source.extend(i.write());
+        }
+        for i in self.sig_1.iter() {
+            source.extend(i.write());
+        }
+        for i in self.sig_2.iter() {
+            source.extend(i.write());
+        }
+        for i in self.sig_3.iter() {
+            source.extend(i.write());
+        }
+        for i in self.sig_4.iter() {
+            source.extend(i.write());
+        }
+        for i in self.diagram_force.iter() {
+            source.extend(i.write());
+        }
+        for i in self.diagram.iter() {
+            source.extend(i.write());
+        }
+        for i in self.f_wall.iter() {
+            source.extend(i.write());
+        }
+        for i in self.part.iter() {
+            source.extend(i.write());
+        }
+        for i in self.sig_5.iter() {
+            source.extend(i.write());
+        }
+        for i in self.lean_on_slab.iter() {
+            source.extend(i.write());
+        }
+        for i in self.diagram_wind_force.iter() {
+            source.extend(i.write());
+        }
+        for i in self.unification_slab.iter() {
+            source.extend(i.write());
+        }
+        for i in self.f_slab.iter() {
+            source.extend(i.write());
+        }
+        for i in self.diagram_unc.iter() {
+            source.extend(i.write());
+        }
+        for i in self.unification_found.iter() {
+            source.extend(i.write());
+        }
+        for i in self.pile.iter() {
+            source.extend(i.write());
+        }
+        for i in self.unification_wall_slits.iter() {
+            source.extend(i.write());
+        }
+        for i in self.unification_fslab.iter() {
+            source.extend(i.write());
+        }
+        for i in self.f_beam.iter() {
+            source.extend(i.write());
+        }
+        out.extend(offset(source.len()).iter());
+        out.extend(source);
         out
     }
     fn name(&self) -> &str {
@@ -187,6 +266,54 @@ pub struct HeadEtazh {
     fbeams_num: u16,
     ws6: Vec<u8>, //180
 }
+impl HasWrite for HeadEtazh {
+    fn write(&self) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+        out.extend(&self.etazh_num.to_le_bytes());
+        out.extend(&self.etazh_h.to_le_bytes());
+        out.extend(&self.num1.to_le_bytes());
+        out.extend(&self.num2.to_le_bytes());
+        out.extend(&self.ws1_1);
+        out.extend(&self.xm1.to_le_bytes());
+        out.extend(&self.ym1.to_le_bytes());
+        out.extend(&self.xm2.to_le_bytes());
+        out.extend(&self.ym2.to_le_bytes());
+        out.extend(&self.c_sum);
+        out.extend(&self.slab_alignment.to_le_bytes());
+        out.extend(&self.ws1_2);
+        out.extend(&self.columns_num.to_le_bytes());
+        out.extend(&self.walls_num.to_le_bytes());
+        out.extend(&self.beams_num.to_le_bytes());
+        out.extend(&self.slabs_num.to_le_bytes());
+        out.extend(&self.loads_num.to_le_bytes());
+        out.extend(&self.poly_num.to_le_bytes());
+        out.extend(&self.nodes_num.to_le_bytes());
+        out.extend(&self.sig_1_num.to_le_bytes());
+        out.extend(&self.sig_2_num.to_le_bytes());
+        out.extend(&self.sig_3_num.to_le_bytes());
+        out.extend(&self.sig_4_num.to_le_bytes());
+        out.extend(&self.diagrams_force_num.to_le_bytes());
+        out.extend(&self.diagrams_num.to_le_bytes());
+        out.extend(&self.fwalls_num.to_le_bytes());
+        out.extend(&self.parts_num.to_le_bytes());
+        out.extend(&self.sig_5_num.to_le_bytes());
+        out.extend(&self.leans_on_slab_num.to_le_bytes());
+        out.extend(&self.diagrams_wind_force_num.to_le_bytes());
+        out.extend(&self.unification_slabs_num.to_le_bytes());
+        out.extend(&self.fslabs_num.to_le_bytes());
+        out.extend(&self.diagrams_unc_num.to_le_bytes());
+        out.extend(&self.unification_founds_num.to_le_bytes());
+        out.extend(&self.piles_num.to_le_bytes());
+        out.extend(&self.unification_wall_slits_num.to_le_bytes());
+        out.extend(&self.unification_fslabs_num.to_le_bytes());
+        out.extend(&self.fbeams_num.to_le_bytes());
+        out.extend(&self.ws6);
+        out
+    }
+    fn name(&self) -> &str {
+        ""
+    }
+}
 impl fmt::Display for HeadEtazh {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, " №{}; h = {} | ", &self.etazh_num, &self.etazh_h)?;
@@ -245,6 +372,7 @@ impl fmt::Display for HeadEtazh {
         )
     }
 }
+
 pub fn read_rab_e(i: &[u8]) -> IResult<&[u8], Vec<RabE>> {
     let (i, rab_e_etazh) = many1(read_rab_e_etazh)(i)?;
     Ok((i, rab_e_etazh))
