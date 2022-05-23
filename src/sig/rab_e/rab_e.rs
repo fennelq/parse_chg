@@ -68,7 +68,7 @@ impl HasWrite for RabE {
         };
         out.extend(&self.flag_line);
         //add write source functions!
-        //out.extend(offset(&self.source.len()).iter());
+        //out.extend(offset(&self).iter());
         //out.extend(&self.source);
         out
     }
@@ -108,42 +108,24 @@ impl fmt::Display for RabE {
         for (count, v) in (&self.slab).iter().enumerate() {
             write!(f, "\n   slab   №{}: {}", count, v)?;
         }
-        for (count, v) in (&self.load).iter().enumerate() {
-            write!(f, "\n   load   №{}: {}", count, v)?;
-        }
-        for (count, v) in (&self.poly).iter().enumerate() {
-            write!(f, "\n   poly   №{}: {}", count, v)?;
-        }
-        for (count, v) in (&self.node).iter().enumerate() {
-            write!(f, "\n   node   №{}: {}", count, v)?;
-        }
-        for (count, v) in (&self.diagram_force).iter().enumerate() {
-            write!(f, "\n   diag f №{}: {}", count, v)?;
-        }
-        for (count, v) in (&self.diagram).iter().enumerate() {
-            write!(f, "\n   diag   №{}: {}", count, v)?;
-        }
-        for (count, v) in (&self.f_wall).iter().enumerate() {
-            write!(f, "\n   f wall №{}: {}", count, v)?;
-        }
+        write!(f, "\n   load   :{}", &self.load.len())?;
+        write!(f, "\n   poly   :{}", &self.poly.len())?;
+        write!(f, "\n   node   :{}", &self.node.len())?;
+        write!(f, "\n   diag f :{}", &self.diagram_force.len())?;
+        write!(f, "\n   diag   :{}", &self.diagram.len())?;
+        write!(f, "\n   f wall :{}", &self.f_wall.len())?;
         for (count, v) in (&self.part).iter().enumerate() {
             write!(f, "\n   part.  №{}: {}", count, v)?;
         }
-        for (count, v) in (&self.lean_on_slab).iter().enumerate() {
-            write!(f, "\n   lean s №{}: {}", count, v)?;
-        }
+        write!(f, "\n   lean s :{}", &self.lean_on_slab.len())?;
         for (count, v) in (&self.f_slab).iter().enumerate() {
             write!(f, "\n   f slab №{}: {}", count, v)?;
         }
-        for (count, v) in (&self.diagram_wind_force).iter().enumerate() {
-            write!(f, "\n   diag w №{}: {}", count, v)?;
-        }
+        write!(f, "\n   diag w :{}", &self.diagram_wind_force.len())?;
         for (count, v) in (&self.unification_slab).iter().enumerate() {
             write!(f, "\n   uni s  №{}: {}", count, v)?;
         }
-        for (count, v) in (&self.diagram_unc).iter().enumerate() {
-            write!(f, "\n   diag u №{}: {}", count, v)?;
-        }
+        write!(f, "\n   diag u :{}", &self.diagram_unc.len())?;
         for (count, v) in (&self.unification_found).iter().enumerate() {
             write!(f, "\n   uni f  №{}: {}", count, v)?;
         }
