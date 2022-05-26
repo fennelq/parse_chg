@@ -89,6 +89,7 @@ pub struct Building {
 impl HasWrite for Building {
     fn write(&self) -> Vec<u8> {
         let mut out = match &self.file_type {
+            file_type::FileType::BUILDER012 => b"BUILDER012".to_vec(),
             file_type::FileType::BUILDER011 => b"BUILDER011".to_vec(),
             file_type::FileType::CHARGE37 => b"CHARGE 3.7".to_vec(),
             file_type::FileType::ERROR => vec![],
