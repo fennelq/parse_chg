@@ -31,8 +31,8 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct Point {
-    x: f32, //Координата, м
-    y: f32, //Координата, м
+    pub(crate) x: f32, //Координата, м
+    pub(crate) y: f32, //Координата, м
 }
 impl HasWrite for Point {
     fn write(&self) -> Vec<u8> {

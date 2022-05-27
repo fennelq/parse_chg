@@ -1,11 +1,9 @@
 use crate::sig::rab_e::{read_point, Point};
-use crate::sig::*;
-use nom::multi::count;
-use nom::number::complete::le_i32;
-use nom::number::complete::{le_f32, le_u16};
+use crate::sig::{offset, HasWrite};
 use nom::{
     bytes::complete::{tag, take},
-    number::complete::le_u64,
+    multi::count,
+    number::complete::{le_f32, le_i32, le_u16, le_u64},
     IResult,
 };
 use std::fmt;
@@ -55,14 +53,18 @@ pub struct SlitsSlt {
 impl HasWrite for SlitsSlt {
     fn write(&self) -> Vec<u8> {
         let mut out: Vec<u8> = self.name().as_bytes().to_vec();
+        out.extend(vec![0u8]);
         out.extend(&self.flag_line);
-        out.extend(&self.slits_num.to_le_bytes());
+        let mut source: Vec<u8> = vec![];
+        source.extend(&self.slits_num.to_le_bytes());
         for i in self.slits.iter() {
-            out.extend(i.write());
+            source.extend(i.write());
         }
-        out.extend(&self.sig_num.to_le_bytes());
-        out.extend(&self.num.to_le_bytes());
-        out.extend(&self.sig_source);
+        source.extend(&self.sig_num.to_le_bytes());
+        source.extend(&self.num.to_le_bytes());
+        source.extend(&self.sig_source);
+        out.extend(offset(source.len()).iter());
+        out.extend(source);
         out
     }
     fn name(&self) -> &str {
@@ -93,13 +95,13 @@ impl fmt::Display for SlitsSlt {
 
 #[derive(Debug)]
 pub struct Slit {
-    name: Vec<u8>, //52b
-    p1: Point,     //Первая точка разреза
-    p2: Point,     //Вторая точка разреза
-    r_ver: i32,    //Зависит от расчета. 0=без, -1=расчет, МКЭ
+    pub name: Vec<u8>, //52b
+    pub p1: Point,     //Первая точка разреза
+    pub p2: Point,     //Вторая точка разреза
+    r_ver: i32,        //Зависит от расчета. 0=без, -1=расчет, МКЭ
     //2b
-    d1: f32, //Смещение зоны разреза вперед
-    d2: f32, //Смещение зоны разреза назад
+    pub d1: f32, //Смещение зоны разреза вперед
+    pub d2: f32, //Смещение зоны разреза назад
     //12b
     ws: Vec<u8>, //14b
 }
@@ -129,6 +131,7 @@ impl fmt::Display for Slit {
         )
     }
 }
+
 pub fn read_slits_slt_raw(i: &[u8]) -> IResult<&[u8], SlitsSltRaw> {
     let (i, _) = tag("slits.slt")(i)?;
     let (i, _) = take(1u8)(i)?;
@@ -192,4 +195,50 @@ pub fn read_slits_slt(i: &[u8]) -> IResult<&[u8], SlitsSlt> {
             sig_source,
         },
     ))
+}
+
+#[cfg(test)]
+fn test_slits(path_str: &str) {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig(path_str);
+    let (_, slits) = read_slits_slt(&original_in).expect("couldn't read_slits");
+    assert_eq!(original_in, slits.write());
+}
+#[test]
+fn slits1_test() {
+    test_slits("test_sig/slits/1slits.test");
+}
+#[test]
+fn slits2_test() {
+    test_slits("test_sig/slits/2slits.test");
+}
+#[test]
+fn slits2_p_test() {
+    test_slits("test_sig/slits/2slits_P.test");
+}
+#[test]
+fn slits1_full_value_test() {
+    use crate::tests::rab_e_sig_test::read_test_sig;
+    let original_in = read_test_sig("test_sig/slits/1slits.test");
+    let (_, slits) = read_slits_slt(&original_in).expect("couldn't read_slits");
+    let mut name = vec![49u8];
+    name.extend(vec![0u8; 51]);
+    let mut ws = vec![0u8; 14];
+    let c_slits = SlitsSlt {
+        flag_line: [0u8, 0u8, 0u8],
+        slits_num: 1u16,
+        slits: vec![Slit {
+            name,
+            p1: Point { x: 0f32, y: 0f32 },
+            p2: Point { x: 0f32, y: 6f32 },
+            r_ver: 0i32,
+            d1: 0.12f32,
+            d2: 0.22f32,
+            ws,
+        }],
+        sig_num: 0u16,
+        num: 0u16,
+        sig_source: vec![],
+    };
+    assert_eq!(slits.write(), c_slits.write())
 }

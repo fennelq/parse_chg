@@ -24,7 +24,7 @@ pub fn read_file_type(i: &[u8]) -> IResult<&[u8], FileType> {
     if &part[0..10] == b"BUILDER012" {
         let (i, _) = tag(b"BUILDER012")(i)?;
         Ok((i, FileType::BUILDER012))
-    } else if &part[0..8] == b"BUILDER011" {
+    } else if &part[0..10] == b"BUILDER011" {
         let (i, _) = tag(b"BUILDER011")(i)?;
         Ok((i, FileType::BUILDER011))
     } else if &part[0..8] == b"CHARGE37" {
