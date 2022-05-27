@@ -12,6 +12,8 @@ extern crate nom;
 #[macro_use]
 extern crate arrayref;
 extern crate byteorder;
+extern crate core;
+
 use std::path::Path;
 /*use std::io::prelude::*;
 use std::fs::File;
@@ -29,7 +31,7 @@ mod tests;
 use crate::read_write::{read_file, read_file_raw, write_by_file_raw, write_recognize_sig};
 
 fn main() {
-    let input = Path::new("load_area_dabble.chg");
+    let input = Path::new("Uni_2slit_R.chg");
     let building_s = read_file_raw(input);
     let building = read_file(input);
     write_by_file_raw(&building_s);

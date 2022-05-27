@@ -30,7 +30,7 @@ use crate::sig::rigbodys_fe::read_rigbodys_fe;
 use crate::sig::rigids_fe::read_rigids_fe;
 use crate::sig::rzagnums_fe::read_rzagnums_fe;
 use crate::sig::seism_rsp::read_seism_rsp;
-use crate::sig::slits_slt::read_slits_slt;
+use crate::sig::slits_slt::read_slits_slt_raw;
 use crate::sig::sltwlexp_grp::read_sltwlexp_grp;
 use crate::sig::szinfo_szi::read_szinfo_szi;
 use crate::sig::vnum_fe::read_vnum_fe;
@@ -76,7 +76,7 @@ pub struct Building {
     pub rigids_fe: Option<rigids_fe::RigidsFe>,
     pub rzagnums_fe: Option<rzagnums_fe::RzagnumsFe>,
     pub seism_rsp: Option<seism_rsp::SeismRsp>,
-    pub slits_slt: Option<slits_slt::SlitsSlt>,
+    pub slits_slt: Option<slits_slt::SlitsSltRaw>,
     pub sltwlexp_grp: Option<sltwlexp_grp::SltwlexpGrp>,
     pub szinfo_szi: Option<szinfo_szi::SzinfoSzi>,
     pub vnum_fe: Option<vnum_fe::VnumFe>,
@@ -235,7 +235,7 @@ pub fn read_original(i: &[u8]) -> IResult<&[u8], Building> {
     let (i, rigids_fe) = opt(read_rigids_fe)(i)?;
     let (i, rzagnums_fe) = opt(read_rzagnums_fe)(i)?;
     let (i, seism_rsp) = opt(read_seism_rsp)(i)?;
-    let (i, slits_slt) = opt(read_slits_slt)(i)?;
+    let (i, slits_slt) = opt(read_slits_slt_raw)(i)?;
     let (i, sltwlexp_grp) = opt(read_sltwlexp_grp)(i)?;
     let (i, szinfo_szi) = opt(read_szinfo_szi)(i)?;
     let (i, vnum_fe) = opt(read_vnum_fe)(i)?;
