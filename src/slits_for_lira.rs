@@ -1,27 +1,39 @@
-//use crate::sig::*;
+use crate::sig::*;
 use serde::Deserialize;
+use std::io::Read;
 
 pub struct ShortNameBlock {
-    pub short_name: String,
-    element_type: u16, //2=балка, 3=плита, 4=стена, 5=фплита
-    element_num: u16,
-    storey: u16,
+    element_type: TypeBlock,
+    element_num: usize,
+    storey: usize,
 }
-
+#[derive(PartialEq)]
+pub enum TypeBlock {
+    Beam,
+    Slab,
+    Fslab,
+    Wall,
+}
 impl ShortNameBlock {
-    fn get_name(&self) -> String {
+    pub fn get_name(&self) -> String {
         let mut name = String::new();
         name += match &self.element_type {
-            2 => "Б",
-            3 => "П",
-            4 => "С",
-            5 => "ФП",
-            _ => "",
+            TypeBlock::Beam => "Б",
+            TypeBlock::Slab => "П",
+            TypeBlock::Wall => "С",
+            TypeBlock::Fslab => "ФП",
         };
         name += &self.storey.to_string();
         name += "_";
         name += &self.element_num.to_string();
         name
+    }
+    pub fn new(element_type: TypeBlock, element_num: usize, storey: usize) -> ShortNameBlock {
+        ShortNameBlock {
+            element_type,
+            element_num,
+            storey,
+        }
     }
 }
 
@@ -57,7 +69,7 @@ struct ElBlock {
     #[serde(rename = "ShortName")]
     short_name: String,
     #[serde(default)]
-    elements: Vec<u64>,
+    fe: Vec<u64>,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -76,6 +88,9 @@ fn range_to_string(range_start: u64, range_end: u64) -> String {
 }
 fn write_elements(elements: &[u64]) -> String {
     let mut str = String::new();
+    if elements.is_empty() {
+        return str;
+    }
     let mut range_start = elements[0];
     let mut range_end = elements[0];
     for i in 1..elements.iter().len() {
@@ -93,19 +108,105 @@ fn write_elements(elements: &[u64]) -> String {
     str
 }
 
-pub fn print_ald() {
-    let mut res: LiraProject = quick_xml::de::from_str(include_str!("short.ald")).unwrap();
+pub struct Filter {
+    pub beams: bool,
+    pub walls: bool,
+    pub etazh_from: usize,
+    pub etazh_to: usize,
+}
 
+impl Filter {
+    fn check(&self, block: &ShortNameBlock) -> bool {
+        if !self.beams && block.element_type != TypeBlock::Beam {
+            return false;
+        }
+        if !self.walls && block.element_type != TypeBlock::Wall {
+            return false;
+        }
+        if self.etazh_from > block.storey {
+            return false;
+        }
+        if self.etazh_to < block.storey {
+            return false;
+        }
+        true
+    }
+}
+fn read_ald(path_str: &str) -> Vec<ElBlock> {
+    let path = std::path::Path::new(path_str);
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why),
+        Ok(file) => file,
+    };
+    let mut source_file: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut source_file) {
+        panic!("couldn't read {}: {}", display, why)
+    };
+    let text = String::from_utf8_lossy(&source_file).to_string();
+    let mut res: LiraProject = quick_xml::de::from_str(&text).unwrap();
     for element in res.elem_array.elements.iter() {
         let block_i = element.block_num - 1;
-        res.block_array.el_blocks[block_i]
-            .elements
-            .push(element.fe_num);
+        res.block_array.el_blocks[block_i].fe.push(element.fe_num);
     }
+    res.block_array.el_blocks
+}
 
-    println!(
-        "{:#?}",
-        write_elements(&res.block_array.el_blocks[1].elements)
-    );
-    println!("{:#?}", res.block_array.el_blocks[1]);
+pub fn get_selection(
+    path_ald: &str,
+    build: building::Building,
+    filter: Filter,
+) -> Vec<(String, String)> {
+    let el_slits = element_in_slits(build);
+    let el_block = read_ald(path_ald);
+    let mut out = vec![];
+    for (str, blocks) in el_slits {
+        let mut fe = vec![];
+        for block in blocks.iter() {
+            if filter.check(block) {
+                for el_block in el_block.iter() {
+                    if el_block.short_name == block.get_name() {
+                        fe.extend(el_block.fe.clone());
+                    }
+                }
+            }
+        }
+        fe.sort_unstable();
+        out.push((str, write_elements(&fe)));
+    }
+    out
+}
+
+fn element_in_slits(build: building::Building) -> Vec<(String, Vec<ShortNameBlock>)> {
+    let mut slits_elem_vec: Vec<(String, Vec<ShortNameBlock>)> = vec![];
+    let slits = &build.slits_slt.unwrap().slits;
+    let rab_e = &build.rab_e;
+    for (count_slits, slit) in slits.iter().enumerate() {
+        let mut element_vec = vec![];
+        for (count_etazh, etazh) in rab_e.iter().enumerate() {
+            let walls = &etazh.wall;
+            for (count_wall, wall) in walls.iter().enumerate() {
+                if slit.inside(wall.get_start_point(), wall.get_end_point()) {
+                    element_vec.push(ShortNameBlock::new(
+                        TypeBlock::Wall,
+                        count_wall + 1,
+                        count_etazh + 1,
+                    ));
+                }
+            }
+            let beams = &etazh.beam;
+            for (count_beam, beam) in beams.iter().enumerate() {
+                if slit.inside(beam.get_start_point(), beam.get_end_point()) {
+                    element_vec.push(ShortNameBlock::new(
+                        TypeBlock::Beam,
+                        count_beam + 1,
+                        count_etazh + 1,
+                    ));
+                }
+            }
+        }
+        let slit_name = slit.get_name().unwrap_or_else(|| count_slits.to_string());
+        slits_elem_vec.push((slit_name, element_vec));
+    }
+    slits_elem_vec
 }

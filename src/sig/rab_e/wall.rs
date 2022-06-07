@@ -126,6 +126,15 @@ impl fmt::Display for Wall {
     }
 }
 
+impl Wall {
+    pub fn get_start_point(&self) -> &Point {
+        &self.p1
+    }
+    pub fn get_end_point(&self) -> &Point {
+        &self.p2
+    }
+}
+
 pub fn read_wall(i: &[u8]) -> IResult<&[u8], Wall> {
     let (i, p1) = read_point(i)?;
     let (i, p2) = read_point(i)?;

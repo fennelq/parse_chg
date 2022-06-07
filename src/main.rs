@@ -34,11 +34,18 @@ use crate::read_write::{read_file, read_file_raw, write_by_file_raw, write_recog
 use crate::slits_for_lira::*;
 
 fn main() {
-    let input = Path::new("test_cases/Uni_wall_all.chg");
+    let input = Path::new("Uni_2slit_P.chg");
     let building_s = read_file_raw(input);
     let building = read_file(input);
     write_by_file_raw(&building_s);
     write_recognize_sig();
     println!("{}", &building);
-    print_ald();
+    //read_ald("short.ald");
+    let filter = Filter {
+        beams: true,
+        walls: true,
+        etazh_from: 1,
+        etazh_to: 99,
+    };
+    println!("{:#?}", get_selection("short.ald", building, filter))
 }

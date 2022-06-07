@@ -95,13 +95,13 @@ impl fmt::Display for SlitsSlt {
 
 #[derive(Debug)]
 pub struct Slit {
-    pub name: Vec<u8>, //52b
-    pub p1: Point,     //Первая точка разреза
-    pub p2: Point,     //Вторая точка разреза
-    r_ver: i32,        //Зависит от расчета. 0=без, -1=расчет, МКЭ
+    name: Vec<u8>, //52b
+    p1: Point,     //Первая точка разреза
+    p2: Point,     //Вторая точка разреза
+    r_ver: i32,    //Зависит от расчета. 0=без, -1=расчет, МКЭ
     //2b
-    pub d1: f32, //Смещение зоны разреза вперед
-    pub d2: f32, //Смещение зоны разреза назад
+    d1: f32, //Смещение зоны разреза вперед
+    d2: f32, //Смещение зоны разреза назад
     //12b
     ws: Vec<u8>, //14b
 }
@@ -131,7 +131,58 @@ impl fmt::Display for Slit {
         )
     }
 }
+fn to_vector(p1: &Point, p2: &Point) -> Point {
+    Point {
+        x: p2.x - p1.x,
+        y: p2.y - p1.y,
+    }
+}
+fn scalar_product(v: Point, w: Point) -> f32 {
+    v.x * w.x + v.y * w.y
+}
+fn pseudoscalar_product(v: Point, w: Point) -> f32 {
+    v.x * w.y - v.y * w.x
+}
+impl Slit {
+    pub fn get_name(&self) -> Option<String> {
+        let mut str = vec![];
+        for &char in &self.name {
+            if char != 0 {
+                str.push(char);
+            }
+        }
+        String::from_utf8(str).ok()
+    }
+    pub fn inside(&self, p1: &Point, p2: &Point) -> bool {
+        let p_scalar_prod = pseudoscalar_product(to_vector(&self.p1, &self.p2), to_vector(p1, p2));
 
+        if (p_scalar_prod * 100.0).round() != 0.0 {
+            //not collinear
+            return false;
+        }
+
+        let p_scalar_prod =
+            pseudoscalar_product(to_vector(&self.p1, &self.p2), to_vector(&self.p1, p1));
+        let vector_length = (self.p1.x * self.p1.x + self.p2.y * self.p2.y).sqrt();
+        let distance = p_scalar_prod / vector_length; //negative counterclockwise
+
+        if distance > self.d1 || distance < -self.d2 {
+            //not in distance
+            return false;
+        }
+
+        if scalar_product(to_vector(&self.p1, &self.p2), to_vector(&self.p1, p1)) < 0.0
+            || scalar_product(to_vector(&self.p1, &self.p2), to_vector(p1, p2)) < 0.0
+            || scalar_product(to_vector(&self.p2, &self.p1), to_vector(&self.p2, p1)) < 0.0
+            || scalar_product(to_vector(&self.p2, &self.p1), to_vector(&self.p2, p2)) < 0.0
+        {
+            //out of range
+            return false;
+        }
+
+        true
+    }
+}
 pub fn read_slits_slt_raw(i: &[u8]) -> IResult<&[u8], SlitsSltRaw> {
     let (i, _) = tag("slits.slt")(i)?;
     let (i, _) = take(1u8)(i)?;
@@ -223,7 +274,7 @@ fn slits1_full_value_test() {
     let (_, slits) = read_slits_slt(&original_in).expect("couldn't read_slits");
     let mut name = vec![49u8];
     name.extend(vec![0u8; 51]);
-    let mut ws = vec![0u8; 14];
+    let ws = vec![0u8; 14];
     let c_slits = SlitsSlt {
         flag_line: [0u8, 0u8, 0u8],
         slits_num: 1u16,
