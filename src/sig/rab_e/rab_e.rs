@@ -226,7 +226,7 @@ impl fmt::Display for RabE {
 
 #[derive(Debug)]
 pub struct HeadEtazh {
-    etazh_num: u16,
+    pub etazh_num: u16,
     etazh_h: f32,
     num1: u16,
     num2: u16,

@@ -1,6 +1,6 @@
 use crate::sig::*;
 use serde::Deserialize;
-use std::io::Read;
+use std::io::{Read, Write};
 
 pub struct ShortNameBlock {
     element_type: TypeBlock,
@@ -183,14 +183,14 @@ fn element_in_slits(build: building::Building) -> Vec<(String, Vec<ShortNameBloc
     let rab_e = &build.rab_e;
     for (count_slits, slit) in slits.iter().enumerate() {
         let mut element_vec = vec![];
-        for (count_etazh, etazh) in rab_e.iter().enumerate() {
+        for etazh in rab_e.iter() {
             let walls = &etazh.wall;
             for (count_wall, wall) in walls.iter().enumerate() {
                 if slit.inside(wall.get_start_point(), wall.get_end_point()) {
                     element_vec.push(ShortNameBlock::new(
                         TypeBlock::Wall,
                         count_wall + 1,
-                        count_etazh + 1,
+                        etazh.head.etazh_num as usize,
                     ));
                 }
             }
@@ -200,7 +200,7 @@ fn element_in_slits(build: building::Building) -> Vec<(String, Vec<ShortNameBloc
                     element_vec.push(ShortNameBlock::new(
                         TypeBlock::Beam,
                         count_beam + 1,
-                        count_etazh + 1,
+                        etazh.head.etazh_num as usize,
                     ));
                 }
             }
@@ -209,4 +209,19 @@ fn element_in_slits(build: building::Building) -> Vec<(String, Vec<ShortNameBloc
         slits_elem_vec.push((slit_name, element_vec));
     }
     slits_elem_vec
+}
+pub fn write_slits(slits: Vec<(String, String)>) {
+    let path_buf = std::path::Path::new("OUT.txt");
+    let display = path_buf.display();
+    let mut file = match std::fs::File::create(path_buf) {
+        Err(why) => panic!("couldn't create {}: {}", display, why),
+        Ok(file) => file,
+    };
+    for slit in slits.iter() {
+        let (name, source) = slit;
+        let mut str = name.clone();
+        str = str + " " + source + "\n";
+        let str = str.as_bytes();
+        file.write(str).unwrap_or_default();
+    }
 }
