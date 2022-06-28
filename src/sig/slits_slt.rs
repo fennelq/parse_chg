@@ -174,7 +174,7 @@ impl Slit {
         }
 
         if scalar_product(to_vector(&self.p1, &self.p2), to_vector(&self.p1, p1)) < 0.0
-            || scalar_product(to_vector(&self.p1, &self.p2), to_vector(p1, p2)) < 0.0
+            || scalar_product(to_vector(&self.p1, &self.p2), to_vector(&self.p1, p2)) < 0.0
             || scalar_product(to_vector(&self.p2, &self.p1), to_vector(&self.p2, p1)) < 0.0
             || scalar_product(to_vector(&self.p2, &self.p1), to_vector(&self.p2, p2)) < 0.0
         {
