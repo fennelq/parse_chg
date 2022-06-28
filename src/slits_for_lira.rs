@@ -171,7 +171,7 @@ pub fn get_selection(
                 }
             }
         }
-        fe.sort_unstable();
+        //fe.sort_unstable();
         out.push((str, write_elements(&fe)));
     }
     out

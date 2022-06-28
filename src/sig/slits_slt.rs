@@ -46,9 +46,10 @@ pub struct SlitsSlt {
     pub flag_line: [u8; 3],
     pub slits_num: u16,
     pub slits: Vec<Slit>,
-    pub sig_num: u16,
-    pub num: u16,
-    pub sig_source: Vec<u8>, //Сигнатуры по 16b
+    pub sig1_num: u16,
+    pub sig1_source: Vec<u8>, //Сигнатуры по 16b
+    pub sig2_num: u16,
+    pub sig2_source: Vec<u8>, //Сигнатуры по 34b
 }
 impl HasWrite for SlitsSlt {
     fn write(&self) -> Vec<u8> {
@@ -60,9 +61,10 @@ impl HasWrite for SlitsSlt {
         for i in self.slits.iter() {
             source.extend(i.write());
         }
-        source.extend(&self.sig_num.to_le_bytes());
-        source.extend(&self.num.to_le_bytes());
-        source.extend(&self.sig_source);
+        source.extend(&self.sig1_num.to_le_bytes());
+        source.extend(&self.sig1_source);
+        source.extend(&self.sig2_num.to_le_bytes());
+        source.extend(&self.sig2_source);
         out.extend(offset(source.len()).iter());
         out.extend(source);
         out
@@ -83,8 +85,8 @@ impl fmt::Display for SlitsSlt {
         }
         write!(
             f,
-            "]; slits num: {}, sig num: {}, num: {}",
-            &self.num, &self.sig_num, &self.num
+            "]; slits num: {}, sig1 num: {}, sig2 num: {}",
+            &self.slits_num, &self.sig1_num, &self.sig2_num
         )?;
         for (count, v) in (&self.slits).iter().enumerate() {
             write!(f, "\n   slits №{}: {}", count, v)?;
@@ -231,19 +233,22 @@ pub fn read_slits_slt(i: &[u8]) -> IResult<&[u8], SlitsSlt> {
     let (i, _) = le_u64(i)?;
     let (i, slits_num) = le_u16(i)?;
     let (i, slits) = count(read_slit, slits_num as usize)(i)?;
-    let (i, sig_num) = le_u16(i)?;
-    let (i, num) = le_u16(i)?;
-    let (i, sig_source) = take(sig_num * 16)(i)?;
-    let sig_source = sig_source.to_vec();
+    let (i, sig1_num) = le_u16(i)?;
+    let (i, sig1_source) = take(sig1_num * 16)(i)?;
+    let (i, sig2_num) = le_u16(i)?;
+    let (i, sig2_source) = take(sig2_num * 34)(i)?;
+    let sig1_source = sig1_source.to_vec();
+    let sig2_source = sig2_source.to_vec();
     Ok((
         i,
         SlitsSlt {
             flag_line: *array_ref!(flag_line, 0, 3),
             slits_num,
             slits,
-            sig_num,
-            num,
-            sig_source,
+            sig1_num,
+            sig1_source,
+            sig2_num,
+            sig2_source,
         },
     ))
 }
@@ -268,6 +273,10 @@ fn slits2_p_test() {
     test_slits("test_sig/slits/2slits_P.test");
 }
 #[test]
+fn big_slits_r_test() {
+    test_slits("test_sig/slits/big_slits_R.test");
+}
+#[test]
 fn slits1_full_value_test() {
     use crate::tests::rab_e_sig_test::read_test_sig;
     let original_in = read_test_sig("test_sig/slits/1slits.test");
@@ -287,9 +296,10 @@ fn slits1_full_value_test() {
             d2: 0.22f32,
             ws,
         }],
-        sig_num: 0u16,
-        num: 0u16,
-        sig_source: vec![],
+        sig1_num: 0u16,
+        sig1_source: vec![],
+        sig2_num: 0u16,
+        sig2_source: vec![],
     };
     assert_eq!(slits.write(), c_slits.write())
 }
