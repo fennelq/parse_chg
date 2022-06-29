@@ -184,6 +184,17 @@ impl Slit {
 
         true
     }
+    pub fn angle(&self) -> f32 {
+        let mut vector = to_vector(&self.p1, &self.p2);
+        if self.p1.y > self.p2.y {
+            vector = to_vector(&self.p2, &self.p1);
+        }
+        let mut angle = vector.x / ((vector.x * vector.x) + (vector.y * vector.y)).sqrt();
+        if angle > 135.0 {
+            angle -= 180.0;
+        }
+        angle
+    }
 }
 pub fn read_slits_slt_raw(i: &[u8]) -> IResult<&[u8], SlitsSltRaw> {
     let (i, _) = tag("slits.slt")(i)?;
