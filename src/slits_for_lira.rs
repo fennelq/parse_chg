@@ -1,6 +1,8 @@
 use crate::sig::*;
 use serde::Deserialize;
 use std::io::{Read, Write};
+use std::path::{Path, PathBuf};
+use walkdir::WalkDir;
 
 pub struct ShortNameBlock {
     element_type: TypeBlock,
@@ -108,14 +110,77 @@ fn write_elements(elements: &[u64]) -> String {
     str
 }
 
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct InputPath {
+    #[serde(rename = "Path")]
+    paths: Vec<String>,
+}
+impl InputPath {
+    pub fn read_paths() -> InputPath {
+        let path = Path::new(r"../path.xml");
+        let display = path.display();
+        let mut file = match std::fs::File::open(&path) {
+            Err(why) => panic!("couldn't open {}: {}", display, why),
+            Ok(file) => file,
+        };
+        let mut source_file: Vec<u8> = vec![];
+        if let Err(why) = file.read_to_end(&mut source_file) {
+            panic!("couldn't read {}: {}", display, why)
+        };
+        let text = String::from_utf8_lossy(&source_file).to_string();
+        let res: InputPath = quick_xml::de::from_str(&text).unwrap();
+        res
+    }
+    pub fn get_ald_path(&self) -> PathBuf {
+        for str in &self.paths {
+            let dir_ent = WalkDir::new(str)
+                .into_iter()
+                .filter_map(Result::ok)
+                .find(|e| e.file_name().to_string_lossy() == (read_name() + ".ald"));
+            if let Some(dir) = dir_ent {
+                return dir.into_path();
+            }
+        }
+        panic!("couldn't find .ald file");
+    }
+    pub fn get_chg_path(&self) -> PathBuf {
+        for str in &self.paths {
+            let dir_ent = WalkDir::new(str)
+                .into_iter()
+                .filter_map(Result::ok)
+                .find(|e| e.file_name().to_string_lossy() == (read_name() + ".chg"));
+            if let Some(dir) = dir_ent {
+                return dir.into_path();
+            }
+        }
+        panic!("couldn't find .chg file");
+    }
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
 pub struct Filter {
     pub beams: bool,
     pub walls: bool,
     pub etazh_from: usize,
     pub etazh_to: usize,
 }
-
 impl Filter {
+    fn read_filter() -> Filter {
+        let path = Path::new(r"../filter.xml");
+        let display = path.display();
+        let mut file = match std::fs::File::open(&path) {
+            Err(why) => panic!("couldn't open {}: {}", display, why),
+            Ok(file) => file,
+        };
+        let mut source_file: Vec<u8> = vec![];
+        if let Err(why) = file.read_to_end(&mut source_file) {
+            panic!("couldn't read {}: {}", display, why)
+        };
+        let text = String::from_utf8_lossy(&source_file).to_string();
+        let res: Filter = quick_xml::de::from_str(&text).unwrap();
+        res
+    }
+
     fn check(&self, block: &ShortNameBlock) -> bool {
         if !self.beams && block.element_type != TypeBlock::Beam {
             return false;
@@ -132,8 +197,7 @@ impl Filter {
         true
     }
 }
-fn read_ald(path_str: &str) -> Vec<ElBlock> {
-    let path = std::path::Path::new(path_str);
+fn read_ald(path: &Path) -> Vec<ElBlock> {
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
         Err(why) => panic!("couldn't open {}: {}", display, why),
@@ -152,15 +216,27 @@ fn read_ald(path_str: &str) -> Vec<ElBlock> {
     res.block_array.el_blocks
 }
 
-pub fn get_selection(
-    path_ald: &str,
-    build: building::Building,
-    filter: Filter,
-) -> Vec<(String, String)> {
+pub fn read_name() -> String {
+    let path = Path::new(r"name.txt");
+    let display = path.display();
+    let mut file = match std::fs::File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why),
+        Ok(file) => file,
+    };
+    let mut source_file: Vec<u8> = vec![];
+    if let Err(why) = file.read_to_end(&mut source_file) {
+        panic!("couldn't read {}: {}", display, why)
+    };
+    let mut text = String::from_utf8_lossy(&source_file).trim().to_string();
+    text.remove(0);
+    text
+}
+
+pub fn get_selection(path_ald: &Path, build: &building::Building, filter: Filter) -> Vec<String> {
     let el_slits = element_in_slits(build);
     let el_block = read_ald(path_ald);
     let mut out = vec![];
-    for (str, blocks) in el_slits {
+    for blocks in el_slits {
         let mut fe = vec![];
         for block in blocks.iter() {
             if filter.check(block) {
@@ -172,16 +248,16 @@ pub fn get_selection(
             }
         }
         //fe.sort_unstable();
-        out.push((str, write_elements(&fe)));
+        out.push(write_elements(&fe));
     }
     out
 }
 
-fn element_in_slits(build: building::Building) -> Vec<(String, Vec<ShortNameBlock>)> {
-    let mut slits_elem_vec: Vec<(String, Vec<ShortNameBlock>)> = vec![];
-    let slits = &build.slits_slt.unwrap().slits;
+fn element_in_slits(build: &building::Building) -> Vec<Vec<ShortNameBlock>> {
+    let mut slits_elem_vec: Vec<Vec<ShortNameBlock>> = vec![];
+    let slits = &build.slits_slt.as_ref().unwrap().slits;
     let rab_e = &build.rab_e;
-    for (count_slits, slit) in slits.iter().enumerate() {
+    for slit in slits.iter() {
         let mut element_vec = vec![];
         for etazh in rab_e.iter() {
             let walls = &etazh.wall;
@@ -205,23 +281,44 @@ fn element_in_slits(build: building::Building) -> Vec<(String, Vec<ShortNameBloc
                 }
             }
         }
-        let slit_name = slit.get_name().unwrap_or_else(|| count_slits.to_string());
-        slits_elem_vec.push((slit_name, element_vec));
+        slits_elem_vec.push(element_vec);
     }
     slits_elem_vec
 }
-pub fn write_slits(slits: Vec<(String, String)>) {
-    let path_buf = std::path::Path::new("OUT.txt");
+pub fn write_slits(slits: Vec<String>) {
+    let path_buf = Path::new("slits_fe.txt");
     let display = path_buf.display();
     let mut file = match std::fs::File::create(path_buf) {
         Err(why) => panic!("couldn't create {}: {}", display, why),
         Ok(file) => file,
     };
-    for slit in slits.iter() {
-        let (name, source) = slit;
-        let mut str = name.clone();
-        str = str + " " + source + "\n";
-        let str = str.as_bytes();
-        file.write(str).unwrap_or_default();
+    for slit in slits {
+        file.write((slit + "\n").as_bytes()).unwrap_or_default();
+    }
+}
+pub fn write_slits_angle(build: &building::Building) {
+    let path_buf = Path::new("slits_angle.txt");
+    let display = path_buf.display();
+    let mut file = match std::fs::File::create(path_buf) {
+        Err(why) => panic!("couldn't create {}: {}", display, why),
+        Ok(file) => file,
+    };
+    let slits = &build.slits_slt.as_ref().unwrap().slits;
+    for slit in slits {
+        file.write((slit.angle().to_string() + "\n").as_bytes())
+            .unwrap_or_default();
+    }
+}
+pub fn write_slits_name(build: &building::Building) {
+    let path_buf = Path::new("slits_name.txt");
+    let display = path_buf.display();
+    let mut file = match std::fs::File::create(path_buf) {
+        Err(why) => panic!("couldn't create {}: {}", display, why),
+        Ok(file) => file,
+    };
+    let slits = &build.slits_slt.as_ref().unwrap().slits;
+    for slit in slits {
+        file.write((slit.get_name().unwrap_or_default() + "\n").as_bytes())
+            .unwrap_or_default();
     }
 }

@@ -189,7 +189,8 @@ impl Slit {
         if self.p1.y > self.p2.y {
             vector = to_vector(&self.p2, &self.p1);
         }
-        let mut angle = vector.x / ((vector.x * vector.x) + (vector.y * vector.y)).sqrt();
+        let angle_cos = vector.x / ((vector.x * vector.x) + (vector.y * vector.y)).sqrt();
+        let mut angle = angle_cos.acos() * 180.0 / std::f32::consts::PI;
         if angle > 135.0 {
             angle -= 180.0;
         }
