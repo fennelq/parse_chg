@@ -4,20 +4,20 @@ use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-pub struct ShortNameBlock {
+struct ShortNameBlock {
     element_type: TypeBlock,
     element_num: usize,
     storey: usize,
 }
 #[derive(PartialEq)]
-pub enum TypeBlock {
+enum TypeBlock {
     Beam,
     Slab,
     Fslab,
     Wall,
 }
 impl ShortNameBlock {
-    pub fn get_name(&self) -> String {
+    fn get_name(&self) -> String {
         let mut name = String::new();
         name += match &self.element_type {
             TypeBlock::Beam => "Б",
@@ -30,7 +30,7 @@ impl ShortNameBlock {
         name += &self.element_num.to_string();
         name
     }
-    pub fn new(element_type: TypeBlock, element_num: usize, storey: usize) -> ShortNameBlock {
+    fn new(element_type: TypeBlock, element_num: usize, storey: usize) -> ShortNameBlock {
         ShortNameBlock {
             element_type,
             element_num,
@@ -111,12 +111,12 @@ fn write_elements(elements: &[u64]) -> String {
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-pub struct InputPath {
+struct InputPath {
     #[serde(rename = "Path")]
     paths: Vec<String>,
 }
 impl InputPath {
-    pub fn read_paths() -> InputPath {
+    fn read_paths() -> InputPath {
         let path = Path::new(r"../path.xml");
         let display = path.display();
         let mut file = match std::fs::File::open(&path) {
@@ -131,7 +131,7 @@ impl InputPath {
         let res: InputPath = quick_xml::de::from_str(&text).unwrap();
         res
     }
-    pub fn get_ald_path(&self) -> PathBuf {
+    fn get_ald_path(&self) -> PathBuf {
         for str in &self.paths {
             let dir_ent = WalkDir::new(str)
                 .into_iter()
@@ -143,7 +143,7 @@ impl InputPath {
         }
         panic!("couldn't find .ald file");
     }
-    pub fn get_chg_path(&self) -> PathBuf {
+    fn get_chg_path(&self) -> PathBuf {
         for str in &self.paths {
             let dir_ent = WalkDir::new(str)
                 .into_iter()
@@ -158,11 +158,11 @@ impl InputPath {
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-pub struct Filter {
-    pub beams: bool,
-    pub walls: bool,
-    pub etazh_from: usize,
-    pub etazh_to: usize,
+struct Filter {
+    beams: bool,
+    walls: bool,
+    etazh_from: usize,
+    etazh_to: usize,
 }
 impl Filter {
     fn read_filter() -> Filter {
@@ -216,7 +216,7 @@ fn read_ald(path: &Path) -> Vec<ElBlock> {
     res.block_array.el_blocks
 }
 
-pub fn read_name() -> String {
+fn read_name() -> String {
     let path = Path::new(r"name.txt");
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
@@ -232,7 +232,7 @@ pub fn read_name() -> String {
     text
 }
 
-pub fn get_selection(path_ald: &Path, build: &building::Building, filter: Filter) -> Vec<String> {
+fn get_selection(path_ald: &Path, build: &building::Building, filter: Filter) -> Vec<String> {
     let el_slits = element_in_slits(build);
     let el_block = read_ald(path_ald);
     let mut out = vec![];
@@ -285,7 +285,7 @@ fn element_in_slits(build: &building::Building) -> Vec<Vec<ShortNameBlock>> {
     }
     slits_elem_vec
 }
-pub fn write_slits(slits: Vec<String>) {
+fn write_slits(slits: Vec<String>) {
     let path_buf = Path::new("slits_fe.txt");
     let display = path_buf.display();
     let mut file = match std::fs::File::create(path_buf) {
@@ -296,7 +296,7 @@ pub fn write_slits(slits: Vec<String>) {
         file.write((slit + "\n").as_bytes()).unwrap_or_default();
     }
 }
-pub fn write_slits_angle(build: &building::Building) {
+fn write_slits_angle(build: &building::Building) {
     let path_buf = Path::new("slits_angle.txt");
     let display = path_buf.display();
     let mut file = match std::fs::File::create(path_buf) {
@@ -309,7 +309,7 @@ pub fn write_slits_angle(build: &building::Building) {
             .unwrap_or_default();
     }
 }
-pub fn write_slits_name(build: &building::Building) {
+fn write_slits_name(build: &building::Building) {
     let path_buf = Path::new("slits_name.txt");
     let display = path_buf.display();
     let mut file = match std::fs::File::create(path_buf) {
@@ -321,4 +321,12 @@ pub fn write_slits_name(build: &building::Building) {
         file.write((slit.get_name().unwrap_or_default() + "\n").as_bytes())
             .unwrap_or_default();
     }
+}
+pub fn write_slits_for_lira() {
+    let input = InputPath::read_paths();
+    let filter = Filter::read_filter();
+    let building = crate::read_file(&input.get_chg_path());
+    write_slits(get_selection(&input.get_ald_path(), &building, filter));
+    write_slits_angle(&building);
+    write_slits_name(&building);
 }
