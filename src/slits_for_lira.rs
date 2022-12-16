@@ -117,7 +117,7 @@ struct InputPath {
 }
 impl InputPath {
     fn read_paths() -> InputPath {
-        let path = Path::new(r"../path.xml");
+        let path = Path::new(r"path.xml");
         let display = path.display();
         let mut file = match std::fs::File::open(&path) {
             Err(why) => panic!("couldn't open {}: {}", display, why),
@@ -166,7 +166,7 @@ struct Filter {
 }
 impl Filter {
     fn read_filter() -> Filter {
-        let path = Path::new(r"../filter.xml");
+        let path = Path::new(r"filter.xml");
         let display = path.display();
         let mut file = match std::fs::File::open(&path) {
             Err(why) => panic!("couldn't open {}: {}", display, why),
@@ -217,7 +217,7 @@ fn read_ald(path: &Path) -> Vec<ElBlock> {
 }
 
 fn read_name() -> String {
-    let path = Path::new(r"name.txt");
+    let path = Path::new(r"Data\name.txt");
     let display = path.display();
     let mut file = match std::fs::File::open(&path) {
         Err(why) => panic!("couldn't open {}: {}", display, why),
@@ -286,7 +286,7 @@ fn element_in_slits(build: &building::Building) -> Vec<Vec<ShortNameBlock>> {
     slits_elem_vec
 }
 fn write_slits(slits: Vec<String>) {
-    let path_buf = Path::new("slits_fe.txt");
+    let path_buf = Path::new(r"Data\slits_fe.txt");
     let display = path_buf.display();
     let mut file = match std::fs::File::create(path_buf) {
         Err(why) => panic!("couldn't create {}: {}", display, why),
@@ -297,7 +297,7 @@ fn write_slits(slits: Vec<String>) {
     }
 }
 fn write_slits_angle(build: &building::Building) {
-    let path_buf = Path::new("slits_angle.txt");
+    let path_buf = Path::new(r"Data\slits_angle.txt");
     let display = path_buf.display();
     let mut file = match std::fs::File::create(path_buf) {
         Err(why) => panic!("couldn't create {}: {}", display, why),
@@ -310,7 +310,7 @@ fn write_slits_angle(build: &building::Building) {
     }
 }
 fn write_slits_name(build: &building::Building) {
-    let path_buf = Path::new("slits_name.txt");
+    let path_buf = Path::new(r"Data\slits_name.txt");
     let display = path_buf.display();
     let mut file = match std::fs::File::create(path_buf) {
         Err(why) => panic!("couldn't create {}: {}", display, why),

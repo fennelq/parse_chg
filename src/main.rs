@@ -19,15 +19,17 @@ mod read_write;
 mod sig;
 mod slits_for_lira;
 mod tests;
+
 use crate::read_write::{read_file, read_file_raw, write_by_file_raw, write_recognize_sig};
+use std::path::Path;
 
 fn main() {
-    /*let input = Path::new(r"2205 корпус Б2.chg");
+    let input = Path::new(r"test_cases/Угольный_2этап_27.chg");
     let building_s = read_file_raw(input);
     let building = read_file(input);
     write_by_file_raw(&building_s);
     write_recognize_sig();
-    println!("{}", &building);*/
+    println!("{}", &building);
 
-    slits_for_lira::write_slits_for_lira();
+    //slits_for_lira::write_slits_for_lira();
 }

@@ -16,21 +16,44 @@ mod complex_tests {
     #[test]
     fn complex_read_write_raw() {
         let test_path = Path::new("test_cases");
-        for entry in test_path.read_dir().expect("read_dir call failed") {
-            if let Ok(entry) = entry {
-                let input = entry.path();
-                let display = input.display();
-                eprintln!("{:?}", input.file_name().expect("no file"));
-                let mut file = match File::open(&input) {
-                    Err(why) => panic!("couldn't open {}: {}", display, why),
-                    Ok(file) => file,
-                };
-                let mut original_in: Vec<u8> = vec![];
-                if let Err(why) = file.read_to_end(&mut original_in) {
-                    panic!("couldn't read {}: {}", display, why)
-                };
-                assert_eq!(original_in, write_test(&read_file_raw(&input)));
-            }
+        for entry in test_path
+            .read_dir()
+            .expect("read_dir call failed")
+            .flatten()
+        {
+            let input = entry.path();
+            let display = input.display();
+            let mut file = match File::open(&input) {
+                Err(why) => panic!("couldn't open {}: {}", display, why),
+                Ok(file) => file,
+            };
+            let mut original_in: Vec<u8> = vec![];
+            if let Err(why) = file.read_to_end(&mut original_in) {
+                panic!("couldn't read {}: {}", display, why)
+            };
+            assert_eq!(original_in, write_test(&read_file_raw(&input)));
+        }
+    }
+
+    #[test]
+    fn complex_read_write() {
+        let test_path = Path::new("test_cases");
+        for entry in test_path
+            .read_dir()
+            .expect("read_dir call failed")
+            .flatten()
+        {
+            let input = entry.path();
+            let display = input.display();
+            let mut file = match File::open(&input) {
+                Err(why) => panic!("couldn't open {}: {}", display, why),
+                Ok(file) => file,
+            };
+            let mut original_in: Vec<u8> = vec![];
+            if let Err(why) = file.read_to_end(&mut original_in) {
+                panic!("couldn't read {}: {}", display, why)
+            };
+            assert_eq!(original_in, write_test(&read_file_raw(&input)));
         }
     }
 }
@@ -41,7 +64,7 @@ pub mod rab_e_sig_test {
         use std::io::Read;
         let path = std::path::Path::new(path_str);
         let display = path.display();
-        let mut file = match std::fs::File::open(&path) {
+        let mut file = match std::fs::File::open(path) {
             Err(why) => panic!("couldn't open {}: {}", display, why),
             Ok(file) => file,
         };
